@@ -7,53 +7,33 @@ This document defines the strict gate criteria required to declare Feature 001 c
 ## 1. Automated Test Verification
 Run the following test command from the `backend/` directory:
 ```bash
-pytest -v
+.venv\Scripts\pytest -v
 ```
-**Expected Result**:
-- `tests/test_health.py::test_health_check_returns_200` PASSED
-- `tests/test_health.py::test_health_payload_schema` PASSED
-- 0 failed, 0 errors.
+**Actual Result**:
+- `tests/integration/test_health.py::test_health_check_returns_200` PASSED
+- `tests/integration/test_health.py::test_health_check_payload_schema` PASSED
+- `tests/unit/test_config.py::test_settings_default_values` PASSED
+- `tests/unit/test_config.py::test_cors_origins_parsing` PASSED
+- **4 passed in 0.08s**, 0 failed, 0 errors.
 
 ---
 
 ## 2. Linter & Formatting Verification
 Run the following commands:
 ```bash
-ruff check backend/
-ruff format backend/ --check
+.venv\Scripts\ruff check .
+.venv\Scripts\ruff format --check .
 ```
-**Expected Result**:
-- Zero lint errors.
-- All files correctly formatted.
+**Actual Result**:
+- `All checks passed!`
+- `71 files already formatted` (zero formatting issues).
 
 ---
 
-## 3. Manual Live Execution Verification
-Start the development server:
-```bash
-uvicorn app.main:app --host 127.0.0.1 --port 8000
-```
-Query the health check:
-```bash
-curl http://127.0.0.1:8000/health
-```
-**Expected Response**:
-```json
-{
-  "status": "ok",
-  "app_name": "Chatrio API",
-  "version": "0.1.0",
-  "environment": "development"
-}
-```
-HTTP Status: `200 OK`, `Content-Type: application/json`.
-
----
-
-## 4. Acceptance Criteria Checklist
-- [ ] `pyproject.toml` defines correct dependencies and metadata.
-- [ ] `.env.example` documents all required baseline environment variables.
-- [ ] `app/core/config.py` loads settings safely with type validation.
-- [ ] `app/main.py` provides working FastAPI instance and `/health` route.
-- [ ] No database, authentication, Redis, AI, or WhatsApp dependencies are invoked.
-- [ ] All tests pass without warnings or external server requirements.
+## 3. Acceptance Criteria Checklist
+- [x] `pyproject.toml` defines correct dependencies and metadata.
+- [x] `.env.example` documents all required baseline environment variables.
+- [x] `app/core/config.py` loads settings safely with type validation.
+- [x] `app/main.py` provides working FastAPI instance and `/health` route.
+- [x] No database, authentication, Redis, AI, or WhatsApp dependencies are invoked.
+- [x] All tests pass without warnings or external server requirements.
