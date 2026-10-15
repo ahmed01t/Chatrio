@@ -37,3 +37,5 @@ Run the following commands:
 - [x] `app/main.py` provides working FastAPI instance and `/health` route.
 - [x] No database, authentication, Redis, AI, or WhatsApp dependencies are invoked.
 - [x] All tests pass without warnings or external server requirements.
+
+understanded
