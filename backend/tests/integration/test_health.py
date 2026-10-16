@@ -1,3 +1,4 @@
+#test_health is used to test the health of the app and it will be called when the app is started for configuration fast api with settings and middleware and routes
 from fastapi.testclient import TestClient
 
 

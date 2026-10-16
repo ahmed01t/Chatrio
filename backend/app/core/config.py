@@ -1,8 +1,8 @@
 from functools import lru_cache
-
+from dotenv import load_dotenv
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
+load_dotenv()
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     def cors_origins(self) -> list[str]:
         return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",") if origin.strip()]
 
-
+# This line remember the result of function so python can reuse it again and again simply caching
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
