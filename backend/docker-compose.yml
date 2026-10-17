@@ -1,0 +1,78 @@
+# ==============================================================================
+# Chatrio — Local Development Infrastructure (Docker Compose)
+# ==============================================================================
+# WHAT IS THIS FILE?
+# Docker Compose is like an "orchestra conductor" for your computer.
+# Instead of manually downloading, installing, and configuring PostgreSQL and
+# Redis on your Windows laptop, Docker Compose reads this file and starts
+# both databases inside isolated, lightweight "containers" with a single command:
+#
+#   docker compose up -d
+#
+# ==============================================================================
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. PostgreSQL Database (with pgvector for AI Vector Search)
+  # ----------------------------------------------------------------------------
+  # We use the official 'pgvector/pgvector:pg16' image. This is standard PostgreSQL
+  # version 16, but with the 'pgvector' plugin already pre-installed.
+  # This lets us store regular tables (users, orders, products) AND AI vector
+  # embeddings (for RAG knowledge base search) in the exact same database.
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: chatrio-postgres
+    restart: unless-stopped
+    environment:
+      # Default credentials for local development
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: chatrio_db
+    ports:
+      # Port mapping: "Laptop Port : Container Port"
+      # This allows your Python backend on localhost:5432 to talk to PostgreSQL inside Docker.
+      - "5432:5432"
+    volumes:
+      # Persistent Volume:
+      # Without a volume, if you turn off Docker, all your customer and order data would vanish!
+      # This maps container database files to a safe storage area on your computer.
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # Docker periodically runs this command to check if PostgreSQL is ready to accept connections.
+      test: ["CMD-SHELL", "pg_isready -U postgres -d chatrio_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ----------------------------------------------------------------------------
+  # 2. Redis 7 (In-Memory Database for BullMQ Queues & Message Debouncing)
+  # ----------------------------------------------------------------------------
+  # Redis stores data in RAM memory. It is blazingly fast (sub-millisecond).
+  # We use it for:
+  # 1. Message Debounce: Buffering rapid WhatsApp messages before calling the AI.
+  # 2. BullMQ Queues: Managing background jobs (sending messages, transcribing audio).
+  # 3. Rate Limiting: Preventing spam attacks.
+  redis:
+    image: redis:7-alpine
+    container_name: chatrio-redis
+    restart: unless-stopped
+    ports:
+      # Allows your Python backend on localhost:6379 to connect to Redis.
+      - "6379:6379"
+    volumes:
+      # Persists queue and cache state across container restarts
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+# ==============================================================================
+# Persistent Named Volumes Definition
+# ==============================================================================
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local

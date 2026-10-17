@@ -10,8 +10,10 @@ class HealthResponse(BaseModel):
     app_name: str
     version: str
     environment: str
-#create a function and all settings from .env file is imported into this function and it will be called when the app is started for configuration fast api with settings and middleware and routes
-# create_app is used for creating app and it will be called when the app is started for configuration fast api with settings and middleware and routes
+
+
+# Factory function to instantiate the FastAPI application.
+# Loads settings from the environment, configures CORS middleware, and mounts API routes.
 def create_app(settings: Settings | None = None) -> FastAPI:
     current_settings = settings or get_settings()
 

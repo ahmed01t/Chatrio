@@ -2,7 +2,7 @@
 
 Each task is atomic, independent, and verifiable.
 
-- [ ] **Task 1: Local Container Infrastructure & Dependencies**
+- [x] **Task 1: Local Container Infrastructure & Dependencies**
   - Files: `backend/docker-compose.yml`, `backend/pyproject.toml`, `backend/.env.example`
   - Action: Configure PostgreSQL 16 (`pgvector/pgvector:pg16`) and Redis 7 in `docker-compose.yml`. Add `sqlalchemy`, `asyncpg`, `alembic`, `pwdlib[bcrypt]`, and `pyjwt` to `pyproject.toml`. Update `.env.example` with `DATABASE_URL` and `JWT_SECRET`.
   - Verification: `uv pip install -e ".[dev]"` installs new dependencies cleanly.

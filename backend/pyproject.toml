@@ -5,17 +5,35 @@ description = "Chatrio AI WhatsApp Order & Support Backend"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    # Core Web Framework
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.32.0",
+
+    # Environment & Settings Validation
     "pydantic>=2.10.0",
     "pydantic-settings>=2.7.0",
+
+    # Database: SQLAlchemy ORM (Async) & PostgreSQL Driver (asyncpg)
+    "sqlalchemy[asyncio]>=2.0.36",
+    "asyncpg>=0.30.0",
+
+    # Database Migrations: Version control for SQL tables
+    "alembic>=1.14.0",
+
+    # Security: Password Hashing (Bcrypt) & JWT Access Tokens
+    "pwdlib[bcrypt]>=0.2.0",
+    "pyjwt>=2.10.0",
 ]
 
 [project.optional-dependencies]
 dev = [
+    # Testing Tools
     "pytest>=8.3.0",
     "pytest-asyncio>=0.24.0",
     "httpx>=0.28.0",
+    "aiosqlite>=0.20.0",
+
+    # Code Quality: Linter & Formatter
     "ruff>=0.8.0",
 ]
 

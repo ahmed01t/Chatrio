@@ -12,6 +12,10 @@ def test_settings_default_values() -> None:
     assert settings.ENVIRONMENT == "development"
     assert settings.DEBUG is True
     assert settings.API_V1_PREFIX == "/api/v1"
+    assert "postgresql+asyncpg://" in settings.DATABASE_URL
+    assert "redis://" in settings.REDIS_URL
+    assert settings.JWT_ALGORITHM == "HS256"
+    assert settings.ACCESS_TOKEN_EXPIRE_MINUTES == 60
 
 
 def test_cors_origins_parsing() -> None:

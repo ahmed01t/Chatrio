@@ -1,4 +1,5 @@
-#test_health is used to test the health of the app and it will be called when the app is started for configuration fast api with settings and middleware and routes
+# Integration tests verifying that the GET /health endpoint responds with HTTP 200
+# and matches the expected HealthResponse JSON schema.
 from fastapi.testclient import TestClient
 
 
