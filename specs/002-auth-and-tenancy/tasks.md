@@ -7,7 +7,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Configure PostgreSQL 16 (`pgvector/pgvector:pg16`) and Redis 7 in `docker-compose.yml`. Add `sqlalchemy`, `asyncpg`, `alembic`, `pwdlib[bcrypt]`, and `pyjwt` to `pyproject.toml`. Update `.env.example` with `DATABASE_URL` and `JWT_SECRET`.
   - Verification: `uv pip install -e ".[dev]"` installs new dependencies cleanly.
 
-- [ ] **Task 2: Database Engine & Base Models**
+- [x] **Task 2: Database Engine & Base Models**
   - Files: `backend/app/db/base.py`, `backend/app/db/session.py`
   - Action: Implement `Base(DeclarativeBase)` with UUID PK and UTC timestamp mixins. Implement async engine and session factory with connection pooling.
   - Verification: Unit test verifying async session generation.
