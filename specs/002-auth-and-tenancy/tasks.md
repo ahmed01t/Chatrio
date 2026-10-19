@@ -12,7 +12,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Implement `Base(DeclarativeBase)` with UUID PK and UTC timestamp mixins. Implement async engine and session factory with connection pooling.
   - Verification: Unit test verifying async session generation.
 
-- [ ] **Task 3: Organization & User ORM Models**
+- [x] **Task 3: Organization & User ORM Models**
   - Files: `backend/app/modules/organizations/models.py`, `backend/app/modules/auth/models.py`, `backend/app/db/models.py`
   - Action: Define `Organization`, `User`, and `OrganizationMember` models with foreign keys, indexes, and unique constraints. Re-export in `app/db/models.py`.
   - Verification: Models import cleanly and SQLAlchemy metadata registers all 3 tables.
