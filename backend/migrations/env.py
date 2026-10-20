@@ -34,7 +34,7 @@ config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 # Re-exported from app.db.models (contains organizations, users, organization_members)
 target_metadata = Base.metadata
 
-
+#Offline migration
 def run_migrations_offline() -> None:
     """
     Run migrations in 'offline' mode.
