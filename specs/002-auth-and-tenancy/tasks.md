@@ -17,7 +17,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Define `Organization`, `User`, and `OrganizationMember` models with foreign keys, indexes, and unique constraints. Re-export in `app/db/models.py`.
   - Verification: Models import cleanly and SQLAlchemy metadata registers all 3 tables.
 
-- [ ] **Task 4: Alembic Migration Environment**
+- [x] **Task 4: Alembic Migration Environment**
   - Files: `backend/alembic.ini`, `backend/migrations/env.py`
   - Action: Configure Alembic to use async SQLAlchemy engine and bind to `Base.metadata`. Generate initial migration (`001_initial_tenancy_and_auth`).
   - Verification: Migration file is generated with up/down revisions.
