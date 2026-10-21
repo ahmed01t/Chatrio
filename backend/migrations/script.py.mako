@@ -1,3 +1,7 @@
+# This is the template for the migration files.
+# It is used to generate new migration files.
+# 
+
 """${message}
 
 Revision ID: ${up_revision}

@@ -23,7 +23,8 @@ depends_on: str | Sequence[str] | None = None
 def upgrade() -> None:
     # --------------------------------------------------------------------------
     # 1. Organizations Table
-    # --------------------------------------------------------------------------
+    # -------------------------------------------------------------------------- 
+    # op is an object that provides access to Alembic's migration API. we define the schema of the table 'organizations' and store it in the database.
     op.create_table(
         "organizations",
         sa.Column("id", sa.UUID(), nullable=False),
@@ -43,6 +44,7 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id"),
     )
+    # op.create_index is used to create an index on the specified column(s). 
     op.create_index(op.f("ix_organizations_id"), "organizations", ["id"], unique=False)
     op.create_index(op.f("ix_organizations_slug"), "organizations", ["slug"], unique=True)
 
