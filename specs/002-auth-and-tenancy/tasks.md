@@ -22,7 +22,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Configure Alembic to use async SQLAlchemy engine and bind to `Base.metadata`. Generate initial migration (`001_initial_tenancy_and_auth`).
   - Verification: Migration file is generated with up/down revisions.
 
-- [ ] **Task 5: Cryptography & JWT Security Helpers**
+- [x] **Task 5: Cryptography & JWT Security Helpers**
   - File: `backend/app/core/security.py`
   - Action: Implement `hash_password(password: str) -> str`, `verify_password(plain: str, hashed: str) -> bool`, and `create_access_token(data: dict, expires_delta: timedelta | None) -> str`.
   - Verification: Unit tests verifying hash verification and JWT token encoding/decoding.
