@@ -135,7 +135,7 @@ def downgrade() -> None:
         op.f("ix_organization_members_organization_id"),
         table_name="organization_members",
     )
-    op.drop_index(op.f("ix_organization_members_id"), table_name="organization_members")
+    op.drop_index(op.f("ix_organization_members_i=d"), table_name="organization_members")
     op.drop_table("organization_members")
 
     op.drop_index(op.f("ix_users_email"), table_name="users")
