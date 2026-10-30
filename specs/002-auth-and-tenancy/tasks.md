@@ -27,7 +27,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Implement `hash_password(password: str) -> str`, `verify_password(plain: str, hashed: str) -> bool`, and `create_access_token(data: dict, expires_delta: timedelta | None) -> str`.
   - Verification: Unit tests verifying hash verification and JWT token encoding/decoding.
 
-- [ ] **Task 6: Authentication Schemas & Service Logic**
+- [x] **Task 6: Authentication Schemas & Service Logic**
   - Files: `backend/app/modules/auth/schemas.py`, `backend/app/modules/auth/service.py`
   - Action: Define Pydantic request/response schemas. Implement `register_merchant` (atomic transaction creating Organization + User + Member) and `authenticate_user`.
   - Verification: Unit tests verifying registration and login logic with mock/test database.
