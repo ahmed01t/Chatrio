@@ -17,7 +17,7 @@ from typing import Any
 
 class AppException(Exception):
     """Base exception for all application errors."""
-
+# def init is 
     def __init__(
         self,
         status_code: int,

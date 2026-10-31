@@ -123,7 +123,7 @@ class AuthService:
         access_token = create_access_token(data=token_payload)
 
         return user, organization, access_token
-
+# this staic method 
     @staticmethod
     async def authenticate_user(
         session: AsyncSession,
