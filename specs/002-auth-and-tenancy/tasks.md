@@ -32,7 +32,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Define Pydantic request/response schemas. Implement `register_merchant` (atomic transaction creating Organization + User + Member) and `authenticate_user`.
   - Verification: Unit tests verifying registration and login logic with mock/test database.
 
-- [ ] **Task 7: FastAPI Authentication Routes & Dependencies**
+- [x] **Task 7: FastAPI Authentication Routes & Dependencies**
   - Files: `backend/app/modules/auth/router.py`, `backend/app/api/dependencies.py`, `backend/app/api/router.py`, `backend/app/main.py`
   - Action: Implement `POST /api/v1/auth/register`, `POST /api/v1/auth/login`, and `GET /api/v1/auth/me`. Implement `get_current_user` and `get_current_tenant` dependency guards. Mount router under `/api/v1`.
   - Verification: End-to-end integration tests covering registration, login, and `/me` authorization.
