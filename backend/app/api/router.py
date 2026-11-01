@@ -12,4 +12,3 @@ api_v1_router = APIRouter()
 
 # Mount module routers
 api_v1_router.include_router(auth_router)
-

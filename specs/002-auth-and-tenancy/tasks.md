@@ -37,7 +37,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Implement `POST /api/v1/auth/register`, `POST /api/v1/auth/login`, and `GET /api/v1/auth/me`. Implement `get_current_user` and `get_current_tenant` dependency guards. Mount router under `/api/v1`.
   - Verification: End-to-end integration tests covering registration, login, and `/me` authorization.
 
-- [ ] **Task 8: Tenant Boundary Isolation Verification**
+- [x] **Task 8: Tenant Boundary Isolation Verification**
   - Files: `backend/tests/integration/test_auth.py`, `backend/tests/integration/test_tenant_isolation.py`
   - Action: Test edge cases: duplicate email registration, invalid login passwords, expired JWT tokens, and attempting cross-tenant access.
   - Verification: All automated tests pass with 100% green status.
