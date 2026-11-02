@@ -1,7 +1,8 @@
 # Implementation Plan: 003-products-and-inventory
 
 ## 1. Summary
-This plan details the technical steps to implement the product catalog, category taxonomy, real-time inventory management with row-level locks, and semantic search vector storage via PostgreSQL `pgvector`.
+This plan details the technical steps to implement the product catalog, category taxonomy, real-time inventory management with row-level locks, and semantic search vector storage via PostgreSQL `pgvector` .
+
 
 ---
 
