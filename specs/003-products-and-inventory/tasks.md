@@ -2,7 +2,7 @@
 
 Each task is atomic, independent, and verifiable.
 
-- [ ] **Task 1: Product, Category & Inventory ORM Models**
+- [x] **Task 1: Product, Category & Inventory ORM Models**
   - Files: `backend/app/modules/products/models.py`, `backend/app/db/models.py`
   - Action: Define `Product`, `Category`, `ProductCategory`, and `InventoryLog` models with foreign keys, indexes, check constraints (`stock_quantity >= 0`), and `pgvector` column. Re-export in `app/db/models.py`.
   - Verification: Models import cleanly and SQLAlchemy metadata registers all 4 new tables.

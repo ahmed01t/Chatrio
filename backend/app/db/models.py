@@ -11,11 +11,23 @@ Importing this module ensures that:
 from app.db.base import Base
 from app.modules.auth.models import User
 from app.modules.organizations.models import MemberRole, Organization, OrganizationMember
+from app.modules.products.models import (
+    Category,
+    InventoryChangeReason,
+    InventoryLog,
+    Product,
+    ProductCategory,
+)
 
 __all__ = [
     "Base",
+    "Category",
+    "InventoryChangeReason",
+    "InventoryLog",
     "MemberRole",
     "Organization",
     "OrganizationMember",
+    "Product",
+    "ProductCategory",
     "User",
 ]
