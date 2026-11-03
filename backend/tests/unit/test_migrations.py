@@ -47,3 +47,23 @@ def test_initial_migration_structure() -> None:
     # Check upgrade and downgrade exist and are callable
     assert callable(migration_mod.upgrade)
     assert callable(migration_mod.downgrade)
+
+
+def test_products_migration_structure() -> None:
+    """Verify 002_products_and_inventory defines upgrade and downgrade."""
+    backend_dir = Path(__file__).resolve().parent.parent.parent
+    migration_file = backend_dir / "migrations" / "versions" / "002_products_and_inventory.py"
+    assert migration_file.exists(), "002_products_and_inventory.py must exist"
+
+    spec = importlib.util.spec_from_file_location("migration_002", str(migration_file))
+    assert spec is not None and spec.loader is not None
+    migration_mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(migration_mod)
+
+    # Check revision identifiers
+    assert migration_mod.revision == "002"
+    assert migration_mod.down_revision == "001"
+
+    # Check upgrade and downgrade exist and are callable
+    assert callable(migration_mod.upgrade)
+    assert callable(migration_mod.downgrade)

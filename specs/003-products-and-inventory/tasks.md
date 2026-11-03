@@ -7,7 +7,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Define `Product`, `Category`, `ProductCategory`, and `InventoryLog` models with foreign keys, indexes, check constraints (`stock_quantity >= 0`), and `pgvector` column. Re-export in `app/db/models.py`.
   - Verification: Models import cleanly and SQLAlchemy metadata registers all 4 new tables.
 
-- [ ] **Task 2: Alembic Database Migration for Products & pgvector**
+- [x] **Task 2: Alembic Database Migration for Products & pgvector**
   - Files: `backend/migrations/versions/002_products_and_inventory.py`
   - Action: Create migration script that enables `vector` extension and creates `categories`, `products`, `product_categories`, and `inventory_logs` tables with indexes.
   - Verification: Unit test verifies migration script structure and upgrade/downgrade callables.
