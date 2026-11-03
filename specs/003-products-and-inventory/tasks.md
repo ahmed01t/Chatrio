@@ -12,12 +12,12 @@ Each task is atomic, independent, and verifiable.
   - Action: Create migration script that enables `vector` extension and creates `categories`, `products`, `product_categories`, and `inventory_logs` tables with indexes.
   - Verification: Unit test verifies migration script structure and upgrade/downgrade callables.
 
-- [ ] **Task 3: Product & Inventory Pydantic Validation Schemas**
+- [x] **Task 3: Product & Inventory Pydantic Validation Schemas**
   - File: `backend/app/modules/products/schemas.py`
   - Action: Define schemas for creating, updating, and reading products, categories, inventory logs, and vector search queries.
   - Verification: Schema validation unit tests covering valid input, negative stock prevention, and price formatting.
 
-- [ ] **Task 4: Product & Inventory Business Service Logic**
+- [x] **Task 4: Product & Inventory Business Service Logic**
   - File: `backend/app/modules/products/service.py`
   - Action: Implement `ProductService` (CRUD, SKU uniqueness per tenant, vector search) and `InventoryService` (atomic stock adjustment with `with_for_update()` row-level locks and audit logging).
   - Verification: Unit tests verifying stock adjustment, race-condition safety, and SKU conflict detection.
