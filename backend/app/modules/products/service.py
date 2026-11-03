@@ -40,7 +40,7 @@ from app.modules.products.schemas import (
 
 class CategoryService:
     """Service managing product category taxonomy per tenant."""
-
+#static method does not depends on the class it only depends on the objects
     @staticmethod
     async def create_category(
         session: AsyncSession,
@@ -50,7 +50,7 @@ class CategoryService:
         """
         Creates a new product category bound to the organization.
         Enforces unique category slug within the tenant.
-        """
+        """    #slugify convert string into slug format 
         slug = request.slug or slugify(request.name)
 
         # Check if slug exists in this tenant
@@ -87,10 +87,10 @@ class CategoryService:
             slug=slug,
             description=request.description.strip() if request.description else None,
             parent_id=request.parent_id,
-        )
+        ) #session = db connection adding new category to the db
         session.add(category)
         await session.flush()
-        return category
+        return category #returning the created category
 
     @staticmethod
     async def list_categories(
