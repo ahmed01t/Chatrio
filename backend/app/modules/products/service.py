@@ -183,6 +183,7 @@ class CategoryService:
         """Deletes a category belonging to the organization."""
         category = await CategoryService.get_category(session, organization_id, category_id)
         await session.delete(category)
+        # session.flush() confirms the deletion to the database
         await session.flush()
 
 
@@ -289,15 +290,7 @@ class ProductService:
         return product
 
     @staticmethod
-    async def list_products(
-        session: AsyncSession,
-        organization_id: uuid.UUID,
-        page: int = 1,
-        page_size: int = 20,
-        category_id: uuid.UUID | None = None,
-        is_active: bool | None = None,
-        search: str | None = None,
-    ) -> tuple[list[Product], int]:
+    async def list_products(session: AsyncSession,organization_id: uuid.UUID,page: int = 1,page_size: int = 20,category_id: uuid.UUID | None = None,is_active: bool | None = None,search: str | None = None) -> tuple[list[Product], int]:
         """
         Lists tenant products with pagination, category filter, active filter, and search.
         Returns a tuple of (items, total_count).
@@ -465,7 +458,7 @@ class InventoryService:
                 Product.organization_id == organization_id,
                 Product.id == product_id,
             )
-            .with_for_update()
+            .with_for_update() # with for 
         )
         product = (await session.execute(lock_query)).scalar_one_or_none()
         if product is None:
@@ -509,6 +502,7 @@ class InventoryService:
         return full_product, log_entry
 
     @staticmethod
+    #using static methods because we dont need session or any instance data  static methods are not called on objects but on classes
     async def get_inventory_logs(
         session: AsyncSession,
         organization_id: uuid.UUID,
