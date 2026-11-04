@@ -458,7 +458,7 @@ class InventoryService:
                 Product.organization_id == organization_id,
                 Product.id == product_id,
             )
-            .with_for_update() # with for 
+            .with_for_update() # with for update means select the row and lock it so no other transaction can access it
         )
         product = (await session.execute(lock_query)).scalar_one_or_none()
         if product is None:
