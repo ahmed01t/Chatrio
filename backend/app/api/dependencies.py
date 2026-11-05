@@ -5,10 +5,11 @@ This module provides reusable dependencies:
 1. `get_db`: Yields an active asynchronous database session.
 2. `get_current_user`: Extracts and validates JWT bearer token, resolving the User.
 3. `get_current_tenant`: Enforces tenant boundary isolation and verifies user membership.
+4. `require_roles`: Guard ensuring user has one of the allowed MemberRoles.
 """
 
 import uuid
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator, Callable
 from dataclasses import dataclass
 from typing import Annotated
 
@@ -23,7 +24,7 @@ from app.core.exceptions import ForbiddenException, UnauthorizedException
 from app.core.security import decode_access_token
 from app.db.session import get_async_session
 from app.modules.auth.models import User
-from app.modules.organizations.models import Organization, OrganizationMember
+from app.modules.organizations.models import MemberRole, Organization, OrganizationMember
 
 settings = get_settings()
 
@@ -174,3 +175,31 @@ async def get_current_tenant(
 
     member, organization = result
     return TenantContext(organization=organization, member=member, user=user)
+
+
+CurrentTenant = Annotated[TenantContext, Depends(get_current_tenant)]
+
+
+def require_roles(
+    allowed_roles: list[MemberRole],
+) -> Callable[[TenantContext], TenantContext]:
+    """
+    Factory creating a role-based access control dependency guard.
+    Ensures the user holds one of the specified roles within the active tenant.
+    """
+
+    def role_checker(
+        tenant_context: CurrentTenant,
+    ) -> TenantContext:
+        if tenant_context.member.role not in allowed_roles:
+            raise ForbiddenException(
+                code="INSUFFICIENT_PERMISSIONS",
+                message=(
+                    f"Action requires one of the following roles: "
+                    f"{[r.value for r in allowed_roles]}. "
+                    f"Your role is {tenant_context.member.role.value}."
+                ),
+            )
+        return tenant_context
+
+    return role_checker

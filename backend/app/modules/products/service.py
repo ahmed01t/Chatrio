@@ -40,7 +40,8 @@ from app.modules.products.schemas import (
 
 class CategoryService:
     """Service managing product category taxonomy per tenant."""
-#static method does not depends on the class it only depends on the objects
+
+    # static method does not depends on the class it only depends on the objects
     @staticmethod
     async def create_category(
         session: AsyncSession,
@@ -50,7 +51,7 @@ class CategoryService:
         """
         Creates a new product category bound to the organization.
         Enforces unique category slug within the tenant.
-        """    #slugify convert string into slug format 
+        """  # slugify convert string into slug format
         slug = request.slug or slugify(request.name)
 
         # Check if slug exists in this tenant
@@ -87,10 +88,11 @@ class CategoryService:
             slug=slug,
             description=request.description.strip() if request.description else None,
             parent_id=request.parent_id,
-        ) #session = db connection adding new category to the db
+        )  # session = db connection adding new category to the db
         session.add(category)
         await session.flush()
-        return category #returning the created category
+        await session.refresh(category)
+        return category  # returning the created category
 
     @staticmethod
     async def list_categories(
@@ -172,6 +174,7 @@ class CategoryService:
             category.parent_id = request.parent_id
 
         await session.flush()
+        await session.refresh(category)
         return category
 
     @staticmethod
@@ -290,7 +293,15 @@ class ProductService:
         return product
 
     @staticmethod
-    async def list_products(session: AsyncSession,organization_id: uuid.UUID,page: int = 1,page_size: int = 20,category_id: uuid.UUID | None = None,is_active: bool | None = None,search: str | None = None) -> tuple[list[Product], int]:
+    async def list_products(
+        session: AsyncSession,
+        organization_id: uuid.UUID,
+        page: int = 1,
+        page_size: int = 20,
+        category_id: uuid.UUID | None = None,
+        is_active: bool | None = None,
+        search: str | None = None,
+    ) -> tuple[list[Product], int]:
         """
         Lists tenant products with pagination, category filter, active filter, and search.
         Returns a tuple of (items, total_count).
@@ -392,7 +403,7 @@ class ProductService:
         await session.flush()
 
     @staticmethod
-    #the search_semantic function is used to search for products using vector similarity
+    # the search_semantic function is used to search for products using vector similarity
     async def search_semantic(
         session: AsyncSession,
         organization_id: uuid.UUID,
@@ -459,7 +470,8 @@ class InventoryService:
                 Product.organization_id == organization_id,
                 Product.id == product_id,
             )
-            .with_for_update() # with for update means select the row and lock it so no other transaction can access it
+            # with_for_update locks the row so no concurrent transaction can modify it
+            .with_for_update()
         )
         product = (await session.execute(lock_query)).scalar_one_or_none()
         if product is None:
@@ -503,7 +515,7 @@ class InventoryService:
         return full_product, log_entry
 
     @staticmethod
-    #using static methods because we dont need session or any instance data  static methods are not called on objects but on classes
+    # Static method: stateless utility function called directly on the class
     async def get_inventory_logs(
         session: AsyncSession,
         organization_id: uuid.UUID,
@@ -524,4 +536,3 @@ class InventoryService:
             .limit(limit)
         )
         return list((await session.execute(query)).scalars().all())
-

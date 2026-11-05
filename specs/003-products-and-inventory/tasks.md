@@ -22,7 +22,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Implement `ProductService` (CRUD, SKU uniqueness per tenant, vector search) and `InventoryService` (atomic stock adjustment with `with_for_update()` row-level locks and audit logging).
   - Verification: Unit tests verifying stock adjustment, race-condition safety, and SKU conflict detection.
 
-- [ ] **Task 5: FastAPI Product & Inventory REST Endpoints**
+- [x] **Task 5: FastAPI Product & Inventory REST Endpoints**
   - Files: `backend/app/modules/products/router.py`, `backend/app/api/router.py`
   - Action: Implement routes for `/api/v1/products`, `/api/v1/categories`, and `/api/v1/products/{id}/inventory`. Mount under master API router.
   - Verification: Integration tests testing endpoint authentication, role restrictions, and inventory adjustments.
