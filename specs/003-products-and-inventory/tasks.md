@@ -27,7 +27,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Implement routes for `/api/v1/products`, `/api/v1/categories`, and `/api/v1/products/{id}/inventory`. Mount under master API router.
   - Verification: Integration tests testing endpoint authentication, role restrictions, and inventory adjustments.
 
-- [ ] **Task 6: Multi-Tenant Product & Inventory Isolation Verification**
+- [x] **Task 6: Multi-Tenant Product & Inventory Isolation Verification**
   - File: `backend/tests/integration/test_product_isolation.py`
   - Action: Verify that Tenant A can never query, modify, or adjust stock for Tenant B's products. Test concurrent stock updates.
   - Verification: 100% green test suite across all unit and integration tests.

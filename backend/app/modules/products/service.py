@@ -532,7 +532,7 @@ class InventoryService:
                 InventoryLog.organization_id == organization_id,
                 InventoryLog.product_id == product_id,
             )
-            .order_by(InventoryLog.created_at.desc())
+            .order_by(InventoryLog.created_at.desc(), InventoryLog.id.desc())
             .limit(limit)
         )
         return list((await session.execute(query)).scalars().all())
