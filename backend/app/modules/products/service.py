@@ -392,6 +392,7 @@ class ProductService:
         await session.flush()
 
     @staticmethod
+    #the search_semantic function is used to search for products using vector similarity
     async def search_semantic(
         session: AsyncSession,
         organization_id: uuid.UUID,
