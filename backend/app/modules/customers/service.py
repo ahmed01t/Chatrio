@@ -63,7 +63,7 @@ class CustomerService:
             is_blocked=False,
         )
         session.add(customer)
-        #session.flush() is used to synchronize the changes to the database and return the generated id
+        # session.flush() synchronizes changes to the DB and returns generated IDs
         await session.flush()
         await session.refresh(customer)
         return customer, True
@@ -100,7 +100,8 @@ class CustomerService:
         )
         session.add(customer)
         await session.flush()
-        await session.refresh(customer) #why session.refresh because flush will only update the database but not the python object
+        # session.refresh updates Python object with DB-generated attributes
+        await session.refresh(customer)
         return customer
 
     @staticmethod
@@ -191,4 +192,3 @@ class CustomerService:
         items = (await session.execute(items_query)).scalars().all()
 
         return items, total
-

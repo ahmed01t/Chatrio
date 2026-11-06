@@ -22,7 +22,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Implement `CustomerService` (get/create by phone, normalize E.164) and `ConversationService` + `MessageService` (session creation, message appending, idempotency check on `whatsapp_message_id`, human takeover toggle).
   - Verification: Unit tests verifying get-or-create, takeover state changes, and duplicate message prevention.
 
-- [ ] **Task 5: FastAPI Customer & Conversation REST Endpoints**
+- [x] **Task 5: FastAPI Customer & Conversation REST Endpoints**
   - Files: `backend/app/modules/customers/router.py`, `backend/app/modules/conversations/router.py`, `backend/app/api/router.py`
   - Action: Implement routes for `/api/v1/customers`, `/api/v1/conversations`, `/api/v1/conversations/{id}/messages`, and `/api/v1/conversations/{id}/takeover`. Mount under master API router.
   - Verification: Integration tests testing endpoint authentication, role restrictions, message history, and takeover toggling.

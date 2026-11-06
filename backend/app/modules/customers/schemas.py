@@ -86,7 +86,7 @@ class CustomerRead(BaseModel):
     phone_number: str
     name: str | None
     email: str | None
-    metadata: dict[str, Any] | None = Field(default=None, alias="metadata_")
+    metadata: dict[str, Any] | None = Field(default=None, validation_alias="metadata_")
     is_blocked: bool
     created_at: datetime
     updated_at: datetime

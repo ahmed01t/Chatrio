@@ -83,7 +83,8 @@ class ConversationService:
             session, organization_id, conversation.id
         ), True
 
-    @staticmethod # why static method because no dependency on state, only input arguments are used 
+    # Static method because there is no dependency on state, only input arguments
+    @staticmethod
     async def create_conversation(
         session: AsyncSession,
         organization_id: uuid.UUID,
