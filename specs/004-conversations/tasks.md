@@ -7,7 +7,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Define `Customer`, `Conversation`, and `Message` models with foreign keys, indexes, unique constraints (`(organization_id, phone_number)`), and enums. Re-export in `app/db/models.py`.
   - Verification: Models import cleanly and SQLAlchemy metadata registers all 3 new tables.
 
-- [ ] **Task 2: Alembic Database Migration for Conversations & Customers**
+- [x] **Task 2: Alembic Database Migration for Conversations & Customers**
   - File: `backend/migrations/versions/003_conversations_and_customers.py`
   - Action: Create migration script creating `customers`, `conversations`, and `messages` tables with indexes and foreign keys.
   - Verification: Unit test verifies migration script structure and upgrade/downgrade callables.
