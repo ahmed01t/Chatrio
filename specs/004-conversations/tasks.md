@@ -12,7 +12,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Create migration script creating `customers`, `conversations`, and `messages` tables with indexes and foreign keys.
   - Verification: Unit test verifies migration script structure and upgrade/downgrade callables.
 
-- [ ] **Task 3: Customer & Conversation Pydantic Validation Schemas**
+- [x] **Task 3: Customer & Conversation Pydantic Validation Schemas**
   - Files: `backend/app/modules/customers/schemas.py`, `backend/app/modules/conversations/schemas.py`
   - Action: Define schemas for creating, updating, and reading customers, conversations, messages, and takeover toggles.
   - Verification: Schema validation unit tests covering valid input, phone normalization formatting, and pagination limits.
