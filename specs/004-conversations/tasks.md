@@ -17,7 +17,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Define schemas for creating, updating, and reading customers, conversations, messages, and takeover toggles.
   - Verification: Schema validation unit tests covering valid input, phone normalization formatting, and pagination limits.
 
-- [ ] **Task 4: Customer & Conversation Business Service Logic**
+- [x] **Task 4: Customer & Conversation Business Service Logic**
   - Files: `backend/app/modules/customers/service.py`, `backend/app/modules/conversations/service.py`
   - Action: Implement `CustomerService` (get/create by phone, normalize E.164) and `ConversationService` + `MessageService` (session creation, message appending, idempotency check on `whatsapp_message_id`, human takeover toggle).
   - Verification: Unit tests verifying get-or-create, takeover state changes, and duplicate message prevention.
