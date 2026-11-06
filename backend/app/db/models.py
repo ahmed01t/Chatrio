@@ -10,6 +10,17 @@ Importing this module ensures that:
 
 from app.db.base import Base
 from app.modules.auth.models import User
+from app.modules.conversations.models import (
+    Conversation,
+    ConversationChannel,
+    ConversationStatus,
+    Message,
+    MessageContentType,
+    MessageDirection,
+    MessageSenderType,
+    MessageStatus,
+)
+from app.modules.customers.models import Customer
 from app.modules.organizations.models import MemberRole, Organization, OrganizationMember
 from app.modules.products.models import (
     Category,
@@ -22,9 +33,18 @@ from app.modules.products.models import (
 __all__ = [
     "Base",
     "Category",
+    "Conversation",
+    "ConversationChannel",
+    "ConversationStatus",
+    "Customer",
     "InventoryChangeReason",
     "InventoryLog",
     "MemberRole",
+    "Message",
+    "MessageContentType",
+    "MessageDirection",
+    "MessageSenderType",
+    "MessageStatus",
     "Organization",
     "OrganizationMember",
     "Product",

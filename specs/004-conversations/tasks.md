@@ -2,7 +2,7 @@
 
 Each task is atomic, independent, and verifiable.
 
-- [ ] **Task 1: Customer, Conversation & Message ORM Models**
+- [x] **Task 1: Customer, Conversation & Message ORM Models**
   - Files: `backend/app/modules/customers/models.py`, `backend/app/modules/conversations/models.py`, `backend/app/db/models.py`
   - Action: Define `Customer`, `Conversation`, and `Message` models with foreign keys, indexes, unique constraints (`(organization_id, phone_number)`), and enums. Re-export in `app/db/models.py`.
   - Verification: Models import cleanly and SQLAlchemy metadata registers all 3 new tables.
