@@ -27,7 +27,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Implement routes for `/api/v1/customers`, `/api/v1/conversations`, `/api/v1/conversations/{id}/messages`, and `/api/v1/conversations/{id}/takeover`. Mount under master API router.
   - Verification: Integration tests testing endpoint authentication, role restrictions, message history, and takeover toggling.
 
-- [ ] **Task 6: Multi-Tenant Conversation & Customer Isolation Verification**
+- [x] **Task 6: Multi-Tenant Conversation & Customer Isolation Verification**
   - File: `backend/tests/integration/test_conversation_isolation.py`
   - Action: Verify Tenant A cannot view, query, or send messages to Tenant B's conversations or customers. Verify identical phone numbers across different tenants.
   - Verification: 100% green test suite across all unit and integration tests.
