@@ -33,9 +33,7 @@ from app.modules.conversations.service import ConversationService, MessageServic
 router = APIRouter(prefix="/conversations", tags=["Conversations & Inbox"])
 
 
-# ==============================================================================
 # Conversation Lifecycle & Inbox Endpoints
-# ==============================================================================
 @router.post(
     "",
     response_model=ConversationRead,
