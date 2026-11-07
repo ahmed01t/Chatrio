@@ -1,6 +1,5 @@
 """
 Integration tests for Customer and Conversation REST Endpoints.
-
 Validates:
 1. Customer creation, listing, detail fetch, and updating.
 2. Conversation session initiation and inbox listing.
