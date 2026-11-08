@@ -27,7 +27,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Implement routes for `/api/v1/orders`, `/api/v1/orders/{id}`, `/api/v1/orders/{id}/status`, and `/api/v1/orders/{id}/cancel`. Mount under master API router.
   - Verification: Integration tests testing endpoint authentication, role restrictions, order placement, and cancellation.
 
-- [ ] **Task 6: Multi-Tenant Order Isolation Verification**
+- [x] **Task 6: Multi-Tenant Order Isolation Verification**
   - File: `backend/tests/integration/test_order_isolation.py`
   - Action: Verify Tenant A cannot view, query, modify, or cancel Tenant B's orders. Verify cross-tenant product injection is strictly rejected.
   - Verification: 100% green test suite across all unit and integration tests.
