@@ -242,7 +242,7 @@ class OrderService:
             order.metadata_ = request.metadata
 
         await session.flush()
-        return order
+        return await OrderService.get_order(session, organization_id, order_id)
 
     @staticmethod
     async def update_status(
@@ -284,7 +284,7 @@ class OrderService:
 
         order.status = target_status
         await session.flush()
-        return order
+        return await OrderService.get_order(session, organization_id, order_id)
 
     @staticmethod
     async def cancel_order(
@@ -328,4 +328,4 @@ class OrderService:
 
         order.status = OrderStatus.CANCELLED
         await session.flush()
-        return order
+        return await OrderService.get_order(session, organization_id, order_id)

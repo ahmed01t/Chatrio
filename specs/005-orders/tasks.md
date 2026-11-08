@@ -22,7 +22,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Implement `OrderService` (atomic order creation with row-level stock locks, historical price snapshotting, state machine transition validation, and automatic stock release on cancellation).
   - Verification: Unit tests verifying order creation, subtotal calculation, invalid state transition rejection, and cancellation stock release.
 
-- [ ] **Task 5: FastAPI Order REST Endpoints**
+- [x] **Task 5: FastAPI Order REST Endpoints**
   - Files: `backend/app/modules/orders/router.py`, `backend/app/api/router.py`
   - Action: Implement routes for `/api/v1/orders`, `/api/v1/orders/{id}`, `/api/v1/orders/{id}/status`, and `/api/v1/orders/{id}/cancel`. Mount under master API router.
   - Verification: Integration tests testing endpoint authentication, role restrictions, order placement, and cancellation.
