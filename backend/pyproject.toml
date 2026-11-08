@@ -21,6 +21,8 @@ dependencies = [
     "pyjwt>=2.10.0",
     "email-validator>=2.0.0",
     "pgvector>=0.3.6",
+    # Async Queue & Cache: Redis Driver
+    "redis>=5.2.0",
 ]
 
 [project.optional-dependencies]

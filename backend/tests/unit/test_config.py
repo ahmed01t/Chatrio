@@ -16,6 +16,13 @@ def test_settings_default_values() -> None:
     assert "redis://" in settings.REDIS_URL
     assert settings.JWT_ALGORITHM == "HS256"
     assert settings.ACCESS_TOKEN_EXPIRE_MINUTES == 60
+    # Meta WhatsApp settings
+    assert settings.META_API_VERSION == "v21.0"
+    assert settings.META_VERIFY_TOKEN == "chatrio-webhook-verify-token-dev"
+    assert settings.META_APP_SECRET == "dev-meta-app-secret-placeholder"
+    # Sliding window debounce settings
+    assert settings.WHATSAPP_DEBOUNCE_SECONDS == 2.5
+    assert settings.WHATSAPP_DEBOUNCE_MAX_WAIT_SECONDS == 8.0
 
 
 def test_cors_origins_parsing() -> None:

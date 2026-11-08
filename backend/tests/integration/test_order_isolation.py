@@ -231,4 +231,3 @@ async def test_cross_tenant_injection_prevention(async_client: AsyncClient) -> N
     # Verify Tenant B's product stock remained untouched: 30
     prod_b_check = await async_client.get(f"/api/v1/products/{prod_b_id}", headers=headers_b)
     assert prod_b_check.json()["stock_quantity"] == 30
-

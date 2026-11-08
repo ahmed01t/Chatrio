@@ -75,6 +75,42 @@ class Settings(BaseSettings):
         description="Access token expiration window in minutes",
     )
 
+    # --------------------------------------------------------------------------
+    # 5. Meta WhatsApp Cloud API & Webhooks
+    # --------------------------------------------------------------------------
+    META_APP_SECRET: str = Field(
+        default="dev-meta-app-secret-placeholder",
+        description="Meta App Secret used for HMAC-SHA256 signature verification",
+    )
+    META_VERIFY_TOKEN: str = Field(
+        default="chatrio-webhook-verify-token-dev",
+        description="Webhook challenge verification token configured in Meta App dashboard",
+    )
+    META_ACCESS_TOKEN: str = Field(
+        default="EAAG_dev_placeholder_access_token",
+        description="System user permanent access token for WhatsApp Cloud API",
+    )
+    META_PHONE_NUMBER_ID: str = Field(
+        default="100000000000000",
+        description="Default Meta WhatsApp Business Phone Number ID",
+    )
+    META_API_VERSION: str = Field(
+        default="v21.0",
+        description="Meta Graph API version",
+    )
+
+    # --------------------------------------------------------------------------
+    # 6. Messaging & Debounce Settings
+    # --------------------------------------------------------------------------
+    WHATSAPP_DEBOUNCE_SECONDS: float = Field(
+        default=2.5,
+        description="Sliding inactivity window in seconds to coalesce customer message bursts",
+    )
+    WHATSAPP_DEBOUNCE_MAX_WAIT_SECONDS: float = Field(
+        default=8.0,
+        description="Hard ceiling max wait time in seconds before flushing coalesced messages",
+    )
+
     @property
     def cors_origins(self) -> list[str]:
         """Converts the comma-separated ALLOWED_ORIGINS string into a clean Python list."""
