@@ -157,4 +157,3 @@ def test_order_read_serialization() -> None:
     )
     assert list_response.total == 1
     assert len(list_response.items) == 1
-

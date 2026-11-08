@@ -17,7 +17,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Define schemas for creating, updating, and reading orders and line items, plus status update payloads.
   - Verification: Schema validation unit tests covering valid input, positive quantities, and financial formatting.
 
-- [ ] **Task 4: Order & State Machine Business Service Logic**
+- [x] **Task 4: Order & State Machine Business Service Logic**
   - File: `backend/app/modules/orders/service.py`
   - Action: Implement `OrderService` (atomic order creation with row-level stock locks, historical price snapshotting, state machine transition validation, and automatic stock release on cancellation).
   - Verification: Unit tests verifying order creation, subtotal calculation, invalid state transition rejection, and cancellation stock release.
