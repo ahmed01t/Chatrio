@@ -12,7 +12,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Create migration script creating `orders` and `order_items` tables with indexes and foreign keys.
   - Verification: Unit test verifies migration script structure and upgrade/downgrade callables.
 
-- [ ] **Task 3: Order & OrderItem Pydantic Validation Schemas**
+- [x] **Task 3: Order & OrderItem Pydantic Validation Schemas**
   - File: `backend/app/modules/orders/schemas.py`
   - Action: Define schemas for creating, updating, and reading orders and line items, plus status update payloads.
   - Verification: Schema validation unit tests covering valid input, positive quantities, and financial formatting.
