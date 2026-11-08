@@ -87,3 +87,23 @@ def test_conversations_migration_structure() -> None:
     # Check upgrade and downgrade exist and are callable
     assert callable(migration_mod.upgrade)
     assert callable(migration_mod.downgrade)
+
+
+def test_orders_migration_structure() -> None:
+    """Verify 004_orders_and_order_items defines upgrade and downgrade."""
+    backend_dir = Path(__file__).resolve().parent.parent.parent
+    migration_file = backend_dir / "migrations" / "versions" / "004_orders_and_order_items.py"
+    assert migration_file.exists(), "004_orders_and_order_items.py must exist"
+
+    spec = importlib.util.spec_from_file_location("migration_004", str(migration_file))
+    assert spec is not None and spec.loader is not None
+    migration_mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(migration_mod)
+
+    # Check revision identifiers
+    assert migration_mod.revision == "004"
+    assert migration_mod.down_revision == "003"
+
+    # Check upgrade and downgrade exist and are callable
+    assert callable(migration_mod.upgrade)
+    assert callable(migration_mod.downgrade)

@@ -2,12 +2,12 @@
 
 Each task is atomic, independent, and verifiable.
 
-- [ ] **Task 1: Order & OrderItem ORM Models**
+- [x] **Task 1: Order & OrderItem ORM Models**
   - Files: `backend/app/modules/orders/models.py`, `backend/app/db/models.py`
   - Action: Define `Order` and `OrderItem` models with foreign keys, indexes, check constraints (`quantity > 0`), unique constraints (`(organization_id, order_number)`), and enums (`OrderStatus`, `PaymentStatus`). Re-export in `app/db/models.py`.
   - Verification: Models import cleanly and SQLAlchemy metadata registers all 2 new tables.
 
-- [ ] **Task 2: Alembic Database Migration for Orders & Items**
+- [x] **Task 2: Alembic Database Migration for Orders & Items**
   - File: `backend/migrations/versions/004_orders_and_order_items.py`
   - Action: Create migration script creating `orders` and `order_items` tables with indexes and foreign keys.
   - Verification: Unit test verifies migration script structure and upgrade/downgrade callables.

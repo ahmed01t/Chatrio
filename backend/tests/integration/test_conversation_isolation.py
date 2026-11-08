@@ -346,4 +346,3 @@ async def test_message_transcript_and_injection_isolation(
     msgs = verify_msgs.json()["items"]
     assert len(msgs) == 1
     assert msgs[0]["text_body"] == "Legitimate secret message"
-

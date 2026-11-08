@@ -21,6 +21,12 @@ from app.modules.conversations.models import (
     MessageStatus,
 )
 from app.modules.customers.models import Customer
+from app.modules.orders.models import (
+    Order,
+    OrderItem,
+    OrderStatus,
+    PaymentStatus,
+)
 from app.modules.organizations.models import MemberRole, Organization, OrganizationMember
 from app.modules.products.models import (
     Category,
@@ -45,8 +51,12 @@ __all__ = [
     "MessageDirection",
     "MessageSenderType",
     "MessageStatus",
+    "Order",
+    "OrderItem",
+    "OrderStatus",
     "Organization",
     "OrganizationMember",
+    "PaymentStatus",
     "Product",
     "ProductCategory",
     "User",
