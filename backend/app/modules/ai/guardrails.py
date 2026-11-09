@@ -43,7 +43,7 @@ INJECTION_PATTERNS: list[tuple[str, str]] = [
     ),
     # 4. Token & Boundary Injection
     (
-        r"(<\|im_start\|>|<\|im_end\|>|<\|system\|>|\[INST\]|\[/INST\]|###\s*System:)",
+        r"(<\|im_start\|>|<\|im_end\|>|<\|system\|>|\[INST\]|\[/INST\]|###\s*System:|</?(customer_input|system|prompt|assistant|human)[^>]*>)",
         "delimiter_injection",
     ),
     # 5. Pricing / Authority Hijacking

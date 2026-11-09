@@ -27,7 +27,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Connect inbound debounced messages to LangGraph agent execution and automatically dispatch replies via `WhatsAppClient`.
   - Verification: Integration tests simulating customer message arrival triggering AI reasoning and delivering outbound response.
 
-- [ ] **Task 6: DeepEval Automated Evaluation Suite**
+- [x] **Task 6: DeepEval Automated Evaluation Suite**
   - Files: `backend/tests/evals/test_agent_eval.py`
   - Action: Implement automated DeepEval tests for Hallucination, Answer Relevancy, Prompt Injection Resistance, and Commerce Policy Compliance.
   - Verification: DeepEval test run executing assertions and generating evaluation metrics report.
