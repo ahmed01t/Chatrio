@@ -27,7 +27,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Implement `POST /api/v1/webhooks/whatsapp` to verify HMAC, buffer payloads, and return `200 OK` in $< 50\text{ms}$. Implement `MessagingService.process_incoming_payload` to parse text/button messages and persist records via `CustomerService` and `MessageService` with WhatsApp ID deduplication.
   - Verification: Unit tests verifying webhook ingestion, message parsing, and conversation/customer linking.
 
-- [ ] **Task 6: Outbound WhatsApp Cloud API Client**
+- [x] **Task 6: Outbound WhatsApp Cloud API Client**
   - Files: `backend/app/infrastructure/whatsapp/client.py`, `backend/tests/unit/test_whatsapp_client.py`
   - Action: Implement asynchronous `WhatsAppClient` via `httpx.AsyncClient` supporting `send_text_message` and `send_interactive_buttons` against Meta Graph API endpoints.
   - Verification: Unit tests with mocked HTTP transport validating outbound payload structures, auth headers, and error handling.
