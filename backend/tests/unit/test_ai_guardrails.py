@@ -127,6 +127,7 @@ def test_build_system_prompt() -> None:
     prompt = build_system_prompt(merchant_name="Acme Fashion", currency="EUR")
     assert "Acme Fashion" in prompt
     assert "EUR" in prompt
+    assert "TRUTHFULNESS, ACCURACY & FAITHFULNESS" in prompt
     assert "DETERMINISTIC CATALOG & PRICING" in prompt
-    assert "INPUT ISOLATION & SECURITY" in prompt
+    assert "ABSOLUTE JAILBREAK IMMUNITY & SECURITY" in prompt
     assert "request_human_agent" in prompt
