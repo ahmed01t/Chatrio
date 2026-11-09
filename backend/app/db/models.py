@@ -21,6 +21,11 @@ from app.modules.conversations.models import (
     MessageStatus,
 )
 from app.modules.customers.models import Customer
+from app.modules.messaging.models import (
+    OutboxMessage,
+    OutboxMessageType,
+    OutboxStatus,
+)
 from app.modules.orders.models import (
     Order,
     OrderItem,
@@ -56,6 +61,9 @@ __all__ = [
     "OrderStatus",
     "Organization",
     "OrganizationMember",
+    "OutboxMessage",
+    "OutboxMessageType",
+    "OutboxStatus",
     "PaymentStatus",
     "Product",
     "ProductCategory",

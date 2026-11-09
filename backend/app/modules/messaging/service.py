@@ -34,6 +34,10 @@ from app.modules.conversations.models import (
 from app.modules.conversations.schemas import MessageCreate
 from app.modules.conversations.service import ConversationService, MessageService
 from app.modules.customers.service import CustomerService
+from app.modules.messaging.models import OutboxMessageType
+from app.modules.messaging.outbox_schemas import OutboxEnqueueRequest
+from app.modules.messaging.outbox_service import OutboxService
+from app.modules.messaging.outbox_worker import OutboxWorker
 from app.modules.messaging.schemas import (
     WhatsAppIncomingMessage,
     WhatsAppWebhookPayload,
@@ -251,7 +255,7 @@ class MessagingService:
         result = await graph.ainvoke(state_input)
         ai_reply = str(result.get("final_response", "")).strip()
 
-        # 6. Save outbound response to DB & send to WhatsApp
+        # 6. Transactional Outbox: Save outbound message and enqueue for reliable delivery
         if ai_reply:
             outbound_msg_create = MessageCreate(
                 sender_type=MessageSenderType.AI_AGENT,
@@ -266,20 +270,32 @@ class MessagingService:
                 request=outbound_msg_create,
             )
 
-            # Send via WhatsApp client
-            client = whatsapp_client or WhatsAppClient()
+            # Retrieve customer phone for outbox enqueue
             customer = await CustomerService.get_customer(
                 session=session,
                 organization_id=organization_id,
                 customer_id=customer_id,
             )
-            try:
-                await client.send_text_message(
-                    to=customer.phone_number,
-                    text=ai_reply,
-                )
-            except Exception:
-                # Delivery error logged without failing DB state
-                pass
+
+            # Atomically enqueue into transactional outbox
+            enqueue_req = OutboxEnqueueRequest(
+                organization_id=organization_id,
+                conversation_id=conversation_id,
+                recipient_phone=customer.phone_number,
+                message_type=OutboxMessageType.TEXT,
+                payload={"body": ai_reply},
+            )
+            outbox_record = await OutboxService.enqueue_outbox(
+                session=session,
+                request=enqueue_req,
+            )
+
+            # Attempt immediate delivery with exponential backoff fallback
+            client = whatsapp_client or WhatsAppClient()
+            await OutboxWorker.deliver_message(
+                session=session,
+                outbox_msg=outbox_record,
+                whatsapp_client=client,
+            )
 
         return ai_reply

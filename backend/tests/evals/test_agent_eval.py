@@ -24,6 +24,7 @@ from langchain_core.outputs import ChatGeneration, ChatResult
 
 from app.modules.ai.graph import build_agent_graph
 
+
 # Deterministic mock model for evaluation tests
 class MockEvalChatModel(BaseChatModel):
     """Deterministic mock model for evaluation tests."""

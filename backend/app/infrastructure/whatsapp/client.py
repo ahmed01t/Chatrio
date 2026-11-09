@@ -230,3 +230,33 @@ class WhatsAppClient:
             "interactive": interactive_obj,
         }
         return await self._send_request(payload, phone_number_id=phone_number_id)
+
+    async def send_template(
+        self,
+        to: str,
+        template_name: str,
+        language_code: str = "en_US",
+        components: list[dict[str, Any]] | None = None,
+        phone_number_id: str | None = None,
+    ) -> OutboundMessageResponse:
+        """
+        Sends an approved WhatsApp message template (HSM).
+
+        Used primarily when communicating outside the 24-hour customer care window.
+        """
+        normalized_to = self.normalize_phone_number(to)
+        template_obj: dict[str, Any] = {
+            "name": template_name,
+            "language": {"code": language_code},
+        }
+        if components:
+            template_obj["components"] = components
+
+        payload: dict[str, Any] = {
+            "messaging_product": "whatsapp",
+            "recipient_type": "individual",
+            "to": normalized_to,
+            "type": "template",
+            "template": template_obj,
+        }
+        return await self._send_request(payload, phone_number_id=phone_number_id)
