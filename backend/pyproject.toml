@@ -23,9 +23,9 @@ dependencies = [
     "pgvector>=0.3.6",
     # Async Queue & Cache: Redis Driver
     "redis>=5.2.0",
-    "langgraph",
-    "langchain-core",
-    "langchain-openai",
+    "langgraph>=1.2.20",
+    "langchain-core>=1.7.6",
+    "langchain-openai>=1.7.4",
 ]
 
 [project.optional-dependencies]
@@ -35,6 +35,7 @@ dev = [
     "pytest-asyncio>=0.24.0",
     "httpx>=0.28.0",
     "aiosqlite>=0.20.0",
+    "deepeval>=4.3.3",
 
     # Code Quality: Linter & Formatter
     "ruff>=0.8.0",
@@ -60,3 +61,8 @@ minversion = "8.0"
 asyncio_mode = "auto"
 testpaths = ["tests"]
 pythonpath = ["."]
+
+[dependency-groups]
+dev = [
+    "deepeval>=4.3.3",
+]

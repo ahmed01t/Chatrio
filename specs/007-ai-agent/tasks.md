@@ -2,7 +2,7 @@
 
 Each task is atomic, independent, and verifiable.
 
-- [ ] **Task 1: AI Dependencies & Configuration Settings**
+- [x] **Task 1: AI Dependencies & Configuration Settings**
   - Files: `backend/pyproject.toml`, `backend/app/core/config.py`, `backend/.env.example`
   - Action: Add `langgraph`, `langchain-core`, `langchain-openai`, and `deepeval` dependencies. Add `OPENAI_API_KEY`, `AI_MODEL_NAME`, `AI_TEMPERATURE`, and `AI_MAX_TOKENS` configuration fields in `Settings`.
   - Verification: Unit tests in `test_config.py` verify new configuration fields and defaults.

@@ -111,6 +111,30 @@ class Settings(BaseSettings):
         description="Hard ceiling max wait time in seconds before flushing coalesced messages",
     )
 
+    # --------------------------------------------------------------------------
+    # 7. AI Agent & LangGraph Orchestration
+    # --------------------------------------------------------------------------
+    OPENAI_API_KEY: str = Field(
+        default="",
+        description="API key for OpenAI models (GPT-4o / GPT-4o-mini)",
+    )
+    AI_MODEL_NAME: str = Field(
+        default="gpt-4o-mini",
+        description="LLM model name for LangGraph agent reasoning",
+    )
+    AI_TEMPERATURE: float = Field(
+        default=0.2,
+        description="Sampling temperature for deterministic conversational commerce",
+    )
+    AI_MAX_TOKENS: int = Field(
+        default=500,
+        description="Maximum tokens generated per conversational turn",
+    )
+    AI_SYSTEM_NAME: str = Field(
+        default="Chatrio Assistant",
+        description="Default AI assistant persona name",
+    )
+
     @property
     def cors_origins(self) -> list[str]:
         """Converts the comma-separated ALLOWED_ORIGINS string into a clean Python list."""
