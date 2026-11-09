@@ -237,4 +237,3 @@ def build_agent_graph(
     workflow.add_edge("output_guardrail", END)
 
     return workflow.compile()
-

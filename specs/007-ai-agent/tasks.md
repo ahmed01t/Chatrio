@@ -22,7 +22,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Build LangGraph workflow (`input_guardrail` -> `agent_reasoning` -> `tool_execution` -> `output_guardrail`). Handle tool loop limits and memory persistence.
   - Verification: Unit tests verifying state progression, tool dispatching, human handoff branching, and refusal paths.
 
-- [ ] **Task 5: End-to-End Messaging Pipeline Hook**
+- [x] **Task 5: End-to-End Messaging Pipeline Hook**
   - Files: `backend/app/modules/messaging/service.py`, `backend/tests/integration/test_ai_messaging_flow.py`
   - Action: Connect inbound debounced messages to LangGraph agent execution and automatically dispatch replies via `WhatsAppClient`.
   - Verification: Integration tests simulating customer message arrival triggering AI reasoning and delivering outbound response.

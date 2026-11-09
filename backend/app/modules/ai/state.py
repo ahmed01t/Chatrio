@@ -35,4 +35,3 @@ class AgentState(TypedDict):
     is_human_handoff: bool
     loop_count: int
     final_response: str
-
