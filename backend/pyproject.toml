@@ -23,6 +23,9 @@ dependencies = [
     "pgvector>=0.3.6",
     # Async Queue & Cache: Redis Driver
     "redis>=5.2.0",
+    "langgraph",
+    "langchain-core",
+    "langchain-openai",
 ]
 
 [project.optional-dependencies]

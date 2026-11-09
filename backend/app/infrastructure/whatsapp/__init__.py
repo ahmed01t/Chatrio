@@ -3,4 +3,3 @@
 from app.infrastructure.whatsapp.client import WhatsAppAPIError, WhatsAppClient
 
 __all__ = ["WhatsAppAPIError", "WhatsAppClient"]
-

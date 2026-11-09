@@ -230,4 +230,3 @@ class WhatsAppClient:
             "interactive": interactive_obj,
         }
         return await self._send_request(payload, phone_number_id=phone_number_id)
-

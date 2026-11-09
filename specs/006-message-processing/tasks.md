@@ -32,7 +32,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Implement asynchronous `WhatsAppClient` via `httpx.AsyncClient` supporting `send_text_message` and `send_interactive_buttons` against Meta Graph API endpoints.
   - Verification: Unit tests with mocked HTTP transport validating outbound payload structures, auth headers, and error handling.
 
-- [ ] **Task 7: End-to-End Integration Tests**
+- [x] **Task 7: End-to-End Integration Tests**
   - File: `backend/tests/integration/test_webhooks.py`
   - Action: End-to-end integration test simulating the entire webhook lifecycle: Meta registration challenge -> HMAC verified burst message ingestion -> debounce coalescing -> customer/message persistence -> outbound confirmation.
   - Verification: 100% green test suite across all unit and integration tests.
