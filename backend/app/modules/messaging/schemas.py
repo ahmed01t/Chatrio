@@ -145,4 +145,3 @@ class OutboundMessageResponse(BaseModel):
     messaging_product: str = "whatsapp"
     contacts: list[dict[str, Any]] = Field(default_factory=list)
     messages: list[dict[str, str]] = Field(default_factory=list)
-

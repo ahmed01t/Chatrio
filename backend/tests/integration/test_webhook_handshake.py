@@ -76,4 +76,3 @@ async def test_webhook_handshake_missing_params(async_client: AsyncClient) -> No
     assert response.status_code == 403
     data = response.json()
     assert data["error"]["code"] == "WEBHOOK_VERIFICATION_FAILED"
-

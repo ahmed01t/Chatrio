@@ -58,4 +58,3 @@ async def verify_webhook(
         code="WEBHOOK_VERIFICATION_FAILED",
         message="Invalid verification token or subscription mode.",
     )
-

@@ -17,7 +17,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Define Pydantic models for incoming Meta webhook payloads (contacts, messages, interactive replies). Implement `GET /api/v1/webhooks/whatsapp` verifying `hub.mode == 'subscribe'` and returning `hub.challenge`. Mount router in `app/api/router.py`.
   - Verification: Integration tests testing successful challenge validation and rejection of invalid verification tokens.
 
-- [ ] **Task 4: Redis Sliding Window Debounce Buffer**
+- [x] **Task 4: Redis Sliding Window Debounce Buffer**
   - Files: `backend/app/modules/messaging/debounce.py`, `backend/tests/unit/test_debounce.py`
   - Action: Implement `SlidingDebounceBuffer` using Redis (with in-memory fallback for local testing). Resets on message arrivals within 2.5s; flushes immediately when 8.0s max wait cap is reached or when 2.5s of silence occurs.
   - Verification: Unit tests simulating burst arrivals, timer resets, and hard ceiling execution.
