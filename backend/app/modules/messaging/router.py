@@ -3,16 +3,20 @@ Meta WhatsApp Webhook Handshake & Ingestion Router.
 
 Endpoints:
 - GET /api/v1/webhooks/whatsapp: Handshake verification endpoint for Meta App dashboard.
-- POST /api/v1/webhooks/whatsapp: (Added in Task 5) Sub-50ms ingestion endpoint.
+- POST /api/v1/webhooks/whatsapp: Sub-50ms ingestion endpoint with HMAC-SHA256 verification.
 """
 
+import json
 from typing import Annotated
 
-from fastapi import APIRouter, Query, Response, status
+from fastapi import APIRouter, Header, Query, Request, Response, status
 from fastapi.responses import PlainTextResponse
 
+from app.api.dependencies import DBSession
 from app.core.config import get_settings
-from app.core.exceptions import ForbiddenException
+from app.core.exceptions import BadRequestException, ForbiddenException, UnauthorizedException
+from app.modules.messaging.security import verify_meta_signature
+from app.modules.messaging.service import MessagingService
 
 router = APIRouter(prefix="/webhooks/whatsapp", tags=["Meta WhatsApp Webhooks"])
 
@@ -58,3 +62,76 @@ async def verify_webhook(
         code="WEBHOOK_VERIFICATION_FAILED",
         message="Invalid verification token or subscription mode.",
     )
+
+
+@router.post(
+    "",
+    status_code=status.HTTP_200_OK,
+    summary="Meta WhatsApp Webhook Event Ingestion",
+)
+async def ingest_webhook(
+    request: Request,
+    session: DBSession,
+    x_hub_signature_256: Annotated[
+        str | None,
+        Header(alias="X-Hub-Signature-256", description="Meta HMAC-SHA256 signature header"),
+    ] = None,
+) -> dict[str, str]:
+    """
+    Sub-50ms Meta WhatsApp Webhook Ingestion Endpoint.
+
+    1. Reads raw bytes and validates HMAC-SHA256 signature against META_APP_SECRET.
+    2. Parses incoming JSON webhook event.
+    3. Resolves tenant organization mapping.
+    4. Passes to MessagingService for customer & conversation persistence.
+    5. Returns 200 OK immediately to satisfy Meta's response deadline.
+    """
+    settings = get_settings()
+    raw_body = await request.body()
+
+    # 1. HMAC signature verification
+    if not verify_meta_signature(
+        raw_body=raw_body,
+        signature_header=x_hub_signature_256,
+        app_secret=settings.META_APP_SECRET,
+    ):
+        raise UnauthorizedException(
+            code="INVALID_SIGNATURE",
+            message="Invalid or missing X-Hub-Signature-256 header.",
+        )
+
+    # 2. Parse JSON payload
+    try:
+        payload_data = json.loads(raw_body.decode("utf-8"))
+    except Exception as e:
+        raise BadRequestException(
+            code="INVALID_JSON",
+            message=f"Failed to parse JSON webhook payload: {e}",
+        ) from e
+
+    # 3. Resolve tenant organization
+    phone_number_id: str | None = None
+    try:
+        if "entry" in payload_data and payload_data["entry"]:
+            entry_first = payload_data["entry"][0]
+            if "changes" in entry_first and entry_first["changes"]:
+                val = entry_first["changes"][0].get("value", {})
+                metadata = val.get("metadata", {})
+                phone_number_id = metadata.get("phone_number_id")
+    except Exception:
+        phone_number_id = None
+
+    organization_id = await MessagingService.resolve_organization_by_phone_id(
+        session=session,
+        phone_number_id=phone_number_id,
+    )
+
+    # 4. Ingest and persist messages
+    if organization_id:
+        await MessagingService.process_incoming_payload(
+            session=session,
+            organization_id=organization_id,
+            payload=payload_data,
+        )
+
+    return {"status": "received"}

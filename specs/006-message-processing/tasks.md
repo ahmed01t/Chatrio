@@ -22,7 +22,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Implement `SlidingDebounceBuffer` using Redis (with in-memory fallback for local testing). Resets on message arrivals within 2.5s; flushes immediately when 8.0s max wait cap is reached or when 2.5s of silence occurs.
   - Verification: Unit tests simulating burst arrivals, timer resets, and hard ceiling execution.
 
-- [ ] **Task 5: Fast Webhook Ingestion & Inbound Payload Processing**
+- [x] **Task 5: Fast Webhook Ingestion & Inbound Payload Processing**
   - Files: `backend/app/modules/messaging/service.py`, `backend/app/modules/messaging/router.py`, `backend/tests/unit/test_messaging_service.py`
   - Action: Implement `POST /api/v1/webhooks/whatsapp` to verify HMAC, buffer payloads, and return `200 OK` in $< 50\text{ms}$. Implement `MessagingService.process_incoming_payload` to parse text/button messages and persist records via `CustomerService` and `MessageService` with WhatsApp ID deduplication.
   - Verification: Unit tests verifying webhook ingestion, message parsing, and conversation/customer linking.

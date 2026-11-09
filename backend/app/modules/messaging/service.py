@@ -4,8 +4,10 @@ WhatsApp Webhook Message Ingestion and Processing Service.
 Connects incoming Meta webhook events to the internal Customers and Conversations domain:
 1. Extracts sender phone number, display name, message timestamp, and message ID.
 2. Identifies customer profiles via `CustomerService.get_or_create_customer`.
-3. Finds or initiates active conversation threads via `ConversationService.get_or_create_active_conversation`.
-4. Persists message records via `MessageService.append_message` with `whatsapp_message_id` deduplication.
+3. Finds or initiates active conversation threads via
+   `ConversationService.get_or_create_active_conversation`.
+4. Persists message records via `MessageService.append_message` with
+   `whatsapp_message_id` deduplication.
 """
 
 import uuid
@@ -37,7 +39,7 @@ class MessagingService:
     @staticmethod
     async def resolve_organization_by_phone_id(
         session: AsyncSession,
-        phone_number_id: str,
+        phone_number_id: str | None = None,
     ) -> uuid.UUID | None:
         """
         Resolves the merchant organization UUID mapped to a Meta Phone Number ID.
@@ -110,13 +112,11 @@ class MessagingService:
                     )
 
                     # 2. Get or create active Conversation
-                    conversation, _ = (
-                        await ConversationService.get_or_create_active_conversation(
-                            session=session,
-                            organization_id=organization_id,
-                            customer_id=customer.id,
-                            channel=ConversationChannel.WHATSAPP,
-                        )
+                    conversation, _ = await ConversationService.get_or_create_active_conversation(
+                        session=session,
+                        organization_id=organization_id,
+                        customer_id=customer.id,
+                        channel=ConversationChannel.WHATSAPP,
                     )
 
                     # 3. Extract text content & type
@@ -141,4 +141,3 @@ class MessagingService:
 
         await session.flush()
         return saved_messages
-
