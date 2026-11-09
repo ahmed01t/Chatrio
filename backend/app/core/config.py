@@ -114,12 +114,24 @@ class Settings(BaseSettings):
     # --------------------------------------------------------------------------
     # 7. AI Agent & LangGraph Orchestration
     # --------------------------------------------------------------------------
+    AI_PROVIDER: str = Field(
+        default="groq",
+        description="LLM provider: groq, openai, grok, gemini, ollama, or custom",
+    )
+    AI_API_KEY: str = Field(
+        default="",
+        description="Provider API key (Groq, xAI, Gemini, OpenAI)",
+    )
+    AI_API_BASE: str | None = Field(
+        default=None,
+        description="Optional custom API base URL override for OpenAI-compatible gateways",
+    )
     OPENAI_API_KEY: str = Field(
         default="",
-        description="API key for OpenAI models (GPT-4o / GPT-4o-mini)",
+        description="Legacy/fallback OpenAI API key",
     )
     AI_MODEL_NAME: str = Field(
-        default="gpt-4o-mini",
+        default="llama-3.3-70b-versatile",
         description="LLM model name for LangGraph agent reasoning",
     )
     AI_TEMPERATURE: float = Field(

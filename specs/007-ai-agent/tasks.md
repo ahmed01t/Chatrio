@@ -7,7 +7,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Add `langgraph`, `langchain-core`, `langchain-openai`, and `deepeval` dependencies. Add `OPENAI_API_KEY`, `AI_MODEL_NAME`, `AI_TEMPERATURE`, and `AI_MAX_TOKENS` configuration fields in `Settings`.
   - Verification: Unit tests in `test_config.py` verify new configuration fields and defaults.
 
-- [ ] **Task 2: Prompt Injection Defense & Input/Output Guardrails**
+- [x] **Task 2: Prompt Injection Defense & Input/Output Guardrails**
   - Files: `backend/app/modules/ai/guardrails.py`, `backend/app/modules/ai/prompts.py`, `backend/tests/unit/test_ai_guardrails.py`
   - Action: Implement `detect_prompt_injection`, `wrap_user_input`, `sanitize_output`, and the armored system prompt template.
   - Verification: Unit tests verifying detection of instruction resets, delimiter escapes, DAN roleplay exploits, and system prompt protection.

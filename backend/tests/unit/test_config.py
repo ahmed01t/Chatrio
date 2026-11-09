@@ -24,8 +24,11 @@ def test_settings_default_values() -> None:
     assert settings.WHATSAPP_DEBOUNCE_SECONDS == 2.5
     assert settings.WHATSAPP_DEBOUNCE_MAX_WAIT_SECONDS == 8.0
     # AI Agent settings
+    assert settings.AI_PROVIDER == "groq"
+    assert settings.AI_API_KEY == ""
+    assert settings.AI_API_BASE is None
     assert settings.OPENAI_API_KEY == ""
-    assert settings.AI_MODEL_NAME == "gpt-4o-mini"
+    assert settings.AI_MODEL_NAME == "llama-3.3-70b-versatile"
     assert settings.AI_TEMPERATURE == 0.2
     assert settings.AI_MAX_TOKENS == 500
     assert settings.AI_SYSTEM_NAME == "Chatrio Assistant"
