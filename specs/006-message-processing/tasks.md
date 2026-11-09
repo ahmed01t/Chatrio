@@ -7,7 +7,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Add `redis>=5.2.0` dependency. Update `Settings` class with Meta WhatsApp Cloud API credentials (`meta_app_secret`, `meta_verify_token`, `meta_access_token`, `meta_phone_number_id`, `meta_api_version`) and sliding debounce parameters (`whatsapp_debounce_seconds=2.5`, `whatsapp_debounce_max_wait_seconds=8.0`). Update `.env.example`.
   - Verification: Unit tests in `test_config.py` verify new configuration fields and defaults.
 
-- [ ] **Task 2: Webhook Security & HMAC-SHA256 Signature Verification**
+- [x] **Task 2: Webhook Security & HMAC-SHA256 Signature Verification**
   - Files: `backend/app/modules/messaging/security.py`, `backend/tests/unit/test_webhook_security.py`
   - Action: Implement timing-attack-safe HMAC-SHA256 signature verification (`verify_meta_signature`) comparing `X-Hub-Signature-256` against `HMAC(meta_app_secret, raw_body)`.
   - Verification: Unit tests verifying valid signatures, invalid signatures, malformed headers, and body tampering.
