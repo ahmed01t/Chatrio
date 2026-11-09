@@ -28,6 +28,7 @@ from app.modules.orders.schemas import OrderCreate, OrderItemCreate
 from app.modules.orders.service import OrderService
 from app.modules.products.service import ProductService
 
+
 # making class because llm uses it to validate the arguments
 class SearchCatalogArgs(BaseModel):
     """Arguments for searching the product catalog."""
@@ -37,7 +38,8 @@ class SearchCatalogArgs(BaseModel):
 
 class GetProductDetailsArgs(BaseModel):
     """Arguments for fetching product details."""
-    # arguments means parameter which are to be passed to the function 
+
+    # arguments means parameter which are to be passed to the function
 
     product_id: str = Field(description="UUID string of the product")
 
@@ -63,7 +65,8 @@ class RequestHumanAgentArgs(BaseModel):
 
     reason: str = Field(description="Reason for handing over to a human specialist")
 
-#making thsi function because it makes sure we do not store any user specific data in the function
+
+# making thsi function because it makes sure we do not store any user specific data in the function
 def create_agent_tools(
     session: AsyncSession,
     organization_id: uuid.UUID,

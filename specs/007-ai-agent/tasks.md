@@ -17,7 +17,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Implement server-side gated tools (`search_catalog`, `get_product_details`, `draft_order`, `request_human_agent`). Enforce strict `organization_id` tenancy and verified database pricing.
   - Verification: Unit tests verifying catalog search scoping, draft order price resolution from DB, stock validation, and human takeover triggers.
 
-- [ ] **Task 4: LangGraph Agent State Machine**
+- [x] **Task 4: LangGraph Agent State Machine**
   - Files: `backend/app/modules/ai/state.py`, `backend/app/modules/ai/graph.py`, `backend/tests/unit/test_ai_graph.py`
   - Action: Build LangGraph workflow (`input_guardrail` -> `agent_reasoning` -> `tool_execution` -> `output_guardrail`). Handle tool loop limits and memory persistence.
   - Verification: Unit tests verifying state progression, tool dispatching, human handoff branching, and refusal paths.
