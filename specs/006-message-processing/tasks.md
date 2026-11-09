@@ -12,7 +12,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Implement timing-attack-safe HMAC-SHA256 signature verification (`verify_meta_signature`) comparing `X-Hub-Signature-256` against `HMAC(meta_app_secret, raw_body)`.
   - Verification: Unit tests verifying valid signatures, invalid signatures, malformed headers, and body tampering.
 
-- [ ] **Task 3: Meta Webhook Schemas & Handshake Endpoint**
+- [x] **Task 3: Meta Webhook Schemas & Handshake Endpoint**
   - Files: `backend/app/modules/messaging/schemas.py`, `backend/app/modules/messaging/router.py`, `backend/app/api/router.py`
   - Action: Define Pydantic models for incoming Meta webhook payloads (contacts, messages, interactive replies). Implement `GET /api/v1/webhooks/whatsapp` verifying `hub.mode == 'subscribe'` and returning `hub.challenge`. Mount router in `app/api/router.py`.
   - Verification: Integration tests testing successful challenge validation and rejection of invalid verification tokens.

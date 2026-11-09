@@ -82,4 +82,3 @@ def test_verify_wrong_secret() -> None:
     sig_with_secret_1 = compute_meta_signature(body, "secret-one")
 
     assert verify_meta_signature(body, sig_with_secret_1, "secret-two") is False
-

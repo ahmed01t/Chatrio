@@ -58,4 +58,3 @@ def verify_meta_signature(
 
     # Timing-attack-safe comparison
     return hmac.compare_digest(received_hash, expected_hash)
-
