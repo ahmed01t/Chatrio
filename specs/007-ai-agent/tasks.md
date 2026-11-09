@@ -12,7 +12,7 @@ Each task is atomic, independent, and verifiable.
   - Action: Implement `detect_prompt_injection`, `wrap_user_input`, `sanitize_output`, and the armored system prompt template.
   - Verification: Unit tests verifying detection of instruction resets, delimiter escapes, DAN roleplay exploits, and system prompt protection.
 
-- [ ] **Task 3: Deterministic & Multi-Tenant Scoped Tools**
+- [x] **Task 3: Deterministic & Multi-Tenant Scoped Tools**
   - Files: `backend/app/modules/ai/tools.py`, `backend/tests/unit/test_ai_tools.py`
   - Action: Implement server-side gated tools (`search_catalog`, `get_product_details`, `draft_order`, `request_human_agent`). Enforce strict `organization_id` tenancy and verified database pricing.
   - Verification: Unit tests verifying catalog search scoping, draft order price resolution from DB, stock validation, and human takeover triggers.
