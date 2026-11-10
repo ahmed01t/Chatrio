@@ -3,7 +3,7 @@ import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  variant?: "critical" | "warning" | "active" | "success" | "purple" | "neutral";
+  variant?: "critical" | "warning" | "active" | "success" | "purple" | "neutral" | "terracotta";
   size?: "sm" | "md";
   dot?: boolean;
 }
@@ -17,26 +17,28 @@ export function Badge({
   ...props
 }: BadgeProps) {
   const sizeStyles = {
-    sm: "text-[11px] px-2 py-0.5 gap-1 font-medium",
-    md: "text-xs px-2.5 py-1 gap-1.5 font-medium",
+    sm: "text-[11px] px-2 py-0.5 gap-1 font-semibold",
+    md: "text-xs px-2.5 py-1 gap-1.5 font-semibold",
   };
 
   const variantStyles = {
-    critical: "bg-red-500/10 border border-red-500/30 text-red-400",
-    warning: "bg-amber-500/10 border border-amber-500/30 text-amber-400",
-    active: "bg-sky-500/10 border border-sky-500/30 text-sky-400",
-    success: "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400",
-    purple: "bg-purple-500/10 border border-purple-500/30 text-purple-400",
-    neutral: "bg-obsidian-800 border border-obsidian-700 text-obsidian-300",
+    terracotta: "bg-accent-light border border-accent-subtle text-accent",
+    critical: "bg-rose-50 border border-rose-200 text-rose-700",
+    warning: "bg-amber-50 border border-amber-200 text-amber-700",
+    active: "bg-sky-50 border border-sky-200 text-sky-700",
+    success: "bg-emerald-50 border border-emerald-200 text-emerald-700",
+    purple: "bg-purple-50 border border-purple-200 text-purple-700",
+    neutral: "bg-canvas-subtle border border-border text-ink-700",
   };
 
   const dotColors = {
-    critical: "bg-red-400",
-    warning: "bg-amber-400",
-    active: "bg-sky-400 animate-pulse",
-    success: "bg-emerald-400",
-    purple: "bg-purple-400",
-    neutral: "bg-obsidian-400",
+    terracotta: "bg-accent",
+    critical: "bg-rose-500",
+    warning: "bg-amber-500",
+    active: "bg-sky-500",
+    success: "bg-emerald-500",
+    purple: "bg-purple-500",
+    neutral: "bg-ink-400",
   };
 
   return (
@@ -56,4 +58,3 @@ export function Badge({
     </span>
   );
 }
-

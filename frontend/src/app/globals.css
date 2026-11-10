@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --background: #0b0d11;
-  --foreground: #f1f5f9;
+  --background: #FAF8F5;
+  --foreground: #111827;
 }
 
 body {
@@ -12,55 +12,76 @@ body {
   background-color: var(--background);
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Modern Dark-mode Scrollbars */
+/* Background ambient warmth glow from reference */
+.canvas-glow {
+  background: radial-gradient(circle at 15% 15%, rgba(254, 215, 170, 0.3) 0%, rgba(255, 237, 213, 0.15) 30%, #FAF8F5 70%);
+}
+
+/* Quiet panels (from tasteskill 2.1 app screens) */
+.quiet-panel {
+  background-color: #FFFFFF;
+  border: 1px solid #ECE6DF;
+  box-shadow: 0 10px 25px -5px rgba(220, 100, 40, 0.04), 0 1px 3px 0 rgba(0, 0, 0, 0.02);
+  border-radius: 1rem;
+}
+
+/* Micro-animations and Anti-Slop Motion Layer (tasteskill 2.5) */
+.card-taste {
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-taste:hover {
+  transform: translateY(-2px);
+  border-color: #D8CFC5;
+  box-shadow: 0 14px 30px -8px rgba(220, 100, 40, 0.08);
+}
+
+/* Button stepping */
+.button-step {
+  transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1),
+              filter 120ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.button-step:hover {
+  filter: brightness(0.96);
+}
+
+.button-step:active {
+  transform: scale(0.98);
+}
+
+/* Refined Clean Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0b0d11;
+  background: #FAF8F5;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1f2633;
+  background: #E5DDD4;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2b3545;
+  background: #D8CFC5;
 }
 
-/* Micro-sparklines and badges */
-.badge-critical {
-  background-color: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.35);
-  color: #fca5a5;
+/* Code Chip / Spec Badge */
+.code-chip {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background-color: #F5EFEB;
+  border: 1px solid #E6DDD4;
+  color: #475569;
+  padding: 0.25rem 0.6rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
 }
-
-.badge-warning {
-  background-color: rgba(245, 158, 11, 0.12);
-  border: 1px solid rgba(245, 158, 11, 0.35);
-  color: #fcd34d;
-}
-
-.badge-active {
-  background-color: rgba(14, 165, 233, 0.12);
-  border: 1px solid rgba(14, 165, 233, 0.35);
-  color: #7dd3fc;
-}
-
-.badge-success {
-  background-color: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(16, 185, 129, 0.35);
-  color: #6ee7b7;
-}
-
-.badge-purple {
-  background-color: rgba(139, 92, 246, 0.12);
-  border: 1px solid rgba(139, 92, 246, 0.35);
-  color: #c4b5fd;
-}
-

@@ -1,5 +1,12 @@
 "use client";
 
+/**
+ * Chatrio Store Registration.
+ *
+ * Implements design-taste-frontend standards:
+ * - Quiet panels, warm canvas (#FAF8F5), terracotta (#EA580C) accents
+ */
+
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -24,7 +31,6 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      // Calls backend router: POST /api/v1/auth/register (backend/app/modules/auth/router.py:40)
       await register({
         full_name: fullName.trim(),
         organization_name: storeName.trim(),
@@ -40,22 +46,22 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-obsidian-950 relative overflow-hidden">
-      <div className="absolute top-1/4 right-1/2 w-96 h-96 bg-brand-emerald/10 rounded-full blur-[120px] pointer-events-none" />
+    <div className="min-h-screen flex items-center justify-center p-4 canvas-glow relative overflow-hidden">
+      <div className="absolute top-1/4 right-1/2 w-96 h-96 bg-accent/10 rounded-full blur-[120px] pointer-events-none" />
 
-      <div className="w-full max-w-md bg-obsidian-850/90 border border-obsidian-750/90 rounded-2xl shadow-2xl p-6 sm:p-8 backdrop-blur z-10">
+      <div className="w-full max-w-md quiet-panel rounded-2xl shadow-elevated p-6 sm:p-8 z-10">
         <div className="flex flex-col items-center text-center mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-emerald to-brand-whatsapp flex items-center justify-center text-obsidian-950 font-bold font-mono text-2xl shadow-glow mb-4">
+          <div className="w-12 h-12 rounded-2xl bg-accent text-white flex items-center justify-center font-bold font-mono text-2xl shadow-sm mb-4">
             C.
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Create your Store</h1>
-          <p className="text-xs text-obsidian-400 mt-1">
+          <h1 className="text-2xl font-bold text-ink-900 tracking-tight">Create your Store</h1>
+          <p className="text-xs text-ink-500 mt-1">
             Deploy your autonomous WhatsApp commerce agent on Chatrio
           </p>
         </div>
 
         {error && (
-          <div className="mb-5 p-3 rounded-lg bg-brand-rose/10 border border-brand-rose/30 text-xs text-rose-300">
+          <div className="mb-5 p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700">
             {error}
           </div>
         )}
@@ -99,17 +105,14 @@ export default function RegisterPage() {
             required
           />
 
-          <Button type="submit" className="w-full mt-3" size="lg" isLoading={isLoading}>
+          <Button type="submit" className="w-full mt-2" size="lg" isLoading={isLoading}>
             Deploy Store Agent <ArrowRight className="w-4 h-4" />
           </Button>
         </form>
 
-        <p className="mt-5 pt-4 border-t border-obsidian-750/60 text-center text-xs text-obsidian-400">
-          Already registered?{" "}
-          <Link
-            href="/login"
-            className="text-brand-emerald hover:text-emerald-300 font-semibold transition-colors"
-          >
+        <p className="text-center text-xs text-ink-500 mt-6 pt-5 border-t border-border">
+          Already have a merchant account?{" "}
+          <Link href="/login" className="text-accent hover:text-accent-hover font-bold">
             Sign in
           </Link>
         </p>

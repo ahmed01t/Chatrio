@@ -20,25 +20,25 @@ export function Button({
   ...props
 }: ButtonProps) {
   const baseStyles =
-    "inline-flex items-center justify-center font-medium rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-obsidian-950 disabled:opacity-50 disabled:cursor-not-allowed";
+    "inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 button-step focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-canvas focus:ring-accent disabled:opacity-50 disabled:cursor-not-allowed select-none";
 
   const sizeStyles = {
-    sm: "text-xs px-2.5 py-1.5 gap-1.5",
-    md: "text-sm px-3.5 py-2 gap-2",
-    lg: "text-base px-5 py-2.5 gap-2.5",
+    sm: "text-xs px-2.5 py-1.5 gap-1.5 font-medium",
+    md: "text-xs sm:text-sm px-3.5 py-2 gap-2 font-semibold",
+    lg: "text-sm sm:text-base px-5 py-2.5 gap-2.5 font-semibold",
   };
 
   const variantStyles = {
     primary:
-      "bg-brand-emerald hover:bg-emerald-400 text-obsidian-950 font-semibold shadow-glow focus:ring-brand-emerald active:scale-[0.98]",
+      "bg-accent hover:bg-accent-hover text-white font-semibold shadow-sm active:scale-[0.98]",
     secondary:
-      "bg-obsidian-800 hover:bg-obsidian-750 text-obsidian-200 border border-obsidian-700 hover:border-obsidian-600 focus:ring-obsidian-500",
+      "bg-white hover:bg-canvas-subtle text-ink-800 border border-border hover:border-border-strong active:scale-[0.98] shadow-sm",
     danger:
-      "bg-brand-rose/20 hover:bg-brand-rose/30 text-rose-300 border border-brand-rose/40 shadow-glow-rose focus:ring-brand-rose",
+      "bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 active:scale-[0.98]",
     ghost:
-      "text-obsidian-400 hover:text-obsidian-100 hover:bg-obsidian-800/60 focus:ring-obsidian-500",
+      "text-ink-600 hover:text-ink-900 hover:bg-canvas-subtle active:scale-[0.98]",
     outline:
-      "border border-obsidian-700 text-obsidian-300 hover:text-white hover:border-obsidian-500 bg-transparent",
+      "border border-border text-ink-700 hover:text-ink-900 hover:border-border-strong bg-transparent active:scale-[0.98]",
   };
 
   return (
@@ -50,7 +50,7 @@ export function Button({
       {isLoading ? (
         <>
           <svg
-            className="animate-spin -ml-0.5 mr-2 h-4 w-4 text-current"
+            className="animate-spin -ml-0.5 mr-2 h-3.5 w-3.5 text-current"
             fill="none"
             viewBox="0 0 24 24"
           >
@@ -68,7 +68,7 @@ export function Button({
               d="M4 12a8 8 0 018-8v8H4z"
             />
           </svg>
-          Loading...
+          <span>Processing...</span>
         </>
       ) : (
         children
@@ -76,4 +76,3 @@ export function Button({
     </button>
   );
 }
-

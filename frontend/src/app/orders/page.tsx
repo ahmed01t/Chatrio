@@ -3,18 +3,14 @@
 /**
  * Orders & Fulfillment Board.
  *
- * Direct client mapping to backend router:
- * backend/app/modules/orders/router.py
- *
- * Endpoints consumed:
- * - GET   /api/v1/orders               (ordersService.listOrders)
- * - PATCH /api/v1/orders/{id}/status   (ordersService.updateStatus)
- * - POST  /api/v1/orders/{id}/cancel   (ordersService.cancelOrder)
- *
- * Features:
- * - Strict multi-tenant scoped order listing with status filtering
- * - Zero hardcoded or mock fallbacks; purely backed by PostgreSQL
+ * Implements design-taste-frontend standards:
+ * - Quiet panels, aligned figures, colour spent on data
+ * - Warm white canvas (#FAF8F5) with terracotta (#EA580C) data highlights
  * - Real-time slide-over order inspector with itemized breakdown and state machine transitions
+ * - Direct client mapping to backend router:
+ *   - GET   /api/v1/orders               (ordersService.listOrders)
+ *   - PATCH /api/v1/orders/{id}/status   (ordersService.updateStatus)
+ *   - POST  /api/v1/orders/{id}/cancel   (ordersService.cancelOrder)
  */
 
 import React, { useEffect, useState, useCallback } from "react";
@@ -93,13 +89,15 @@ export default function OrdersPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-150">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-obsidian-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-            <ShoppingCart className="w-6 h-6 text-brand-emerald" />
-            <span>Orders & Fulfillment Board</span>
+          <div className="text-xs font-semibold uppercase tracking-wider text-accent mb-1 font-mono">
+            Commerce Operations
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink-900 flex items-center gap-2.5">
+            Fulfillment &amp; Orders Board
           </h1>
-          <p className="text-xs sm:text-sm text-obsidian-400 mt-1">
+          <p className="text-xs sm:text-sm text-ink-500 mt-1">
             Deterministic state machine orders assembled conversationally by LangGraph and persisted in PostgreSQL.
           </p>
         </div>
@@ -120,23 +118,23 @@ export default function OrdersPage() {
 
       {/* Error Alert */}
       {errorMessage && (
-        <div className="p-3.5 rounded-xl bg-status-critical/10 border border-status-critical/20 text-xs text-status-critical flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 shrink-0" />
+        <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
           <span>{errorMessage}</span>
         </div>
       )}
 
       {/* Filter Tabs & Search */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-1.5 bg-obsidian-900 p-1 rounded-xl border border-obsidian-750/70">
+        <div className="flex flex-wrap gap-1.5 bg-canvas-subtle p-1 rounded-xl border border-border">
           {["ALL", "PENDING", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"].map((status) => (
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                 statusFilter === status
-                  ? "bg-obsidian-800 text-white border border-obsidian-650 font-semibold"
-                  : "text-obsidian-400 hover:text-white"
+                  ? "bg-white text-ink-900 border border-border shadow-sm"
+                  : "text-ink-500 hover:text-ink-900"
               }`}
             >
               {status}
@@ -145,37 +143,37 @@ export default function OrdersPage() {
         </div>
 
         <div className="relative w-full sm:w-64">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-obsidian-400" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
           <input
             type="text"
             placeholder="Search order #..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-obsidian-850 border border-obsidian-700/80 rounded-lg pl-9 pr-3 py-1.5 text-xs text-obsidian-100 placeholder:text-obsidian-500 focus:outline-none focus:border-brand-emerald"
+            className="w-full bg-white border border-border rounded-xl pl-9 pr-3 py-1.5 text-xs text-ink-900 placeholder:text-ink-400 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all shadow-sm"
           />
         </div>
       </div>
 
       {/* Orders Table */}
-      <div className="bg-obsidian-850/80 border border-obsidian-750/90 rounded-xl shadow-card overflow-hidden">
+      <div className="quiet-panel overflow-hidden card-taste">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-obsidian-900 border-b border-obsidian-750/70 text-obsidian-400 font-mono">
+            <thead className="bg-canvas-subtle border-b border-border text-ink-500 font-mono">
               <tr>
-                <th className="py-3 px-4 font-semibold">Order #</th>
-                <th className="py-3 px-4 font-semibold">Created At</th>
-                <th className="py-3 px-4 font-semibold">Total Amount</th>
-                <th className="py-3 px-4 font-semibold">Payment Status</th>
-                <th className="py-3 px-4 font-semibold">Fulfillment Status</th>
-                <th className="py-3 px-4 text-right font-semibold">Action</th>
+                <th className="py-3.5 px-4 font-semibold">Order #</th>
+                <th className="py-3.5 px-4 font-semibold">Created At</th>
+                <th className="py-3.5 px-4 font-semibold">Total Amount</th>
+                <th className="py-3.5 px-4 font-semibold">Payment Status</th>
+                <th className="py-3.5 px-4 font-semibold">Fulfillment Status</th>
+                <th className="py-3.5 px-4 text-right font-semibold">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-obsidian-750/50">
+            <tbody className="divide-y divide-border/60">
               {isLoading && orders.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-obsidian-400">
-                    <div className="inline-flex items-center gap-2">
-                      <RefreshCw className="w-4 h-4 animate-spin text-brand-emerald" />
+                  <td colSpan={6} className="py-12 text-center text-ink-500">
+                    <div className="inline-flex items-center gap-2 font-mono">
+                      <RefreshCw className="w-4 h-4 animate-spin text-accent" />
                       <span>Querying PostgreSQL orders...</span>
                     </div>
                   </td>
@@ -184,9 +182,9 @@ export default function OrdersPage() {
                 <tr>
                   <td colSpan={6} className="py-12 text-center">
                     <div className="max-w-sm mx-auto space-y-2">
-                      <Package className="w-8 h-8 text-obsidian-600 mx-auto" />
-                      <p className="text-xs font-medium text-obsidian-300">No matching orders found</p>
-                      <p className="text-[11px] text-obsidian-500">
+                      <Package className="w-8 h-8 text-ink-300 mx-auto" />
+                      <p className="text-xs font-semibold text-ink-900">No matching orders found</p>
+                      <p className="text-[11px] text-ink-500">
                         {statusFilter !== "ALL"
                           ? `No orders currently matching status "${statusFilter}".`
                           : "Orders placed by WhatsApp customers via AI conversation will populate here automatically."}
@@ -198,13 +196,13 @@ export default function OrdersPage() {
                 filteredOrders.map((order) => (
                   <tr
                     key={order.id}
-                    className="hover:bg-obsidian-800/60 transition-colors cursor-pointer"
+                    className="hover:bg-canvas-subtle transition-colors cursor-pointer"
                     onClick={() => setSelectedOrder(order)}
                   >
-                    <td className="py-3.5 px-4 font-mono font-bold text-white">
+                    <td className="py-3.5 px-4 font-mono font-bold text-ink-900">
                       {order.order_number}
                     </td>
-                    <td className="py-3.5 px-4 font-mono text-obsidian-300">
+                    <td className="py-3.5 px-4 font-mono text-ink-500">
                       {new Date(order.created_at).toLocaleString([], {
                         month: "short",
                         day: "numeric",
@@ -212,7 +210,7 @@ export default function OrdersPage() {
                         minute: "2-digit",
                       })}
                     </td>
-                    <td className="py-3.5 px-4 font-mono font-bold text-white">
+                    <td className="py-3.5 px-4 font-mono font-bold text-ink-900">
                       {order.currency || "USD"} ${Number(order.total_amount).toFixed(2)}
                     </td>
                     <td className="py-3.5 px-4">
@@ -258,25 +256,25 @@ export default function OrdersPage() {
       {selectedOrder && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div
-            className="fixed inset-0 bg-obsidian-950/80 backdrop-blur-sm"
+            className="fixed inset-0 bg-ink-900/40 backdrop-blur-sm"
             onClick={() => setSelectedOrder(null)}
           />
-          <div className="relative w-full max-w-md bg-obsidian-900 border-l border-obsidian-750 shadow-2xl h-full flex flex-col z-10 p-6 overflow-y-auto">
+          <div className="relative w-full max-w-md bg-white border-l border-border shadow-2xl h-full flex flex-col z-10 p-6 overflow-y-auto">
             {/* Drawer Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-obsidian-750">
+            <div className="flex items-center justify-between pb-4 border-b border-border">
               <div>
-                <h3 className="text-base font-bold text-white font-mono flex items-center gap-2">
-                  <Package className="w-4 h-4 text-brand-emerald" />
+                <h3 className="text-base font-bold text-ink-900 font-mono flex items-center gap-2">
+                  <Package className="w-4 h-4 text-accent" />
                   <span>{selectedOrder.order_number}</span>
                 </h3>
-                <p className="text-xs text-obsidian-400 font-mono mt-0.5 flex items-center gap-1">
+                <p className="text-xs text-ink-500 font-mono mt-0.5 flex items-center gap-1">
                   <Clock className="w-3 h-3" />
                   <span>Placed {new Date(selectedOrder.created_at).toLocaleString()}</span>
                 </p>
               </div>
               <button
                 onClick={() => setSelectedOrder(null)}
-                className="p-1 rounded-lg text-obsidian-400 hover:text-white"
+                className="p-1 rounded-lg text-ink-400 hover:text-ink-900"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -307,45 +305,45 @@ export default function OrdersPage() {
             </div>
 
             {/* Customer & Delivery Address */}
-            <div className="space-y-4 mb-6 p-4 rounded-xl bg-obsidian-850 border border-obsidian-750">
-              <div className="flex items-start gap-2.5 text-xs text-obsidian-300">
-                <MapPin className="w-4 h-4 text-brand-emerald shrink-0 mt-0.5" />
+            <div className="space-y-4 mb-6 p-4 rounded-xl bg-canvas-subtle border border-border">
+              <div className="flex items-start gap-2.5 text-xs text-ink-700">
+                <MapPin className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-semibold text-white block">Delivery Address:</span>
-                  <p className="text-obsidian-400 mt-0.5">
+                  <span className="font-semibold text-ink-900 block">Delivery Address:</span>
+                  <p className="text-ink-500 mt-0.5">
                     {selectedOrder.shipping_address || "Address pending WhatsApp collection"}
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2.5 text-xs text-obsidian-300">
-                <CreditCard className="w-4 h-4 text-brand-cyan shrink-0" />
+              <div className="flex items-center gap-2.5 text-xs text-ink-700">
+                <CreditCard className="w-4 h-4 text-ink-500 shrink-0" />
                 <div>
-                  <span className="font-semibold text-white">Customer Reference ID: </span>
-                  <span className="font-mono text-obsidian-400">{selectedOrder.customer_id}</span>
+                  <span className="font-semibold text-ink-900">Customer ID: </span>
+                  <span className="font-mono text-ink-500">{selectedOrder.customer_id}</span>
                 </div>
               </div>
             </div>
 
             {/* Line Items List */}
             <div className="space-y-3 flex-1 mb-6">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-obsidian-400 font-mono">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-ink-500 font-mono">
                 Order Items ({selectedOrder.items?.length || 0})
               </h4>
-              <div className="divide-y divide-obsidian-750/60 border border-obsidian-750 rounded-xl overflow-hidden bg-obsidian-850">
+              <div className="divide-y divide-border border border-border rounded-xl overflow-hidden bg-white">
                 {!selectedOrder.items || selectedOrder.items.length === 0 ? (
-                  <div className="p-4 text-center text-xs text-obsidian-500 font-mono">
+                  <div className="p-4 text-center text-xs text-ink-400 font-mono">
                     No line items attached
                   </div>
                 ) : (
                   selectedOrder.items.map((item: OrderItemRead) => (
                     <div key={item.id} className="p-3 flex items-center justify-between text-xs">
                       <div>
-                        <p className="font-semibold text-white">{item.product_name}</p>
-                        <p className="text-obsidian-400 font-mono text-[11px]">
+                        <p className="font-semibold text-ink-900">{item.product_name}</p>
+                        <p className="text-ink-500 font-mono text-[11px]">
                           SKU: {item.sku} &bull; Qty: {item.quantity} &times; ${Number(item.unit_price).toFixed(2)}
                         </p>
                       </div>
-                      <span className="font-mono font-bold text-white">
+                      <span className="font-mono font-bold text-ink-900">
                         ${Number(item.subtotal).toFixed(2)}
                       </span>
                     </div>
@@ -355,18 +353,18 @@ export default function OrdersPage() {
             </div>
 
             {/* Financial Summary */}
-            <div className="space-y-2 py-4 border-t border-obsidian-750 text-xs">
-              <div className="flex justify-between text-obsidian-400">
+            <div className="space-y-2 py-4 border-t border-border text-xs">
+              <div className="flex justify-between text-ink-500">
                 <span>Subtotal</span>
                 <span className="font-mono">${Number(selectedOrder.subtotal).toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-obsidian-400">
+              <div className="flex justify-between text-ink-500">
                 <span>Shipping Cost</span>
                 <span className="font-mono">${Number(selectedOrder.shipping_cost).toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-sm font-bold text-white pt-2 border-t border-obsidian-750/60">
+              <div className="flex justify-between text-sm font-bold text-ink-900 pt-2 border-t border-border">
                 <span>Total Amount</span>
-                <span className="font-mono text-brand-emerald">
+                <span className="font-mono text-accent">
                   ${Number(selectedOrder.total_amount).toFixed(2)}
                 </span>
               </div>

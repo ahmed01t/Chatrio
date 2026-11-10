@@ -1,5 +1,18 @@
 "use client";
 
+/**
+ * Chatrio Products & Catalog Management.
+ *
+ * Implements design-taste-frontend standards:
+ * - Quiet panels, aligned figures, colour spent on data
+ * - Warm white canvas (#FAF8F5) with terracotta (#EA580C) data highlights
+ * - Direct client mapping to backend routers:
+ *   - GET    /api/v1/products   -> backend/app/modules/products/router.py:104
+ *   - GET    /api/v1/categories -> backend/app/modules/products/router.py:48
+ *   - POST   /api/v1/products   -> backend/app/modules/products/router.py:133
+ *   - DELETE /api/v1/products/{id} -> backend/app/modules/products/router.py:225
+ */
+
 import React, { useEffect, useState } from "react";
 import {
   Package,
@@ -37,11 +50,6 @@ export default function ProductsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  /**
-   * Fetches products and categories directly from backend routers:
-   * 1. GET /api/v1/products   -> backend/app/modules/products/router.py:126
-   * 2. GET /api/v1/categories -> backend/app/modules/products/router.py:73
-   */
   const loadData = async () => {
     setIsLoading(true);
     setError(null);
@@ -69,10 +77,6 @@ export default function ProductsPage() {
     loadData();
   }, [searchQuery, selectedCategory]);
 
-  /**
-   * Creates a product in PostgreSQL inventory via backend router:
-   * POST /api/v1/products (backend/app/modules/products/router.py:100)
-   */
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
@@ -116,10 +120,6 @@ export default function ProductsPage() {
     }
   };
 
-  /**
-   * Deletes a product via backend router:
-   * DELETE /api/v1/products/{id} (backend/app/modules/products/router.py:207)
-   */
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to permanently delete this product?")) return;
     try {
@@ -133,14 +133,16 @@ export default function ProductsPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-150">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-obsidian-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-            <Package className="w-6 h-6 text-brand-emerald" />
-            <span>Product Catalog & Inventory</span>
+          <div className="text-xs font-semibold uppercase tracking-wider text-accent mb-1 font-mono">
+            Catalog &amp; Inventory
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink-900 flex items-center gap-2.5">
+            Verified Store Products
           </h1>
-          <p className="text-xs sm:text-sm text-obsidian-400 mt-1">
-            Deterministic products and pricing accessible to the LangGraph AI agent.
+          <p className="text-xs sm:text-sm text-ink-500 mt-1">
+            Deterministic products and pricing accessible to the LangGraph AI agent in WhatsApp.
           </p>
         </div>
 
@@ -157,8 +159,8 @@ export default function ProductsPage() {
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl bg-brand-rose/10 border border-brand-rose/30 text-xs text-rose-300 flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 shrink-0" />
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
           <span>{error}</span>
         </div>
       )}
@@ -167,13 +169,13 @@ export default function ProductsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2 flex-1 max-w-md">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-obsidian-400" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
             <input
               type="text"
               placeholder="Search products by title or SKU..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-obsidian-850 border border-obsidian-700/80 rounded-lg pl-9 pr-3.5 py-2 text-xs text-obsidian-100 placeholder:text-obsidian-500 focus:outline-none focus:border-brand-emerald"
+              className="w-full bg-white border border-border rounded-xl pl-9 pr-3.5 py-2 text-xs text-ink-900 placeholder:text-ink-400 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all shadow-sm"
             />
           </div>
 
@@ -181,7 +183,7 @@ export default function ProductsPage() {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="bg-obsidian-850 border border-obsidian-700/80 rounded-lg px-3 py-2 text-xs text-obsidian-200 focus:outline-none focus:border-brand-emerald"
+              className="bg-white border border-border rounded-xl px-3 py-2 text-xs text-ink-700 focus:outline-none focus:border-accent shadow-sm"
             >
               <option value="ALL">All Categories</option>
               {categories.map((c) => (
@@ -193,32 +195,32 @@ export default function ProductsPage() {
           )}
         </div>
 
-        <span className="text-xs text-obsidian-400 font-mono">
+        <span className="text-xs text-ink-500 font-mono">
           Showing {products.length} catalog items
         </span>
       </div>
 
       {/* Products Table Card */}
-      <div className="bg-obsidian-850/80 border border-obsidian-750/90 rounded-xl shadow-card overflow-hidden">
+      <div className="quiet-panel overflow-hidden card-taste">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-obsidian-900 border-b border-obsidian-750/70 text-obsidian-400 font-mono">
+            <thead className="bg-canvas-subtle border-b border-border text-ink-500 font-mono">
               <tr>
-                <th className="py-3 px-4 font-semibold">Product Name</th>
-                <th className="py-3 px-4 font-semibold">SKU</th>
-                <th className="py-3 px-4 font-semibold">Price</th>
-                <th className="py-3 px-4 font-semibold">Stock Quantity</th>
-                <th className="py-3 px-4 font-semibold">Status</th>
-                <th className="py-3 px-4 text-right font-semibold">Actions</th>
+                <th className="py-3.5 px-4 font-semibold">Product Name</th>
+                <th className="py-3.5 px-4 font-semibold">SKU</th>
+                <th className="py-3.5 px-4 font-semibold">Price</th>
+                <th className="py-3.5 px-4 font-semibold">Stock Quantity</th>
+                <th className="py-3.5 px-4 font-semibold">Status</th>
+                <th className="py-3.5 px-4 text-right font-semibold">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-obsidian-750/50">
+            <tbody className="divide-y divide-border/60">
               {products.length === 0 && !isLoading ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-obsidian-400 space-y-2">
-                    <Package className="w-8 h-8 text-obsidian-600 mx-auto" />
-                    <p className="font-semibold text-white">Your product catalog is empty</p>
-                    <p className="text-xs text-obsidian-500 max-w-sm mx-auto">
+                  <td colSpan={6} className="py-12 text-center text-ink-400 space-y-2">
+                    <Package className="w-8 h-8 text-ink-300 mx-auto" />
+                    <p className="font-semibold text-ink-900">Your product catalog is empty</p>
+                    <p className="text-xs text-ink-500 max-w-sm mx-auto">
                       Click &quot;Add New Product&quot; to insert verified inventory that the AI agent can sell in WhatsApp.
                     </p>
                   </td>
@@ -232,20 +234,20 @@ export default function ProductsPage() {
                   return (
                     <tr
                       key={product.id}
-                      className="hover:bg-obsidian-800/60 transition-colors"
+                      className="hover:bg-canvas-subtle transition-colors"
                     >
-                      <td className="py-3.5 px-4 font-semibold text-white">
+                      <td className="py-3.5 px-4 font-semibold text-ink-900">
                         {product.title || product.name}
                         {product.description && (
-                          <p className="text-[11px] text-obsidian-400 font-normal truncate max-w-xs mt-0.5">
+                          <p className="text-[11px] text-ink-500 font-normal truncate max-w-xs mt-0.5">
                             {product.description}
                           </p>
                         )}
                       </td>
-                      <td className="py-3.5 px-4 font-mono text-obsidian-400">
+                      <td className="py-3.5 px-4 font-mono text-ink-500">
                         {product.sku}
                       </td>
-                      <td className="py-3.5 px-4 font-mono font-bold text-white">
+                      <td className="py-3.5 px-4 font-mono font-bold text-ink-900">
                         ${Number(product.price).toFixed(2)}
                       </td>
                       <td className="py-3.5 px-4">
@@ -267,11 +269,11 @@ export default function ProductsPage() {
                       </td>
                       <td className="py-3.5 px-4">
                         {product.is_active ? (
-                          <span className="flex items-center gap-1 text-[11px] text-brand-emerald">
+                          <span className="flex items-center gap-1 text-[11px] font-semibold text-emerald-700">
                             <CheckCircle2 className="w-3.5 h-3.5" /> Active
                           </span>
                         ) : (
-                          <span className="flex items-center gap-1 text-[11px] text-obsidian-500">
+                          <span className="flex items-center gap-1 text-[11px] text-ink-400">
                             <AlertCircle className="w-3.5 h-3.5" /> Inactive
                           </span>
                         )}
@@ -279,7 +281,7 @@ export default function ProductsPage() {
                       <td className="py-3.5 px-4 text-right">
                         <button
                           onClick={() => handleDelete(product.id)}
-                          className="p-1.5 rounded-lg text-obsidian-400 hover:text-brand-rose hover:bg-brand-rose/10 transition-colors"
+                          className="p-1.5 rounded-lg text-ink-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
                           title="Delete Product"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -302,7 +304,7 @@ export default function ProductsPage() {
         description="Persists verified product item into PostgreSQL database."
       >
         {formError && (
-          <div className="mb-4 p-3 rounded-lg bg-brand-rose/10 border border-brand-rose/30 text-xs text-rose-300">
+          <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700">
             {formError}
           </div>
         )}
@@ -347,11 +349,11 @@ export default function ProductsPage() {
 
           {categories.length > 0 && (
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-obsidian-300">Category</label>
+              <label className="block text-xs font-semibold text-ink-700">Category</label>
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full bg-obsidian-900 border border-obsidian-700/80 rounded-lg p-2 text-xs text-obsidian-100 focus:outline-none focus:border-brand-emerald"
+                className="w-full bg-white border border-border rounded-xl p-2.5 text-xs text-ink-800 focus:outline-none focus:border-accent shadow-sm"
               >
                 <option value="">Uncategorized</option>
                 {categories.map((c) => (
@@ -364,7 +366,7 @@ export default function ProductsPage() {
           )}
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-obsidian-300">
+            <label className="block text-xs font-semibold text-ink-700">
               Description (Optional)
             </label>
             <textarea
@@ -372,11 +374,11 @@ export default function ProductsPage() {
               placeholder="Crisp sweet organic Fuji apples freshly picked."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-obsidian-900 border border-obsidian-700/80 rounded-lg p-3 text-xs text-obsidian-100 placeholder:text-obsidian-500 focus:outline-none focus:border-brand-emerald"
+              className="w-full bg-white border border-border rounded-xl p-3 text-xs text-ink-900 placeholder:text-ink-400 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent shadow-sm"
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-obsidian-750/70">
+          <div className="flex justify-end gap-2 pt-3 border-t border-border">
             <Button
               type="button"
               variant="secondary"

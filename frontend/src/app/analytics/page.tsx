@@ -1,5 +1,14 @@
 "use client";
 
+/**
+ * Chatrio AI Agent Telemetry & Invariants Monitor.
+ *
+ * Implements design-taste-frontend standards:
+ * - Quiet panels, aligned figures, colour spent on data
+ * - Warm white canvas (#FAF8F5) with terracotta (#EA580C) data highlights
+ * - Real-time signal monitoring with SVG sparklines and slide-over event inspector
+ */
+
 import React, { useState } from "react";
 import {
   Activity,
@@ -10,6 +19,7 @@ import {
   Zap,
 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { StatCard } from "@/components/ui/StatCard";
 
 interface SignalItem {
@@ -18,7 +28,7 @@ interface SignalItem {
   description: string;
   model: string;
   timeAgo: string;
-  severity: "critical" | "warning" | "active" | "neutral";
+  severity: "critical" | "warning" | "active" | "neutral" | "terracotta";
   metricLabel: string;
   metricValue: string;
   status: "Active" | "Acknowledged" | "Resolved";
@@ -62,7 +72,7 @@ const SIGNALS_DATA: SignalItem[] = [
     description: "Catalog RAG retrieval held above 2.0s for 28 minutes during batch stock sync.",
     model: "LangGraph Tools",
     timeAgo: "26 min ago",
-    severity: "warning",
+    severity: "terracotta",
     metricLabel: "p95 latency",
     metricValue: "2.10s",
     status: "Active",
@@ -72,8 +82,8 @@ const SIGNALS_DATA: SignalItem[] = [
   },
   {
     id: "sig-4",
-    title: "Prompt injection attempt detected - Guardrail Wall 1",
-    description: "Input guardrail intercepted delimiter escape </customer_input> and blocked session.",
+    title: "Prompt injection attempt blocked - Guardrail Wall 1",
+    description: "Input guardrail intercepted delimiter escape </customer_input> and isolated session.",
     model: "Guardrail Firewall",
     timeAgo: "54 min ago",
     severity: "critical",
@@ -98,254 +108,219 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-150">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-obsidian-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border">
         <div>
-          <div className="flex items-center gap-2 text-xs font-mono text-obsidian-400 mb-1">
-            <span>AI Ops</span>
-            <span>/</span>
-            <span className="text-brand-emerald">Signals & Telemetry</span>
+          <div className="text-xs font-semibold uppercase tracking-wider text-accent mb-1 font-mono">
+            AI Operations &bull; Signals
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-            <Activity className="w-6 h-6 text-brand-emerald" />
-            <span>AI Agent Telemetry & Invariants</span>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink-900 flex items-center gap-2.5">
+            AI Agent Telemetry &amp; Invariants
           </h1>
-          <p className="text-xs sm:text-sm text-obsidian-400 mt-1">
+          <p className="text-xs sm:text-sm text-ink-500 mt-1">
             Anomalies, guardrail trips, and model latency metrics across LangGraph pipelines.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-obsidian-850 border border-obsidian-750 text-xs text-obsidian-300 font-mono">
-            <span className="w-2 h-2 rounded-full bg-brand-emerald animate-pulse" />
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-border text-xs text-ink-700 font-mono shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>Telemetry: Live</span>
           </div>
         </div>
       </div>
 
-      {/* Top Stat Cards matching user reference */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      {/* Top 4 Stat Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Active Signals"
           value="4"
           trend="+2 vs previous"
-          trendType="active"
-          icon={<Zap className="w-4 h-4 text-brand-cyan" />}
+          trendType="terracotta"
+          subtitle="Model and queue events"
+          icon={<Activity className="w-4 h-4 text-accent" />}
         />
         <StatCard
-          title="Critical Alerts"
+          title="Critical Invariants"
           value="2"
           trend="+1 vs previous"
           trendType="critical"
-          icon={<AlertOctagon className="w-4 h-4 text-brand-rose" />}
+          subtitle="Tripped guardrails"
+          icon={<AlertOctagon className="w-4 h-4 text-rose-600" />}
         />
         <StatCard
           title="Acknowledged"
           value="1"
           trend="-1 vs previous"
           trendType="warning"
-          icon={<AlertTriangle className="w-4 h-4 text-brand-amber" />}
+          subtitle="Under staff review"
+          icon={<Clock className="w-4 h-4 text-amber-600" />}
         />
         <StatCard
           title="Resolved Today"
-          value="8"
-          trend="+4 vs previous"
+          value="3"
+          trend="+3 vs previous"
           trendType="success"
-          icon={<Sparkles className="w-4 h-4 text-brand-emerald" />}
+          subtitle="Autonomous recovery"
+          icon={<Sparkles className="w-4 h-4 text-emerald-600" />}
         />
       </div>
 
-      {/* Filter Pill Toolbar */}
-      <div className="flex items-center gap-2 bg-obsidian-900 p-1.5 rounded-xl border border-obsidian-750/70 w-fit">
-        {["ALL", "CRITICAL", "WARNING"].map((sev) => (
+      {/* Filter and Search Bar */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs text-ink-500 font-mono mr-2">Filter Severity:</span>
+        {["ALL", "CRITICAL", "WARNING", "TERRACOTTA"].map((sev) => (
           <button
             key={sev}
             onClick={() => setFilterSeverity(sev)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               filterSeverity === sev
-                ? "bg-obsidian-800 text-white border border-obsidian-650 font-semibold"
-                : "text-obsidian-400 hover:text-white"
+                ? "bg-white text-ink-900 border border-border shadow-sm"
+                : "text-ink-500 hover:text-ink-900 bg-canvas-subtle"
             }`}
           >
             {sev}
           </button>
         ))}
+        <span className="text-xs text-ink-400 font-mono ml-auto">
+          {filteredSignals.length} signals match filters
+        </span>
       </div>
 
-      {/* Split View: Left = Signal List, Right = Signal Inspector matching reference */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left 2 Cols: Signals List */}
-        <div className="lg:col-span-2 space-y-3">
+      {/* Main Grid: Signals List (Left) + Detail Inspector (Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Column: Signals List Rows */}
+        <div className="lg:col-span-8 space-y-3">
           {filteredSignals.map((sig) => {
             const isSelected = selectedSignal.id === sig.id;
             return (
               <div
                 key={sig.id}
                 onClick={() => setSelectedSignal(sig)}
-                className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-4 ${
+                className={`quiet-panel p-4 cursor-pointer card-taste transition-all ${
                   isSelected
-                    ? "bg-obsidian-800 border-obsidian-600 shadow-card"
-                    : "bg-obsidian-850/80 border-obsidian-750/80 hover:bg-obsidian-800/60"
+                    ? "border-accent ring-1 ring-accent bg-white shadow-elevated"
+                    : "hover:bg-canvas-subtle"
                 }`}
               >
-                <div className="flex items-start gap-3.5 min-w-0">
-                  <div
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
-                      sig.severity === "critical"
-                        ? "bg-red-500/10 border border-red-500/30 text-red-400"
-                        : "bg-amber-500/10 border border-amber-500/30 text-amber-400"
-                    }`}
-                  >
-                    {sig.severity === "critical" ? (
-                      <AlertOctagon className="w-4 h-4" />
-                    ) : (
-                      <AlertTriangle className="w-4 h-4" />
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <h4 className="text-xs sm:text-sm font-semibold text-white tracking-tight truncate">
-                      {sig.title}
-                    </h4>
-                    <p className="text-xs text-obsidian-400 mt-0.5 line-clamp-1">
-                      {sig.description}
-                    </p>
-                    <div className="flex items-center gap-2 mt-2 text-[11px] font-mono text-obsidian-500">
-                      <span>{sig.model}</span>
-                      <span>•</span>
-                      <span>{sig.timeAgo}</span>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-3 min-w-0">
+                    <div className="mt-0.5">
+                      {sig.severity === "critical" ? (
+                        <AlertOctagon className="w-5 h-5 text-rose-600" />
+                      ) : sig.severity === "warning" ? (
+                        <AlertTriangle className="w-5 h-5 text-amber-600" />
+                      ) : (
+                        <Activity className="w-5 h-5 text-accent" />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-sm font-bold text-ink-900 truncate">{sig.title}</h4>
+                        <Badge
+                          variant={sig.severity as any}
+                          size="sm"
+                        >
+                          {sig.severity.toUpperCase()}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-ink-500 mt-1 line-clamp-1">{sig.description}</p>
+                      <div className="flex items-center gap-3 mt-2 text-[11px] font-mono text-ink-400">
+                        <span>Model: {sig.model}</span>
+                        <span>&bull;</span>
+                        <span>{sig.timeAgo}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-4 shrink-0">
-                  {/* Metric Display */}
-                  <div className="text-right">
-                    <span className="text-[10px] uppercase font-mono text-obsidian-500 block">
-                      {sig.metricLabel}
-                    </span>
-                    <span className="text-sm font-bold font-mono text-white">
+                  {/* Sparkline & Metric on the Right */}
+                  <div className="text-right shrink-0">
+                    <span className="text-[10px] font-mono text-ink-400 block">{sig.metricLabel}</span>
+                    <span className="text-base font-bold text-ink-900 font-mono block">
                       {sig.metricValue}
                     </span>
+                    <div className="w-20 h-7 mt-1 ml-auto">
+                      <svg viewBox="0 0 64 24" fill="none" className="w-full h-full">
+                        <path
+                          d={
+                            sig.severity === "critical"
+                              ? "M2 18 Q 16 20, 24 14 T 44 4 T 62 10"
+                              : "M2 16 Q 16 18, 24 10 T 44 8 T 62 6"
+                          }
+                          stroke={sig.severity === "critical" ? "#E11D48" : "#EA580C"}
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    </div>
                   </div>
-
-                  {/* Sparkline Visual Simulation */}
-                  <div className="hidden sm:block w-20 h-8">
-                    <svg className="w-full h-full overflow-visible" viewBox="0 0 80 32">
-                      <path
-                        d="M 0 25 Q 20 20, 35 22 T 60 5 T 80 28"
-                        fill="none"
-                        stroke={sig.severity === "critical" ? "#EF4444" : "#F59E0B"}
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  </div>
-
-                  <Badge
-                    variant={
-                      sig.status === "Active"
-                        ? "active"
-                        : sig.status === "Acknowledged"
-                        ? "warning"
-                        : "success"
-                    }
-                    size="sm"
-                  >
-                    {sig.status}
-                  </Badge>
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* Right 1 Col: Inspector matching reference card */}
-        <div className="bg-obsidian-850/90 border border-obsidian-750/90 rounded-xl p-5 shadow-card space-y-5">
-          <div className="space-y-2 pb-4 border-b border-obsidian-750/70">
-            <h3 className="text-sm font-bold text-white tracking-tight">
-              {selectedSignal.title}
-            </h3>
-            <div className="flex items-center gap-2">
-              <Badge variant={selectedSignal.severity} size="sm">
-                {selectedSignal.severity.toUpperCase()}
-              </Badge>
-              <Badge variant="active" size="sm">
-                {selectedSignal.status}
-              </Badge>
+        {/* Right Column: Signal Inspector Card */}
+        <div className="lg:col-span-4">
+          <div className="quiet-panel p-5 card-taste sticky top-20 space-y-4">
+            <div className="pb-3 border-b border-border">
+              <span className="text-xs font-mono text-ink-400 block mb-1">Signal Inspector</span>
+              <h3 className="text-base font-bold text-ink-900">{selectedSignal.title}</h3>
+              <div className="flex items-center gap-2 mt-2">
+                <Badge variant={selectedSignal.severity as any} size="sm">
+                  {selectedSignal.severity.toUpperCase()}
+                </Badge>
+                <Badge variant="neutral" size="sm">
+                  {selectedSignal.status}
+                </Badge>
+              </div>
             </div>
-          </div>
 
-          {/* Overview Grid */}
-          <div>
-            <h4 className="text-[11px] uppercase font-bold tracking-wider font-mono text-obsidian-400 mb-3">
-              Overview
-            </h4>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 rounded-lg bg-obsidian-900 border border-obsidian-750">
-                <span className="text-[10px] font-mono text-obsidian-500 uppercase block">
-                  Current
-                </span>
-                <span className="text-base font-bold font-mono text-white">
+            {/* Overview Metrics */}
+            <div className="grid grid-cols-2 gap-3 py-2">
+              <div className="p-3 rounded-xl bg-canvas-subtle border border-border">
+                <span className="text-[11px] text-ink-400 font-mono block">Current Value</span>
+                <span className="text-lg font-bold text-ink-900 font-mono">
                   {selectedSignal.metricValue}
                 </span>
               </div>
-              <div className="p-3 rounded-lg bg-obsidian-900 border border-obsidian-750">
-                <span className="text-[10px] font-mono text-obsidian-500 uppercase block">
-                  Baseline
-                </span>
-                <span className="text-base font-bold font-mono text-white">
+              <div className="p-3 rounded-xl bg-canvas-subtle border border-border">
+                <span className="text-[11px] text-ink-400 font-mono block">Baseline</span>
+                <span className="text-lg font-bold text-ink-900 font-mono">
                   {selectedSignal.baseline}
                 </span>
               </div>
-              <div className="p-3 rounded-lg bg-obsidian-900 border border-obsidian-750">
-                <span className="text-[10px] font-mono text-obsidian-500 uppercase block">
-                  Threshold
-                </span>
-                <span className="text-base font-bold font-mono text-amber-400">
+              <div className="p-3 rounded-xl bg-canvas-subtle border border-border">
+                <span className="text-[11px] text-ink-400 font-mono block">Threshold</span>
+                <span className="text-xs font-bold text-rose-600 font-mono">
                   {selectedSignal.threshold}
                 </span>
               </div>
-              <div className="p-3 rounded-lg bg-obsidian-900 border border-obsidian-750">
-                <span className="text-[10px] font-mono text-obsidian-500 uppercase block">
-                  Duration
-                </span>
-                <span className="text-base font-bold font-mono text-white">
+              <div className="p-3 rounded-xl bg-canvas-subtle border border-border">
+                <span className="text-[11px] text-ink-400 font-mono block">Duration</span>
+                <span className="text-xs font-bold text-ink-900 font-mono">
                   {selectedSignal.duration}
                 </span>
               </div>
             </div>
-          </div>
 
-          {/* Detailed Wave Chart */}
-          <div className="space-y-2">
-            <h4 className="text-[11px] uppercase font-bold tracking-wider font-mono text-obsidian-400">
-              Metric Trend Timeline
-            </h4>
-            <div className="h-32 bg-obsidian-900 border border-obsidian-750 rounded-xl p-3 flex flex-col justify-between relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-t from-red-500/10 to-transparent pointer-events-none" />
-              <svg className="w-full h-full overflow-visible" viewBox="0 0 200 80">
-                <path
-                  d="M 0 60 Q 50 50, 90 55 T 140 15 T 200 65"
-                  fill="none"
-                  stroke="#EF4444"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <div className="flex justify-between text-[10px] font-mono text-obsidian-500 z-10">
-                <span>-60 min</span>
-                <span>Now</span>
-              </div>
+            {/* Event Description */}
+            <div className="p-3.5 rounded-xl bg-canvas-warm/50 border border-border text-xs text-ink-700 leading-relaxed">
+              <span className="font-bold text-ink-900 block mb-1">Diagnostic Log:</span>
+              <p>{selectedSignal.description}</p>
             </div>
-          </div>
 
-          {/* Action Resolution */}
-          <div className="pt-2 border-t border-obsidian-750/70 text-xs text-obsidian-400 flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-obsidian-500" />
-            <span>Monitored continuously via Redis & FastAPI event loop.</span>
+            {/* Action buttons */}
+            <div className="pt-2 flex gap-2">
+              <Button size="sm" className="flex-1">
+                Acknowledge Signal
+              </Button>
+              <Button variant="secondary" size="sm">
+                Ignore
+              </Button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
-

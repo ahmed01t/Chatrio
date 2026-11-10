@@ -32,20 +32,20 @@ export function Modal({ isOpen, onClose, title, description, children }: ModalPr
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-obsidian-950/80 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-ink-900/40 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-lg bg-obsidian-850 border border-obsidian-700 rounded-xl shadow-2xl p-6 z-10 animate-in fade-in zoom-in-95 duration-150">
-        <div className="flex items-start justify-between pb-4 border-b border-obsidian-700/60 mb-5">
+      <div className="relative w-full max-w-lg bg-white border border-border rounded-2xl shadow-elevated p-6 z-10 animate-in fade-in zoom-in-95 duration-150">
+        <div className="flex items-start justify-between pb-4 border-b border-border mb-5">
           <div>
-            <h3 className="text-lg font-semibold text-white tracking-tight">{title}</h3>
-            {description && <p className="text-xs text-obsidian-400 mt-1">{description}</p>}
+            <h3 className="text-lg font-bold text-ink-900 tracking-tight">{title}</h3>
+            {description && <p className="text-xs text-ink-500 mt-1">{description}</p>}
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-obsidian-400 hover:text-white hover:bg-obsidian-750 transition-colors"
+            className="p-1 rounded-lg text-ink-400 hover:text-ink-900 hover:bg-canvas-subtle transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -55,4 +55,3 @@ export function Modal({ isOpen, onClose, title, description, children }: ModalPr
     </div>
   );
 }
-

@@ -5,8 +5,9 @@ export interface StatCardProps {
   title: string;
   value: string | number;
   trend?: string;
-  trendType?: "critical" | "warning" | "active" | "success" | "purple" | "neutral";
+  trendType?: "critical" | "warning" | "active" | "success" | "purple" | "neutral" | "terracotta";
   icon?: React.ReactNode;
+  subtitle?: string;
 }
 
 export function StatCard({
@@ -15,27 +16,50 @@ export function StatCard({
   trend,
   trendType = "neutral",
   icon,
+  subtitle,
 }: StatCardProps) {
+  const trendColor =
+    trendType === "success"
+      ? "text-emerald-600"
+      : trendType === "terracotta"
+      ? "text-accent"
+      : trendType === "warning"
+      ? "text-amber-600"
+      : trendType === "critical"
+      ? "text-rose-600"
+      : "text-ink-500";
+
   return (
-    <div className="bg-obsidian-850/90 border border-obsidian-700/80 rounded-xl p-4 sm:p-5 hover:border-obsidian-600 transition-all shadow-card flex flex-col justify-between">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2.5">
+    <div className="quiet-panel p-5 card-taste flex flex-col justify-between">
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-medium text-ink-500 tracking-tight">
+            {title}
+          </span>
           {icon && (
-            <div className="w-8 h-8 rounded-lg bg-obsidian-800 border border-obsidian-700/70 flex items-center justify-center text-obsidian-300">
+            <div className="w-6 h-6 rounded-lg bg-canvas-subtle border border-border flex items-center justify-center text-ink-600">
               {icon}
             </div>
           )}
-          <span className="text-2xl sm:text-3xl font-bold tracking-tight text-white font-mono">
-            {value}
-          </span>
         </div>
+
+        <div className="text-2xl sm:text-3xl font-bold tracking-tight text-ink-900">
+          {value}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between mt-3 pt-2 border-t border-border/60 text-xs">
         {trend && (
-          <Badge variant={trendType} size="sm">
+          <span className={`font-semibold flex items-center gap-1 ${trendColor}`}>
             {trend}
-          </Badge>
+          </span>
+        )}
+        {subtitle && (
+          <span className="text-[11px] text-ink-400 font-mono truncate">
+            {subtitle}
+          </span>
         )}
       </div>
-      <p className="text-xs font-medium text-obsidian-400 capitalize">{title}</p>
     </div>
   );
 }
