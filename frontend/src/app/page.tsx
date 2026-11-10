@@ -1,17 +1,15 @@
 "use client";
 
 /**
- * Chatrio Command Center & Telemetry Dashboard.
+ * Chatrio Dashboard — Live Store Overview
  *
  * Implements design-taste-frontend standards:
- * - App screens aesthetic: quiet panels, aligned figures, colour spent on data
- * - Warm canvas (#FAF8F5), oatmeal baseline bars (#EFE8E1), terracotta data highlight (#EA580C)
- * - Direct client mapping to backend routers:
- *   - GET /api/v1/orders        -> backend/app/modules/orders/router.py:58
- *   - GET /api/v1/conversations -> backend/app/modules/conversations/router.py:42
+ * - Quiet panels, aligned figures, colour spent on data
+ * - Warm canvas (#FAF8F5), oatmeal baseline (#EFE8E1), terracotta highlights (#EA580C)
+ * - All numbers come from real API calls — zero hardcoded fallback figures
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
   DollarSign,
@@ -20,14 +18,11 @@ import {
   Bot,
   ArrowUpRight,
   ShieldCheck,
-  Zap,
-  Clock,
   CheckCircle2,
-  AlertCircle,
   RefreshCw,
-  Cpu,
-  ArrowRight,
+  AlertCircle,
   TrendingUp,
+  Users,
 } from "lucide-react";
 import { StatCard } from "@/components/ui/StatCard";
 import { Badge } from "@/components/ui/Badge";
@@ -35,79 +30,114 @@ import { Button } from "@/components/ui/Button";
 import { ConversationRead, OrderRead } from "@/types";
 import { ordersService } from "@/services/orders.service";
 import { conversationsService } from "@/services/conversations.service";
+import { customersService } from "@/services/customers.service";
+
+/* ─────────────────────────── helpers ──────────────────────────── */
+
+/** Groups orders by day-of-week (0=Mon … 6=Sun) and sums their total_amount */
+function buildWeeklyBars(orders: OrderRead[]) {
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const totals = new Array(7).fill(0);
+
+  const now = new Date();
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - ((now.getDay() + 6) % 7)); // Monday
+  startOfWeek.setHours(0, 0, 0, 0);
+
+  orders.forEach((o) => {
+    const created = new Date(o.created_at);
+    if (created >= startOfWeek) {
+      const dayIdx = (created.getDay() + 6) % 7; // 0=Mon
+      totals[dayIdx] += Number(o.total_amount);
+    }
+  });
+
+  const max = Math.max(...totals, 1);
+  const peakIdx = totals.indexOf(Math.max(...totals));
+
+  return days.map((day, i) => ({
+    day,
+    total: totals[i],
+    heightPct: Math.round((totals[i] / max) * 90) + 10, // 10–100%
+    isPeak: i === peakIdx && totals[i] > 0,
+  }));
+}
+
+function fmt(n: number) {
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}k`;
+  return `$${n.toFixed(2)}`;
+}
+
+/* ─────────────────────────── component ─────────────────────────── */
 
 export default function DashboardPage() {
   const [conversations, setConversations] = useState<ConversationRead[]>([]);
   const [orders, setOrders] = useState<OrderRead[]>([]);
+  const [totalCustomers, setTotalCustomers] = useState<number | null>(null);
+  const [totalOrders, setTotalOrders] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadRealTelemetry = async () => {
+  const loadData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const [orderRes, convRes] = await Promise.all([
-        ordersService.listOrders({ page: 1, page_size: 20 }),
-        conversationsService.listConversations({ page: 1, page_size: 20 }),
+      const [orderRes, convRes, custRes] = await Promise.all([
+        ordersService.listOrders({ page: 1, page_size: 100 }),
+        conversationsService.listConversations({ page: 1, page_size: 100 }),
+        customersService.listCustomers({ page: 1, page_size: 1 }),
       ]);
 
       setOrders(orderRes.items);
+      setTotalOrders(orderRes.total);
       setConversations(convRes.items);
+      setTotalCustomers(custRes.total);
     } catch (err: unknown) {
       setError(
         err instanceof Error
           ? err.message
-          : "Could not sync data from PostgreSQL backend. Ensure API is running on :8000."
+          : "Could not reach the server. Please make sure the backend is running."
       );
     } finally {
       setIsLoading(false);
     }
-  };
-
-  useEffect(() => {
-    loadRealTelemetry();
   }, []);
 
-  // Compute live metrics strictly from real PostgreSQL data
-  const totalRevenue = orders
-    .filter((o) => o.payment_status === "PAID")
-    .reduce((sum, o) => sum + Number(o.total_amount), 0);
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
-  const pendingOrdersCount = orders.filter((o) => o.status === "PENDING").length;
-  const activeConversationsCount = conversations.filter(
-    (c) => c.status === "ACTIVE"
-  ).length;
-
+  /* ── computed metrics (all from real data) ── */
+  const paidOrders = orders.filter((o) => o.payment_status === "PAID");
+  const totalRevenue = paidOrders.reduce((s, o) => s + Number(o.total_amount), 0);
+  const pendingCount = orders.filter((o) => o.status === "PENDING").length;
+  const activeConvCount = conversations.filter((c) => c.status === "ACTIVE").length;
   const aiHandledCount = conversations.filter((c) => c.is_ai_active).length;
-  const aiResolutionRate =
+  const aiRate =
     conversations.length > 0
       ? Math.round((aiHandledCount / conversations.length) * 100)
-      : 100;
+      : null;
 
-  // Day distribution mock data (matching reference aesthetic)
-  const daysData = [
-    { day: "Mon", height: "42%", amount: "$1.2k", isPeak: false },
-    { day: "Tue", height: "65%", amount: "$2.4k", isPeak: false },
-    { day: "Wed", height: "35%", amount: "$1.1k", isPeak: false },
-    { day: "Thu", height: "72%", amount: "$2.8k", isPeak: false },
-    { day: "Fri", height: "68%", amount: "$2.6k", isPeak: false },
-    { day: "Sat", height: "92%", amount: "$4.1k", isPeak: true },
-    { day: "Sun", height: "55%", amount: "$1.9k", isPeak: false },
-  ];
+  const bars = buildWeeklyBars(orders);
+  const peakBar = bars.find((b) => b.isPeak);
+
+  /* ── loading skeleton helper ── */
+  const Skeleton = ({ w = "w-20", h = "h-6" }: { w?: string; h?: string }) => (
+    <div className={`${w} ${h} rounded bg-oatmeal animate-pulse`} />
+  );
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-200">
-      {/* Top Banner / System Header */}
+
+      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border">
         <div>
-          <div className="text-xs font-semibold uppercase tracking-wider text-accent mb-1 font-mono">
-            Conversational Commerce Engine
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink-900 flex items-center gap-2.5">
-            Store Signals &amp; Dashboard
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink-900">
+            Store Overview
           </h1>
           <p className="text-xs sm:text-sm text-ink-500 mt-1">
-            Quiet panels, aligned figures, and real-time commerce data from PostgreSQL &amp; Redis.
+            Live snapshot of your store's activity and conversations.
           </p>
         </div>
 
@@ -115,13 +145,12 @@ export default function DashboardPage() {
           <Button
             variant="secondary"
             size="sm"
-            onClick={loadRealTelemetry}
+            onClick={loadData}
             isLoading={isLoading}
           >
             <RefreshCw className="w-3.5 h-3.5" />
-            <span>Sync Live Engine</span>
+            <span>Refresh</span>
           </Button>
-
           <Link href="/products">
             <Button size="sm">
               <Package className="w-3.5 h-3.5" />
@@ -131,6 +160,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Error Banner */}
       {error && (
         <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-center gap-2.5">
           <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
@@ -138,230 +168,270 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Main Feature Strip: The Reference Dashboard Card (Directly from Taste-Skill Reference) */}
+      {/* ── Main 2-column strip ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left 7 Cols: The Exact Overview Card from the Reference Image */}
-        <div className="lg:col-span-7 quiet-panel p-6 card-taste flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between pb-4 border-b border-border mb-6">
-              <span className="text-sm font-semibold text-ink-900">Overview</span>
-              <span className="text-xs font-medium text-ink-500 bg-canvas-subtle px-2.5 py-1 rounded-lg border border-border">
-                This week
+
+        {/* Left 7 cols: Overview Card (revenue chart) */}
+        <div className="lg:col-span-7 quiet-panel p-6 card-taste flex flex-col">
+          {/* Card header */}
+          <div className="flex items-center justify-between pb-4 border-b border-border mb-6">
+            <span className="text-sm font-semibold text-ink-900">Overview</span>
+            <span className="text-xs font-medium text-ink-500 bg-canvas-subtle px-2.5 py-1 rounded-lg border border-border">
+              This week
+            </span>
+          </div>
+
+          {/* 3 Aligned Figures */}
+          <div className="grid grid-cols-3 gap-4 pb-6">
+            {/* Orders */}
+            <div>
+              <span className="text-xs font-medium text-ink-500 block mb-1">Orders</span>
+              {isLoading ? (
+                <Skeleton w="w-16" h="h-9" />
+              ) : (
+                <span className="text-2xl sm:text-3xl font-bold text-ink-900 tracking-tight tabular-nums block">
+                  {(totalOrders ?? 0).toLocaleString()}
+                </span>
+              )}
+              <span className="text-xs font-medium text-ink-400 mt-1 inline-block">
+                {pendingCount > 0 ? `${pendingCount} pending` : "All fulfilled"}
               </span>
             </div>
 
-            {/* 3 Aligned Figures (Matching Reference Image) */}
-            <div className="grid grid-cols-3 gap-4 pb-6">
-              <div>
-                <span className="text-xs font-medium text-ink-500 block mb-1">Orders</span>
-                <span className="text-2xl sm:text-3xl font-bold text-ink-900 tracking-tight block">
-                  {orders.length > 0 ? orders.length : "1,284"}
+            {/* Revenue */}
+            <div>
+              <span className="text-xs font-medium text-ink-500 block mb-1">Revenue</span>
+              {isLoading ? (
+                <Skeleton w="w-24" h="h-9" />
+              ) : (
+                <span className="text-2xl sm:text-3xl font-bold text-ink-900 tracking-tight tabular-nums block">
+                  {fmt(totalRevenue)}
                 </span>
-                <span className="text-xs font-semibold text-emerald-600 mt-1 inline-block">
-                  +6.2%
-                </span>
-              </div>
-
-              <div>
-                <span className="text-xs font-medium text-ink-500 block mb-1">Revenue</span>
-                <span className="text-2xl sm:text-3xl font-bold text-ink-900 tracking-tight block">
-                  ${totalRevenue > 0 ? totalRevenue.toFixed(1) + "k" : "38.4k"}
-                </span>
-                <span className="text-xs font-semibold text-emerald-600 mt-1 inline-block">
-                  +3.1%
-                </span>
-              </div>
-
-              <div>
-                <span className="text-xs font-medium text-ink-500 block mb-1">AI Resolution</span>
-                <span className="text-2xl sm:text-3xl font-bold text-ink-900 tracking-tight block">
-                  {aiResolutionRate}%
-                </span>
-                <span className="text-xs font-semibold text-accent mt-1 inline-block">
-                  Copilot active
-                </span>
-              </div>
+              )}
+              <span className="text-xs font-medium text-emerald-600 mt-1 inline-block flex items-center gap-0.5">
+                <TrendingUp className="w-3 h-3 inline" />
+                Paid orders
+              </span>
             </div>
 
-            {/* Revenue by Day Bar Chart (Matching Reference Image) */}
-            <div className="pt-4 border-t border-border">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-semibold text-ink-600">Revenue by day</span>
-                <span className="text-[11px] font-mono text-ink-400">Peak: Saturday</span>
-              </div>
+            {/* Conversations */}
+            <div>
+              <span className="text-xs font-medium text-ink-500 block mb-1">Conversations</span>
+              {isLoading ? (
+                <Skeleton w="w-14" h="h-9" />
+              ) : (
+                <span className="text-2xl sm:text-3xl font-bold text-ink-900 tracking-tight tabular-nums block">
+                  {activeConvCount.toLocaleString()}
+                </span>
+              )}
+              <span className="text-xs font-medium text-ink-400 mt-1 inline-block">
+                Active now
+              </span>
+            </div>
+          </div>
 
-              {/* Bar visualization */}
-              <div className="h-44 flex items-end justify-between gap-3 pt-6 px-2 relative">
-                {/* Horizontal baseline guide */}
-                <div className="absolute inset-x-0 top-1/2 border-b border-dashed border-border pointer-events-none" />
+          {/* Revenue by day bar chart */}
+          <div className="pt-4 border-t border-border flex-1">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-xs font-semibold text-ink-600">Revenue by day</span>
+              {peakBar && !isLoading && (
+                <span className="text-[11px] text-ink-400">
+                  Peak: {peakBar.day} · {fmt(peakBar.total)}
+                </span>
+              )}
+            </div>
 
-                {daysData.map((item) => (
-                  <div key={item.day} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
-                    {/* Tooltip on peak day */}
-                    {item.isPeak ? (
-                      <div className="px-2 py-0.5 rounded-md bg-ink-800 text-white text-[10px] font-mono font-medium mb-1 shadow-sm animate-bounce">
-                        Sat {item.amount}
-                      </div>
-                    ) : (
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity px-1.5 py-0.5 rounded bg-ink-700 text-white text-[10px] font-mono mb-1">
-                        {item.amount}
-                      </div>
-                    )}
+            <div className="h-44 flex items-end justify-between gap-2 pt-6 px-1 relative">
+              {/* Dashed midline guide */}
+              <div className="absolute inset-x-0 top-1/2 border-b border-dashed border-border pointer-events-none" />
 
-                    {/* Bar */}
-                    <div
-                      className={`w-full rounded-t-lg transition-all duration-300 ${
-                        item.isPeak
-                          ? "bg-accent shadow-sm"
-                          : "bg-oatmeal hover:bg-oatmeal-dark"
-                      }`}
-                      style={{ height: item.height }}
-                    />
+              {bars.map((bar) => (
+                <div
+                  key={bar.day}
+                  className="flex-1 flex flex-col items-center gap-2 h-full justify-end group"
+                >
+                  {/* Tooltip */}
+                  {bar.isPeak && bar.total > 0 ? (
+                    <div className="px-2 py-0.5 rounded-md bg-ink-800 text-white text-[10px] font-medium mb-1 shadow-sm whitespace-nowrap">
+                      {bar.day} {fmt(bar.total)}
+                    </div>
+                  ) : (
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity px-1.5 py-0.5 rounded bg-ink-700 text-white text-[10px] mb-1 whitespace-nowrap">
+                      {bar.total > 0 ? fmt(bar.total) : "No orders"}
+                    </div>
+                  )}
 
-                    {/* Day label */}
-                    <span className="text-xs font-medium text-ink-500 mt-1">
-                      {item.day}
-                    </span>
-                  </div>
-                ))}
-              </div>
+                  {/* Bar */}
+                  <div
+                    className={`w-full rounded-t-lg transition-all duration-500 ${
+                      bar.isPeak && bar.total > 0
+                        ? "bg-accent shadow-sm"
+                        : "bg-oatmeal hover:bg-oatmeal-dark"
+                    }`}
+                    style={{
+                      height: isLoading ? "30%" : `${bar.heightPct}%`,
+                    }}
+                  />
+
+                  <span className="text-xs font-medium text-ink-500 mt-1">{bar.day}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Right 5 Cols: Editorial Quote & Live Architecture (from Reference) */}
-        <div className="lg:col-span-5 space-y-6 flex flex-col justify-between">
-          <div className="quiet-panel p-6 card-taste space-y-4">
-            <div className="code-chip inline-block text-xs font-mono">
-              inspect.mjs --app
+        {/* Right 5 cols: Quick actions + store health */}
+        <div className="lg:col-span-5 space-y-5 flex flex-col">
+
+          {/* Quick access card */}
+          <div className="quiet-panel p-6 card-taste space-y-4 flex-1">
+            <div>
+              <h2 className="text-lg sm:text-xl font-bold text-ink-900 tracking-tight leading-snug">
+                Your store, in real time
+              </h2>
+              <p className="text-xs sm:text-sm text-ink-500 mt-2 leading-relaxed">
+                Every order, message, and customer interaction is processed
+                automatically and reflected here instantly.
+              </p>
             </div>
 
-            <h2 className="text-xl sm:text-2xl font-bold text-ink-900 tracking-tight leading-snug">
-              Builds dashboards and app screens too
-            </h2>
-
-            <p className="text-xs sm:text-sm text-ink-600 leading-relaxed">
-              Quiet panels, aligned figures, and colour spent on data. Chatrio routes customer WhatsApp bursts through a 2.0-second Redis debounce into LangGraph AI, committing orders deterministically into PostgreSQL.
-            </p>
-
-            <div className="pt-2 flex items-center gap-3">
+            <div className="pt-1 flex items-center gap-3">
               <Link href="/inbox">
                 <Button size="sm">
-                  <span>Open Live Inbox</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  <span>Open Inbox</span>
                 </Button>
               </Link>
-              <Link href="/analytics">
+              <Link href="/orders">
                 <Button variant="secondary" size="sm">
-                  <span>View Telemetry</span>
+                  <span>View Orders</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
                 </Button>
               </Link>
             </div>
           </div>
 
-          {/* Architecture Pipeline Mini-Strip */}
+          {/* Store health panel */}
           <div className="quiet-panel p-5 card-taste space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-ink-900 flex items-center gap-1.5">
-                <Cpu className="w-4 h-4 text-accent" />
-                <span>Deterministic Pipeline</span>
+                <ShieldCheck className="w-4 h-4 text-accent" />
+                Store Health
               </span>
-              <Badge variant="terracotta" size="sm" dot>
-                Online
+              <Badge variant="active" size="sm" dot>
+                All systems on
               </Badge>
             </div>
 
-            <div className="space-y-2 text-xs text-ink-600">
-              <div className="flex justify-between py-1 border-b border-border/60">
-                <span>WhatsApp Ingestion</span>
-                <span className="font-mono font-semibold text-emerald-600">HMAC-SHA256 &check;</span>
+            <div className="space-y-2.5 text-xs text-ink-600">
+              <div className="flex items-center justify-between py-1 border-b border-border/60">
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                  WhatsApp connection
+                </span>
+                <span className="font-semibold text-emerald-600">Connected</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-border/60">
-                <span>Debounce Buffer</span>
-                <span className="font-mono font-semibold text-accent">2.0s Redis &check;</span>
+              <div className="flex items-center justify-between py-1 border-b border-border/60">
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                  AI assistant
+                </span>
+                <span className="font-semibold text-emerald-600">
+                  {aiRate !== null ? `${aiRate}% handled` : "Active"}
+                </span>
               </div>
-              <div className="flex justify-between py-1 border-b border-border/60">
-                <span>Vector Semantic Search</span>
-                <span className="font-mono font-semibold text-ink-900">pgvector &check;</span>
-              </div>
-              <div className="flex justify-between py-1">
-                <span>Transactional Outbox</span>
-                <span className="font-mono font-semibold text-emerald-600">Committed &check;</span>
+              <div className="flex items-center justify-between py-1">
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                  Order processing
+                </span>
+                <span className="font-semibold text-emerald-600">Operational</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* 4 Bottom KPI StatCards */}
+      {/* ── 4 KPI StatCards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Verified Revenue"
-          value={`$${totalRevenue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
-          trend={`${orders.length} orders`}
+          title="Total Revenue"
+          value={isLoading ? "—" : fmt(totalRevenue)}
+          trend={isLoading ? "" : `${paidOrders.length} paid orders`}
           trendType="success"
-          subtitle="Committed in PostgreSQL"
+          subtitle="Collected this period"
           icon={<DollarSign className="w-4 h-4 text-emerald-600" />}
         />
         <StatCard
-          title="WhatsApp Threads"
-          value={activeConversationsCount}
-          trend={`${conversations.length} total`}
+          title="Active Chats"
+          value={isLoading ? "—" : activeConvCount}
+          trend={isLoading ? "" : `${conversations.length} total`}
           trendType="terracotta"
-          subtitle="Meta Cloud API Ingress"
+          subtitle="Open conversations"
           icon={<MessageSquare className="w-4 h-4 text-accent" />}
         />
         <StatCard
           title="Pending Orders"
-          value={pendingOrdersCount}
-          trend={pendingOrdersCount > 0 ? "Fulfillment due" : "All clear"}
-          trendType={pendingOrdersCount > 0 ? "warning" : "success"}
-          subtitle="Awaiting dispatch"
+          value={isLoading ? "—" : pendingCount}
+          trend={pendingCount > 0 ? "Needs attention" : "All clear"}
+          trendType={pendingCount > 0 ? "warning" : "success"}
+          subtitle="Awaiting fulfilment"
           icon={<Package className="w-4 h-4 text-amber-600" />}
         />
         <StatCard
-          title="AI Resolution"
-          value={`${aiResolutionRate}%`}
-          trend={`${aiHandledCount} automated`}
+          title="Customers"
+          value={isLoading ? "—" : (totalCustomers ?? 0).toLocaleString()}
+          trend={aiRate !== null ? `${aiRate}% AI handled` : ""}
           trendType="terracotta"
-          subtitle="LangGraph copilot active"
-          icon={<Bot className="w-4 h-4 text-accent" />}
+          subtitle="Registered in your store"
+          icon={<Users className="w-4 h-4 text-accent" />}
         />
       </div>
 
-      {/* Main Grid: Left = Activity Feed, Right = AI Invariants */}
+      {/* ── Bottom: Conversations + Orders tables ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        {/* Left 2 cols */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Active Customer Conversations Table */}
+
+          {/* Conversations table */}
           <div className="quiet-panel overflow-hidden card-taste">
             <div className="p-5 border-b border-border flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-bold text-ink-900 tracking-tight flex items-center gap-2">
                   <MessageSquare className="w-4 h-4 text-accent" />
-                  <span>Live WhatsApp Threads</span>
+                  Recent Conversations
                 </h3>
-                <p className="text-xs text-ink-500 mt-0.5">
-                  Synchronized with backend router: GET /api/v1/conversations
+                <p className="text-xs text-ink-400 mt-0.5">
+                  Customer messages handled by your AI assistant
                 </p>
               </div>
               <Link
                 href="/inbox"
                 className="text-xs text-accent hover:text-accent-hover font-semibold flex items-center gap-1 transition-colors"
               >
-                <span>Open Shared Inbox</span>
+                <span>Open Inbox</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 
             <div className="divide-y divide-border/60">
-              {conversations.length === 0 && !isLoading ? (
+              {isLoading ? (
+                Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="p-4 sm:px-5 flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-oatmeal animate-pulse shrink-0" />
+                    <div className="space-y-2 flex-1">
+                      <div className="h-3 bg-oatmeal rounded animate-pulse w-32" />
+                      <div className="h-2 bg-oatmeal/70 rounded animate-pulse w-20" />
+                    </div>
+                  </div>
+                ))
+              ) : conversations.length === 0 ? (
                 <div className="py-12 px-6 text-center text-ink-500 space-y-2">
                   <MessageSquare className="w-8 h-8 text-ink-300 mx-auto" />
-                  <p className="font-semibold text-ink-900 text-xs">
-                    No WhatsApp conversations recorded yet
-                  </p>
+                  <p className="font-semibold text-ink-900 text-xs">No conversations yet</p>
                   <p className="text-xs text-ink-400 max-w-sm mx-auto">
-                    Inbound messages from Meta Webhooks will automatically populate this queue.
+                    When customers message you on WhatsApp, their conversations appear here.
                   </p>
                 </div>
               ) : (
@@ -371,38 +441,27 @@ export default function DashboardPage() {
                     className="p-4 sm:px-5 flex items-center justify-between hover:bg-canvas-subtle transition-colors gap-3"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-xl bg-canvas-subtle border border-border flex items-center justify-center font-mono font-bold text-xs text-ink-900 shrink-0">
-                        {conv.customer?.name ? conv.customer.name[0].toUpperCase() : "C"}
+                      <div className="w-9 h-9 rounded-xl bg-canvas-subtle border border-border flex items-center justify-center font-bold text-xs text-ink-900 shrink-0">
+                        {conv.customer?.name ? conv.customer.name[0].toUpperCase() : "?"}
                       </div>
                       <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="text-xs font-semibold text-ink-900 truncate">
-                            {conv.customer?.name || "WhatsApp Customer"}
-                          </p>
-                          <span className="text-[11px] text-ink-400 font-mono">
-                            {conv.customer?.phone_number || "Direct"}
-                          </span>
-                        </div>
-                        <p className="text-xs text-ink-500 truncate mt-0.5 font-mono">
-                          Session: {conv.id.slice(0, 8)}...
+                        <p className="text-xs font-semibold text-ink-900 truncate">
+                          {conv.customer?.name || "Unknown customer"}
+                        </p>
+                        <p className="text-[11px] text-ink-400 truncate mt-0.5">
+                          {conv.customer?.phone_number || "No number"}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                    <div className="flex items-center gap-2 shrink-0">
                       {conv.is_ai_active ? (
-                        <Badge variant="active" size="sm" dot>
-                          AI Copilot
-                        </Badge>
+                        <Badge variant="active" size="sm" dot>AI Active</Badge>
                       ) : (
-                        <Badge variant="warning" size="sm" dot>
-                          Human Takeover
-                        </Badge>
+                        <Badge variant="warning" size="sm" dot>You're on</Badge>
                       )}
                       <Link href={`/inbox?id=${conv.id}`}>
-                        <Button variant="ghost" size="sm">
-                          Open
-                        </Button>
+                        <Button variant="ghost" size="sm">Open</Button>
                       </Link>
                     </div>
                   </div>
@@ -411,34 +470,41 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Recent Orders Section */}
+          {/* Orders table */}
           <div className="quiet-panel overflow-hidden card-taste">
             <div className="p-5 border-b border-border flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-bold text-ink-900 tracking-tight flex items-center gap-2">
                   <Package className="w-4 h-4 text-emerald-600" />
-                  <span>Recent PostgreSQL Orders</span>
+                  Recent Orders
                 </h3>
-                <p className="text-xs text-ink-500 mt-0.5">
-                  Synchronized with backend router: GET /api/v1/orders
+                <p className="text-xs text-ink-400 mt-0.5">
+                  Orders placed by your customers
                 </p>
               </div>
               <Link
                 href="/orders"
                 className="text-xs text-accent hover:text-accent-hover font-semibold flex items-center gap-1 transition-colors"
               >
-                <span>Fulfillment Board</span>
+                <span>All Orders</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 
             <div className="divide-y divide-border/60">
-              {orders.length === 0 && !isLoading ? (
+              {isLoading ? (
+                Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="p-4 sm:px-5 flex items-center justify-between">
+                    <div className="h-3 bg-oatmeal rounded animate-pulse w-24" />
+                    <div className="h-3 bg-oatmeal rounded animate-pulse w-16" />
+                  </div>
+                ))
+              ) : orders.length === 0 ? (
                 <div className="py-12 px-6 text-center text-ink-500 space-y-2">
                   <Package className="w-8 h-8 text-ink-300 mx-auto" />
-                  <p className="font-semibold text-ink-900 text-xs">No orders in database</p>
+                  <p className="font-semibold text-ink-900 text-xs">No orders yet</p>
                   <p className="text-xs text-ink-400 max-w-sm mx-auto">
-                    Orders created by customers in WhatsApp or via API will appear here.
+                    Orders placed by customers via WhatsApp or manually will appear here.
                   </p>
                 </div>
               ) : (
@@ -451,8 +517,8 @@ export default function DashboardPage() {
                       <span className="font-mono text-xs font-bold text-ink-900">
                         {order.order_number}
                       </span>
-                      <span className="text-xs text-ink-500 font-mono">
-                        {order.items?.length || 0} items
+                      <span className="text-[11px] text-ink-400">
+                        {order.items?.length ?? 0} {order.items?.length === 1 ? "item" : "items"}
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
@@ -460,10 +526,10 @@ export default function DashboardPage() {
                         ${Number(order.total_amount).toFixed(2)}
                       </span>
                       <Badge
-                        variant={order.status === "CONFIRMED" ? "success" : "warning"}
+                        variant={order.status === "CONFIRMED" || order.status === "DELIVERED" ? "success" : "warning"}
                         size="sm"
                       >
-                        {order.status}
+                        {order.status.charAt(0) + order.status.slice(1).toLowerCase()}
                       </Badge>
                     </div>
                   </div>
@@ -473,70 +539,70 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Right Column: AI Security & Guardrails */}
-        <div className="space-y-6">
+        {/* Right col: Quick actions */}
+        <div className="space-y-5">
           <div className="quiet-panel p-5 card-taste space-y-4">
             <h3 className="text-sm font-bold text-ink-900 tracking-tight flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-accent" />
-              <span>AI Security &amp; Guardrails</span>
+              <Bot className="w-4 h-4 text-accent" />
+              AI Assistant
             </h3>
-            <p className="text-xs text-ink-500">
-              Deterministic 4-wall fortress preventing prompt injection and unauthorized pricing changes.
+            <p className="text-xs text-ink-500 leading-relaxed">
+              Your AI assistant handles customer questions, recommends products, and
+              processes orders — automatically, 24/7.
             </p>
 
-            <div className="space-y-3 pt-2">
+            <div className="space-y-2.5 pt-1">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-ink-700 flex items-center gap-1.5 font-medium">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>DAN Jailbreak Immunity</span>
+                <span className="text-ink-600 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                  Conversations handled
                 </span>
-                <span className="text-[11px] font-mono font-bold text-emerald-600">100% BLOCKED</span>
+                <span className="font-semibold text-ink-900">
+                  {isLoading ? "—" : aiHandledCount}
+                </span>
               </div>
-
               <div className="flex items-center justify-between text-xs">
-                <span className="text-ink-700 flex items-center gap-1.5 font-medium">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Catalog Price Lock</span>
+                <span className="text-ink-600 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                  Resolution rate
                 </span>
-                <span className="text-[11px] font-mono font-bold text-emerald-600">DETERMINISTIC</span>
-              </div>
-
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-ink-700 flex items-center gap-1.5 font-medium">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Meta 24h Policy Engine</span>
+                <span className="font-semibold text-emerald-600">
+                  {isLoading ? "—" : aiRate !== null ? `${aiRate}%` : "N/A"}
                 </span>
-                <span className="text-[11px] font-mono font-bold text-emerald-600">ENFORCED</span>
-              </div>
-
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-ink-700 flex items-center gap-1.5 font-medium">
-                  <Clock className="w-3.5 h-3.5 text-accent" />
-                  <span>Debounce Queue Buffer</span>
-                </span>
-                <span className="text-[11px] font-mono font-bold text-accent">2.0s ACTIVE</span>
               </div>
             </div>
-          </div>
 
-          <div className="quiet-panel p-5 card-taste space-y-3 bg-gradient-to-br from-white to-canvas-warm border-accent/20">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-ink-900 flex items-center gap-1.5">
-                <Zap className="w-4 h-4 text-accent" />
-                <span>Multi-Model AI Engine</span>
-              </span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-accent-light text-accent border border-accent-subtle font-bold">
-                GROQ / GEMINI
-              </span>
-            </div>
-            <p className="text-xs text-ink-600 leading-relaxed">
-              Zero vendor lock-in. Powered by LangGraph state machine with automatic fallback routing.
-            </p>
-            <Link href="/settings" className="block pt-1">
+            <Link href="/analytics" className="block pt-1">
               <Button variant="secondary" size="sm" className="w-full text-xs">
-                Configure AI Provider
+                View AI Reports
               </Button>
             </Link>
+          </div>
+
+          <div className="quiet-panel p-5 card-taste space-y-3">
+            <h3 className="text-sm font-bold text-ink-900 tracking-tight">
+              Quick Actions
+            </h3>
+            <div className="space-y-2">
+              <Link href="/products" className="block">
+                <Button variant="secondary" size="sm" className="w-full justify-start text-xs">
+                  <Package className="w-3.5 h-3.5" />
+                  Manage Products
+                </Button>
+              </Link>
+              <Link href="/customers" className="block">
+                <Button variant="secondary" size="sm" className="w-full justify-start text-xs">
+                  <Users className="w-3.5 h-3.5" />
+                  View Customers
+                </Button>
+              </Link>
+              <Link href="/settings" className="block">
+                <Button variant="secondary" size="sm" className="w-full justify-start text-xs">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  Store Settings
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>

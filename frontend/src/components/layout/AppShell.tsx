@@ -7,22 +7,33 @@ import { Navbar } from "./Navbar";
 import { useAuth } from "@/context/AuthContext";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
+  const pathname  = usePathname();
   const { isLoading } = useAuth();
-  const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/register");
+  const isAuthPage =
+    pathname.startsWith("/login") || pathname.startsWith("/register");
 
+  /* Auth pages — full-screen canvas with warm ambient glow */
   if (isAuthPage) {
-    return <main className="min-h-screen bg-canvas text-ink-900 canvas-glow">{children}</main>;
+    return (
+      <main className="min-h-screen canvas-glow text-ink-900">
+        {children}
+      </main>
+    );
   }
 
+  /* Loading splash */
   if (isLoading) {
     return (
       <div className="min-h-screen bg-canvas flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center font-bold text-white font-mono text-xl animate-pulse shadow-sm">
-            C.
+        <div className="flex flex-col items-center gap-4">
+          <div
+            className="w-10 h-10 rounded-[10px] bg-accent flex items-center
+                       justify-center text-white font-semibold text-lg
+                       animate-pulse"
+          >
+            C
           </div>
-          <p className="text-xs text-ink-500 font-mono">Loading Chatrio Engine...</p>
+          <p className="text-[13px] text-ink-500">Loading…</p>
         </div>
       </div>
     );
@@ -31,10 +42,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-canvas text-ink-900 flex">
       <Sidebar />
-      <div className="flex-1 pl-16 sm:pl-60 flex flex-col min-h-screen">
+
+      {/* Main area offset by sidebar width */}
+      <div className="flex-1 pl-[60px] sm:pl-[232px] flex flex-col min-h-screen">
         <Navbar />
-        <main className="flex-1 mt-16 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
-          {children}
+
+        {/* Page content — 68px top offset for fixed navbar */}
+        <main className="flex-1 mt-[68px] p-4 sm:p-6 lg:p-8">
+          <div className="max-w-[1280px] mx-auto w-full">
+            {children}
+          </div>
         </main>
       </div>
     </div>

@@ -2,86 +2,189 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ───────────────────────────────────────────────────────────────────────────
+   Fonts are loaded via <link> in layout.tsx to avoid CSS @import ordering
+   issues with PostCSS / Turbopack.
+─────────────────────────────────────────────────────────────────────────── */
+
+/* ─── Design tokens ───────────────────────────────────────────────────────── */
 :root {
-  --background: #FAF8F5;
-  --foreground: #111827;
+  /* Ground */
+  --g-main:  #FAFAF9;
+  --g-alt:   #F4F0EB;
+  --g-dark:  #18181B;
+
+  /* Ink */
+  --ink:     #18181B;
+  --muted:   #71717A;
+
+  /* Accent — terracotta */
+  --action:  #E8541A;
+  --action-h: #C8420E;
+
+  /* Border hairline */
+  --line:    rgba(24, 24, 27, 0.12);
+
+  /* Radius — soft scale */
+  --r-sm:    8px;
+  --r-md:    12px;
+  --r-lg:    20px;
+  --r-btn:   10px;
+
+  /* Layout rhythm */
+  --nav:     68px;
+  --padt:    80px;
+  --padb:    64px;
+  --gut:     80px;
 }
+
+/* ─── Base reset ──────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
 
 body {
-  color: var(--foreground);
-  background-color: var(--background);
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-  overflow-x: hidden;
+  background-color: var(--g-main);
+  color: var(--ink);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  overflow-x: hidden;
 }
 
-/* Background ambient warmth glow from reference */
-.canvas-glow {
-  background: radial-gradient(circle at 15% 15%, rgba(254, 215, 170, 0.3) 0%, rgba(255, 237, 213, 0.15) 30%, #FAF8F5 70%);
+/* ─── Typographic system ──────────────────────────────────────────────────── */
+
+/* Display face — editorial headings (Instrument Serif) */
+.display {
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
-/* Quiet panels (from tasteskill 2.1 app screens) */
+h1, h2 { letter-spacing: -0.025em; }
+h3, h4 { letter-spacing: -0.015em; }
+
+/* ─── Quiet panel (tasteskill.dev app-screen card) ──────────────────────── */
 .quiet-panel {
   background-color: #FFFFFF;
-  border: 1px solid #ECE6DF;
-  box-shadow: 0 10px 25px -5px rgba(220, 100, 40, 0.04), 0 1px 3px 0 rgba(0, 0, 0, 0.02);
-  border-radius: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow:
+    0 1px 2px 0 rgba(24, 24, 27, 0.04),
+    0 1px 10px -4px rgba(24, 24, 27, 0.06);
 }
 
-/* Micro-animations and Anti-Slop Motion Layer (tasteskill 2.5) */
+/* ─── Card micro-lift (hover 2px, 200ms spring) ─────────────────────────── */
 .card-taste {
-  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 200ms cubic-bezier(0.16, 1, 0.3, 1);
 }
-
 .card-taste:hover {
   transform: translateY(-2px);
-  border-color: #D8CFC5;
-  box-shadow: 0 14px 30px -8px rgba(220, 100, 40, 0.08);
+  border-color: rgba(24, 24, 27, 0.18);
+  box-shadow:
+    0 4px 16px -4px rgba(24, 24, 27, 0.08),
+    0 1px 2px 0 rgba(24, 24, 27, 0.04);
 }
 
-/* Button stepping */
-.button-step {
-  transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1),
-              filter 120ms cubic-bezier(0.16, 1, 0.3, 1);
+/* ─── Button step & press ───────────────────────────────────────────────── */
+.btn-step {
+  transition:
+    filter 100ms ease,
+    transform 100ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-step:hover  { filter: brightness(0.95); }
+.btn-step:active { transform: scale(0.97); }
+
+/* ─── Warm ambient ground (hero / app shell) ────────────────────────────── */
+.canvas-glow {
+  background:
+    radial-gradient(ellipse 60% 50% at 10% 0%,
+      rgba(232, 84, 26, 0.06) 0%,
+      transparent 70%),
+    radial-gradient(ellipse 50% 40% at 90% 100%,
+      rgba(232, 84, 26, 0.04) 0%,
+      transparent 70%),
+    var(--g-main);
 }
 
-.button-step:hover {
-  filter: brightness(0.96);
+/* ─── Skeleton shimmer ──────────────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #F0EDE8 25%,
+    #E8E3DC 50%,
+    #F0EDE8 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.6s linear infinite;
+  border-radius: var(--r-sm);
 }
 
-.button-step:active {
-  transform: scale(0.98);
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0;  }
 }
 
-/* Refined Clean Scrollbars */
-::-webkit-scrollbar {
+/* ─── Focus ring (terracotta, tasteskill.dev) ───────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--action);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+/* ─── Scrollbar (clean, warm) ───────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track  { background: var(--g-main); }
+::-webkit-scrollbar-thumb  { background: #D5CEC5; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #BEB5A8; }
+
+/* ─── Hairline dividers ──────────────────────────────────────────────────── */
+.hairline        { border-color: var(--line); }
+.hairline-strong { border-color: rgba(24, 24, 27, 0.18); }
+
+/* ─── Status indicators ─────────────────────────────────────────────────── */
+.status-dot {
+  display: inline-block;
   width: 6px;
   height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
 }
 
-::-webkit-scrollbar-track {
-  background: #FAF8F5;
+/* ─── Selection colour ───────────────────────────────────────────────────── */
+::selection {
+  background-color: rgba(232, 84, 26, 0.15);
+  color: var(--ink);
 }
 
-::-webkit-scrollbar-thumb {
-  background: #E5DDD4;
-  border-radius: 9999px;
+/* ─── Hero entrance animation ───────────────────────────────────────────── */
+[data-enter] {
+  animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+[data-enter="1"] { animation-delay: 0.05s; }
+[data-enter="2"] { animation-delay: 0.12s; }
+[data-enter="3"] { animation-delay: 0.20s; }
+[data-enter="4"] { animation-delay: 0.28s; }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0);    }
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #D8CFC5;
-}
+/* ─── Utility: measure (max 62ch line length) ────────────────────────────── */
+.measure { max-width: 62ch; }
 
-/* Code Chip / Spec Badge */
-.code-chip {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  background-color: #F5EFEB;
-  border: 1px solid #E6DDD4;
-  color: #475569;
-  padding: 0.25rem 0.6rem;
-  border-radius: 0.5rem;
-  font-size: 0.8125rem;
+/* ─── Muted text colour ──────────────────────────────────────────────────── */
+.text-muted { color: var(--muted); }
+
+/* ─── Thin/light number display ──────────────────────────────────────────── */
+.tabular-figures {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }

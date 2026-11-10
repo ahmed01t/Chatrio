@@ -5,21 +5,23 @@ import { twMerge } from "tailwind-merge";
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
+  hint?: string;
   icon?: React.ReactNode;
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, icon, ...props }, ref) => {
+  ({ className, label, error, hint, icon, ...props }, ref) => {
     return (
       <div className="w-full space-y-1.5">
         {label && (
-          <label className="block text-xs font-semibold text-ink-700">
+          <label className="block text-[13px] font-medium text-ink-700">
             {label}
           </label>
         )}
+
         <div className="relative flex items-center">
           {icon && (
-            <div className="absolute left-3.5 flex items-center pointer-events-none text-ink-400">
+            <div className="absolute left-3 flex items-center pointer-events-none text-ink-400">
               {icon}
             </div>
           )}
@@ -27,17 +29,30 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             className={twMerge(
               clsx(
-                "w-full bg-white border border-border rounded-xl py-2 text-sm text-ink-900 placeholder:text-ink-400 shadow-sm",
-                "focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors duration-150",
-                icon ? "pl-10 pr-3.5" : "px-3.5",
-                error && "border-rose-500 focus:border-rose-500 focus:ring-rose-500",
+                // base
+                "w-full h-10 bg-white border border-border rounded-[10px]",
+                "text-[14px] text-ink-900 placeholder:text-ink-400",
+                "transition-all duration-150",
+                // focus — terracotta ring
+                "focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15",
+                // padding
+                icon ? "pl-9 pr-3.5" : "px-3.5",
+                // error state
+                error &&
+                  "border-rose-400 focus:border-rose-500 focus:ring-rose-200",
                 className
               )
             )}
             {...props}
           />
         </div>
-        {error && <p className="text-xs text-rose-600 font-medium">{error}</p>}
+
+        {error && (
+          <p className="text-[12px] text-rose-600 font-medium">{error}</p>
+        )}
+        {hint && !error && (
+          <p className="text-[12px] text-ink-400">{hint}</p>
+        )}
       </div>
     );
   }
