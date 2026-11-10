@@ -1,44 +1,38 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { Organization, User } from "@/types";
-import { api } from "@/lib/api";
+import { OrganizationRead, UserRead } from "@/types";
+import { authService, RegisterPayload } from "@/services/auth.service";
 
 interface AuthContextType {
-  user: User | null;
-  organization: Organization | null;
+  user: UserRead | null;
+  organization: OrganizationRead | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, pass: string) => Promise<void>;
-  register: (params: {
-    name: string;
-    email: string;
-    password: string;
-    organization_name: string;
-    currency?: string;
-  }) => Promise<void>;
+  register: (payload: RegisterPayload) => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [organization, setOrganization] = useState<Organization | null>(null);
+  const [user, setUser] = useState<UserRead | null>(null);
+  const [organization, setOrganization] = useState<OrganizationRead | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Restore session on mount
-    const token = localStorage.getItem("chatrio_access_token");
-    const storedUser = localStorage.getItem("chatrio_user");
-    const storedOrg = localStorage.getItem("chatrio_org");
+    // Restore session from localStorage on application mount
+    const token = typeof window !== "undefined" ? localStorage.getItem("chatrio_access_token") : null;
+    const storedUser = typeof window !== "undefined" ? localStorage.getItem("chatrio_user") : null;
+    const storedOrg = typeof window !== "undefined" ? localStorage.getItem("chatrio_org") : null;
 
     if (token && storedUser && storedOrg) {
       try {
         setUser(JSON.parse(storedUser));
         setOrganization(JSON.parse(storedOrg));
       } catch {
-        api.clearTokens();
+        authService.clearSession();
       }
     }
     setIsLoading(false);
@@ -47,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, pass: string) => {
     setIsLoading(true);
     try {
-      const res = await api.login(email, pass);
+      const res = await authService.login({ email, password: pass });
       setUser(res.user);
       setOrganization(res.organization);
     } finally {
@@ -55,16 +49,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const register = async (params: {
-    name: string;
-    email: string;
-    password: string;
-    organization_name: string;
-    currency?: string;
-  }) => {
+  const register = async (payload: RegisterPayload) => {
     setIsLoading(true);
     try {
-      const res = await api.register(params);
+      const res = await authService.register(payload);
       setUser(res.user);
       setOrganization(res.organization);
     } finally {
@@ -73,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
-    api.clearTokens();
+    authService.clearSession();
     setUser(null);
     setOrganization(null);
     if (typeof window !== "undefined") {
@@ -105,4 +93,3 @@ export function useAuth() {
   }
   return context;
 }
-

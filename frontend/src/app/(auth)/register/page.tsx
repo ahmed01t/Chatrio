@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Mail, Lock, User, Store, ArrowRight, DollarSign } from "lucide-react";
+import { Mail, Lock, User, Store, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/context/AuthContext";
@@ -11,11 +11,10 @@ import { useAuth } from "@/context/AuthContext";
 export default function RegisterPage() {
   const router = useRouter();
   const { register } = useAuth();
-  const [name, setName] = useState("");
+  const [fullName, setFullName] = useState("");
   const [storeName, setStoreName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [currency, setCurrency] = useState("USD");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,16 +24,16 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
+      // Calls backend router: POST /api/v1/auth/register (backend/app/modules/auth/router.py:40)
       await register({
-        name,
-        organization_name: storeName,
-        email,
+        full_name: fullName.trim(),
+        organization_name: storeName.trim(),
+        email: email.trim(),
         password,
-        currency,
       });
       router.push("/");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to register store.");
+      setError(err instanceof Error ? err.message : "Failed to register merchant account.");
     } finally {
       setIsLoading(false);
     }
@@ -51,7 +50,7 @@ export default function RegisterPage() {
           </div>
           <h1 className="text-2xl font-bold text-white tracking-tight">Create your Store</h1>
           <p className="text-xs text-obsidian-400 mt-1">
-            Deploy your autonomous WhatsApp commerce agent in minutes
+            Deploy your autonomous WhatsApp commerce agent on Chatrio
           </p>
         </div>
 
@@ -74,8 +73,8 @@ export default function RegisterPage() {
           <Input
             label="Your Full Name"
             placeholder="e.g. John Doe"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
             icon={<User className="w-4 h-4" />}
             required
           />
@@ -93,34 +92,12 @@ export default function RegisterPage() {
           <Input
             label="Password"
             type="password"
-            placeholder="Min 8 characters with numbers"
+            placeholder="Min 8 characters"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             icon={<Lock className="w-4 h-4" />}
             required
           />
-
-          <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-obsidian-300">
-              Store Currency
-            </label>
-            <div className="relative">
-              <DollarSign className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-obsidian-400 pointer-events-none" />
-              <select
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-                className="w-full bg-obsidian-900 border border-obsidian-700/80 rounded-lg pl-10 pr-3.5 py-2 text-sm text-obsidian-100 focus:outline-none focus:border-brand-emerald focus:ring-1 focus:ring-brand-emerald"
-              >
-                <option value="USD">USD — US Dollar ($)</option>
-                <option value="EUR">EUR — Euro (€)</option>
-                <option value="GBP">GBP — British Pound (£)</option>
-                <option value="PKR">PKR — Pakistani Rupee (Rs)</option>
-                <option value="INR">INR — Indian Rupee (₹)</option>
-                <option value="AED">AED — UAE Dirham (د.إ)</option>
-                <option value="CAD">CAD — Canadian Dollar ($)</option>
-              </select>
-            </div>
-          </div>
 
           <Button type="submit" className="w-full mt-3" size="lg" isLoading={isLoading}>
             Deploy Store Agent <ArrowRight className="w-4 h-4" />
@@ -140,4 +117,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-

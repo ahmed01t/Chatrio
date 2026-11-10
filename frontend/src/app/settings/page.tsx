@@ -18,7 +18,7 @@ import { useAuth } from "@/context/AuthContext";
 export default function SettingsPage() {
   const { organization } = useAuth();
   const [storeName, setStoreName] = useState(organization?.name || "Acme Superstore");
-  const [currency, setCurrency] = useState(organization?.currency || "USD");
+  const [currency, setCurrency] = useState("USD");
   const [phoneId, setPhoneId] = useState("109823489234892");
   const [welcomeMessage, setWelcomeMessage] = useState(
     "Hello! Welcome to our store. How can I help you browse our products today?"

@@ -12,56 +12,98 @@ import {
   Zap,
   Clock,
   CheckCircle2,
+  AlertCircle,
+  RefreshCw,
 } from "lucide-react";
 import { StatCard } from "@/components/ui/StatCard";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Conversation, DashboardKPI, Order } from "@/types";
-import { api } from "@/lib/api";
+import { ConversationRead, OrderRead } from "@/types";
+import { ordersService } from "@/services/orders.service";
+import { conversationsService } from "@/services/conversations.service";
 
 export default function DashboardPage() {
-  const [kpi, setKpi] = useState<DashboardKPI | null>(null);
-  const [recentConvs, setRecentConvs] = useState<Conversation[]>([]);
-  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+  const [conversations, setConversations] = useState<ConversationRead[]>([]);
+  const [orders, setOrders] = useState<OrderRead[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadRealTelemetry = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      /**
+       * Calls real backend routers:
+       * 1. GET /api/v1/orders        -> backend/app/modules/orders/router.py:58
+       * 2. GET /api/v1/conversations -> backend/app/modules/conversations/router.py:58
+       */
+      const [orderRes, convRes] = await Promise.all([
+        ordersService.listOrders({ page: 1, page_size: 20 }),
+        conversationsService.listConversations({ page: 1, page_size: 20 }),
+      ]);
+
+      setOrders(orderRes.items);
+      setConversations(convRes.items);
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to load telemetry from Chatrio backend."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function loadData() {
-      try {
-        const [kpiData, convs, orders] = await Promise.all([
-          api.getDashboardKPI(),
-          api.getConversations(),
-          api.getOrders(),
-        ]);
-        setKpi(kpiData);
-        setRecentConvs(convs.slice(0, 5));
-        setRecentOrders(orders.slice(0, 4));
-      } catch (err) {
-        console.error("Failed to load dashboard data:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    loadData();
+    loadRealTelemetry();
   }, []);
+
+  // Compute live metrics strictly from real PostgreSQL data
+  const totalRevenue = orders
+    .filter((o) => o.payment_status === "PAID")
+    .reduce((sum, o) => sum + Number(o.total_amount), 0);
+
+  const pendingOrdersCount = orders.filter((o) => o.status === "PENDING").length;
+  const activeConversationsCount = conversations.filter(
+    (c) => c.status === "ACTIVE"
+  ).length;
+
+  const aiHandledCount = conversations.filter((c) => c.is_ai_active).length;
+  const aiResolutionRate =
+    conversations.length > 0
+      ? Math.round((aiHandledCount / conversations.length) * 100)
+      : 100;
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-200">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-obsidian-800">
         <div>
+          <div className="flex items-center gap-2 text-xs font-mono text-obsidian-400 mb-1">
+            <span>Store Operations</span>
+            <span>/</span>
+            <span className="text-brand-emerald">Signals & Overview</span>
+          </div>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-            Store Signals & Overview
+            Store Signals & Telemetry
           </h1>
           <p className="text-xs sm:text-sm text-obsidian-400 mt-1">
-            Real-time conversational commerce, orders, and AI agent telemetry.
+            Live conversational commerce metrics aggregated directly from PostgreSQL & Redis.
           </p>
         </div>
+
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-obsidian-850 border border-obsidian-750 text-xs text-obsidian-300">
-            <span className="w-2 h-2 rounded-full bg-brand-emerald animate-pulse" />
-            <span>Live Sync</span>
-          </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={loadRealTelemetry}
+            isLoading={isLoading}
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>Sync Live Data</span>
+          </Button>
+
           <Link href="/products">
             <Button size="sm">
               <Package className="w-3.5 h-3.5" />
@@ -71,41 +113,47 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* 4 Top KPI StatCards matching the reference image layout */}
+      {error && (
+        <div className="p-4 rounded-xl bg-brand-rose/10 border border-brand-rose/30 text-xs text-rose-300 flex items-center gap-2.5">
+          <AlertCircle className="w-4 h-4 shrink-0 text-brand-rose" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      {/* 4 Top KPI StatCards derived 100% from real database rows */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard
           title="Total Store Revenue"
-          value={`$${kpi?.total_revenue?.toLocaleString("en-US", { minimumFractionDigits: 2 }) || "4,280.50"}`}
-          trend={kpi?.revenue_trend || "+14% vs previous"}
+          value={`$${totalRevenue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
+          trend={`${orders.length} orders total`}
           trendType="success"
           icon={<DollarSign className="w-4 h-4 text-brand-emerald" />}
         />
         <StatCard
-          title="Active Conversations"
-          value={kpi?.active_conversations || 18}
-          trend={kpi?.conversations_trend || "+6 today"}
+          title="Active WhatsApp Inquiries"
+          value={activeConversationsCount}
+          trend={`${conversations.length} sessions`}
           trendType="active"
           icon={<MessageSquare className="w-4 h-4 text-brand-cyan" />}
         />
         <StatCard
           title="Orders Pending"
-          value={kpi?.pending_orders || 5}
-          trend={kpi?.pending_trend || "3 need packing"}
-          trendType="warning"
+          value={pendingOrdersCount}
+          trend={pendingOrdersCount > 0 ? "Fulfillment required" : "All cleared"}
+          trendType={pendingOrdersCount > 0 ? "warning" : "success"}
           icon={<Package className="w-4 h-4 text-brand-amber" />}
         />
         <StatCard
-          title="AI Resolution Rate"
-          value={`${kpi?.ai_resolution_rate || 94}%`}
-          trend={kpi?.ai_trend || "+3.2% vs previous"}
+          title="AI Automation Rate"
+          value={`${aiResolutionRate}%`}
+          trend={`${aiHandledCount} copilot active`}
           trendType="purple"
           icon={<Bot className="w-4 h-4 text-brand-purple" />}
         />
       </div>
 
-      {/* Main Grid: Left = Recent Inbound Messages & Orders, Right = AI Fortress Status */}
+      {/* Main Grid: Left = Activity Feed, Right = AI Fortress */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left 2 Cols: Activity Feed */}
         <div className="lg:col-span-2 space-y-6">
           {/* Active Customer Conversations Table */}
           <div className="bg-obsidian-850/80 border border-obsidian-750/90 rounded-xl shadow-card overflow-hidden">
@@ -113,75 +161,53 @@ export default function DashboardPage() {
               <div>
                 <h3 className="text-sm font-semibold text-white tracking-tight flex items-center gap-2">
                   <MessageSquare className="w-4 h-4 text-brand-cyan" />
-                  <span>Recent WhatsApp Customer Inquiries</span>
+                  <span>Live WhatsApp Conversations</span>
                 </h3>
                 <p className="text-xs text-obsidian-400 mt-0.5">
-                  Live chat threads processed by LangGraph AI agent
+                  Connected to backend router: GET /api/v1/conversations
                 </p>
               </div>
               <Link
                 href="/inbox"
                 className="text-xs text-brand-emerald hover:text-emerald-300 font-medium flex items-center gap-1 transition-colors"
               >
-                <span>View Inbox</span>
+                <span>Open Shared Inbox</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 
             <div className="divide-y divide-obsidian-750/50">
-              {recentConvs.length === 0 && !isLoading ? (
-                <div className="p-8 text-center text-xs text-obsidian-400">
-                  No customer conversations yet. Test by sending a WhatsApp message to your phone number ID!
+              {conversations.length === 0 && !isLoading ? (
+                <div className="py-12 px-6 text-center text-obsidian-400 space-y-2">
+                  <MessageSquare className="w-8 h-8 text-obsidian-600 mx-auto" />
+                  <p className="font-semibold text-white text-xs">
+                    No WhatsApp conversations recorded yet
+                  </p>
+                  <p className="text-xs text-obsidian-500 max-w-sm mx-auto">
+                    Inbound messages from Meta Webhooks will automatically populate this queue.
+                  </p>
                 </div>
               ) : (
-                (recentConvs.length > 0
-                  ? recentConvs
-                  : [
-                      {
-                        id: "1",
-                        customer_phone: "+1 (415) 555-2671",
-                        customer_name: "Sarah Jenkins",
-                        last_message_snippet: "Can I add 2 Organic Fuji Apples to my order?",
-                        is_ai_active: true,
-                        created_at: "5 min ago",
-                      },
-                      {
-                        id: "2",
-                        customer_phone: "+1 (650) 555-8932",
-                        customer_name: "Michael Chen",
-                        last_message_snippet: "Need to speak with a human support agent please",
-                        is_ai_active: false,
-                        created_at: "18 min ago",
-                      },
-                      {
-                        id: "3",
-                        customer_phone: "+1 (212) 555-4411",
-                        customer_name: "Elena Rostova",
-                        last_message_snippet: "What are your delivery hours on weekends?",
-                        is_ai_active: true,
-                        created_at: "1 hour ago",
-                      },
-                    ]
-                ).map((conv, idx) => (
+                conversations.slice(0, 5).map((conv) => (
                   <div
-                    key={conv.id || idx}
+                    key={conv.id}
                     className="p-4 sm:px-5 flex items-center justify-between hover:bg-obsidian-800/60 transition-colors gap-3"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-xl bg-obsidian-800 border border-obsidian-700/80 flex items-center justify-center font-mono font-semibold text-xs text-white shrink-0">
-                        {conv.customer_name ? conv.customer_name[0] : "C"}
+                      <div className="w-9 h-9 rounded-xl bg-obsidian-800 border border-obsidian-700/80 flex items-center justify-center font-mono font-semibold text-xs text-brand-emerald shrink-0">
+                        {conv.customer?.name ? conv.customer.name[0].toUpperCase() : "C"}
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
                           <p className="text-xs font-semibold text-white truncate">
-                            {conv.customer_name || conv.customer_phone}
+                            {conv.customer?.name || "WhatsApp Customer"}
                           </p>
                           <span className="text-[11px] text-obsidian-500 font-mono">
-                            {conv.customer_phone}
+                            {conv.customer?.phone_number || "Direct"}
                           </span>
                         </div>
-                        <p className="text-xs text-obsidian-400 truncate mt-0.5">
-                          {conv.last_message_snippet || "Customer started conversation"}
+                        <p className="text-xs text-obsidian-400 truncate mt-0.5 font-mono">
+                          Session ID: {conv.id.slice(0, 8)}...
                         </p>
                       </div>
                     </div>
@@ -214,73 +240,63 @@ export default function DashboardPage() {
               <div>
                 <h3 className="text-sm font-semibold text-white tracking-tight flex items-center gap-2">
                   <Package className="w-4 h-4 text-brand-emerald" />
-                  <span>Recent WhatsApp Orders</span>
+                  <span>Recent PostgreSQL Orders</span>
                 </h3>
                 <p className="text-xs text-obsidian-400 mt-0.5">
-                  Orders assembled by AI and confirmed into PostgreSQL
+                  Connected to backend router: GET /api/v1/orders
                 </p>
               </div>
               <Link
                 href="/orders"
                 className="text-xs text-brand-emerald hover:text-emerald-300 font-medium flex items-center gap-1 transition-colors"
               >
-                <span>All Orders</span>
+                <span>Fulfillment Board</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 
             <div className="divide-y divide-obsidian-750/50">
-              {(recentOrders.length > 0
-                ? recentOrders
-                : [
-                    {
-                      id: "1",
-                      order_number: "ORD-8921",
-                      customer_phone: "+1 (415) 555-2671",
-                      total_amount: 42.5,
-                      status: "CONFIRMED",
-                      items_count: 3,
-                    },
-                    {
-                      id: "2",
-                      order_number: "ORD-8920",
-                      customer_phone: "+1 (212) 555-4411",
-                      total_amount: 18.0,
-                      status: "PENDING",
-                      items_count: 1,
-                    },
-                  ]
-              ).map((order, idx) => (
-                <div
-                  key={order.id || idx}
-                  className="p-4 sm:px-5 flex items-center justify-between hover:bg-obsidian-800/60 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="font-mono text-xs font-bold text-white">
-                      {order.order_number}
-                    </span>
-                    <span className="text-xs text-obsidian-400 font-mono">
-                      {order.customer_phone}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="font-mono text-xs font-semibold text-white">
-                      ${Number(order.total_amount).toFixed(2)}
-                    </span>
-                    <Badge
-                      variant={order.status === "CONFIRMED" ? "success" : "warning"}
-                      size="sm"
-                    >
-                      {order.status}
-                    </Badge>
-                  </div>
+              {orders.length === 0 && !isLoading ? (
+                <div className="py-12 px-6 text-center text-obsidian-400 space-y-2">
+                  <Package className="w-8 h-8 text-obsidian-600 mx-auto" />
+                  <p className="font-semibold text-white text-xs">No orders in database</p>
+                  <p className="text-xs text-obsidian-500 max-w-sm mx-auto">
+                    Orders created by customers in WhatsApp or via API will appear here.
+                  </p>
                 </div>
-              ))}
+              ) : (
+                orders.slice(0, 5).map((order) => (
+                  <div
+                    key={order.id}
+                    className="p-4 sm:px-5 flex items-center justify-between hover:bg-obsidian-800/60 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-xs font-bold text-white">
+                        {order.order_number}
+                      </span>
+                      <span className="text-xs text-obsidian-400 font-mono">
+                        {order.items?.length || 0} items
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-xs font-semibold text-white">
+                        ${Number(order.total_amount).toFixed(2)}
+                      </span>
+                      <Badge
+                        variant={order.status === "CONFIRMED" ? "success" : "warning"}
+                        size="sm"
+                      >
+                        {order.status}
+                      </Badge>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
 
-        {/* Right 1 Col: AI Agent Guardrail Status & System Health */}
+        {/* Right 1 Col: AI Security & Guardrails */}
         <div className="space-y-6">
           <div className="bg-obsidian-850/80 border border-obsidian-750/90 rounded-xl p-5 shadow-card space-y-4">
             <h3 className="text-sm font-semibold text-white tracking-tight flex items-center gap-2">
@@ -337,7 +353,7 @@ export default function DashboardPage() {
               </span>
             </div>
             <p className="text-xs text-obsidian-300 leading-relaxed">
-              Running with zero vendor lock-in. Capable of processing 10,000+ daily WhatsApp turns on free-tier providers.
+              Zero vendor lock-in. Powered by LangGraph state machine with automatic fallbacks.
             </p>
             <Link href="/settings" className="block pt-1">
               <Button variant="secondary" size="sm" className="w-full text-xs">
@@ -350,4 +366,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-

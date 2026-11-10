@@ -8,6 +8,8 @@ import {
   MessageSquare,
   Package,
   ShoppingCart,
+  Users,
+  Activity,
   Settings,
   Bot,
   LogOut,
@@ -44,6 +46,18 @@ export function Sidebar() {
       href: "/orders",
       icon: ShoppingCart,
       active: pathname.startsWith("/orders"),
+    },
+    {
+      label: "Customers",
+      href: "/customers",
+      icon: Users,
+      active: pathname.startsWith("/customers"),
+    },
+    {
+      label: "Analytics",
+      href: "/analytics",
+      icon: Activity,
+      active: pathname.startsWith("/analytics"),
     },
     {
       label: "Settings",

@@ -1,6 +1,23 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+/**
+ * Orders & Fulfillment Board.
+ *
+ * Direct client mapping to backend router:
+ * backend/app/modules/orders/router.py
+ *
+ * Endpoints consumed:
+ * - GET   /api/v1/orders               (ordersService.listOrders)
+ * - PATCH /api/v1/orders/{id}/status   (ordersService.updateStatus)
+ * - POST  /api/v1/orders/{id}/cancel   (ordersService.cancelOrder)
+ *
+ * Features:
+ * - Strict multi-tenant scoped order listing with status filtering
+ * - Zero hardcoded or mock fallbacks; purely backed by PostgreSQL
+ * - Real-time slide-over order inspector with itemized breakdown and state machine transitions
+ */
+
+import React, { useEffect, useState, useCallback } from "react";
 import {
   ShoppingCart,
   Search,
@@ -8,46 +25,61 @@ import {
   Clock,
   X,
   CreditCard,
+  RefreshCw,
+  Package,
+  AlertCircle,
+  CheckCircle,
+  Truck,
+  Ban,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { Order, OrderStatus } from "@/types";
-import { api } from "@/lib/api";
+import { OrderRead, OrderItemRead, OrderStatus } from "@/types";
+import { ordersService } from "@/services/orders.service";
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [orders, setOrders] = useState<OrderRead[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<OrderRead | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     setIsLoading(true);
+    setErrorMessage(null);
     try {
       const filter = statusFilter !== "ALL" ? (statusFilter as OrderStatus) : undefined;
-      const items = await api.getOrders({ status: filter });
-      setOrders(items);
-    } catch (err) {
-      console.error("Failed to load orders:", err);
+      const response = await ordersService.listOrders({ status: filter, page_size: 50 });
+      setOrders(response.items || []);
+    } catch (err: unknown) {
+      console.error("Failed to load orders from PostgreSQL backend:", err);
+      setErrorMessage("Could not connect to PostgreSQL backend. Ensure API server is running on :8000.");
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [statusFilter]);
 
   useEffect(() => {
     fetchOrders();
-  }, [statusFilter]);
+  }, [fetchOrders]);
 
   const handleUpdateStatus = async (newStatus: OrderStatus) => {
     if (!selectedOrder) return;
     setIsUpdatingStatus(true);
     try {
-      const updated = await api.updateOrderStatus(selectedOrder.id, newStatus);
+      let updated: OrderRead;
+      if (newStatus === "CANCELLED") {
+        updated = await ordersService.cancelOrder(selectedOrder.id);
+      } else {
+        updated = await ordersService.updateStatus(selectedOrder.id, newStatus);
+      }
       setSelectedOrder(updated);
       setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Failed to update status:", err);
+      alert("Status transition failed. Check backend invariant rules.");
     } finally {
       setIsUpdatingStatus(false);
     }
@@ -55,7 +87,7 @@ export default function OrdersPage() {
 
   const filteredOrders = orders.filter((o) =>
     o.order_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (o.customer_phone || "").toLowerCase().includes(searchQuery.toLowerCase())
+    (o.customer_id || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -68,15 +100,36 @@ export default function OrdersPage() {
             <span>Orders & Fulfillment Board</span>
           </h1>
           <p className="text-xs sm:text-sm text-obsidian-400 mt-1">
-            Orders assembled conversationally by LangGraph AI agent and committed to PostgreSQL.
+            Deterministic state machine orders assembled conversationally by LangGraph and persisted in PostgreSQL.
           </p>
         </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={fetchOrders}
+            isLoading={isLoading}
+            className="flex items-center gap-1.5"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />
+            <span>Sync Orders</span>
+          </Button>
+        </div>
       </div>
+
+      {/* Error Alert */}
+      {errorMessage && (
+        <div className="p-3.5 rounded-xl bg-status-critical/10 border border-status-critical/20 text-xs text-status-critical flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
 
       {/* Filter Tabs & Search */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex flex-wrap gap-1.5 bg-obsidian-900 p-1 rounded-xl border border-obsidian-750/70">
-          {["ALL", "PENDING", "CONFIRMED", "SHIPPED", "CANCELLED"].map((status) => (
+          {["ALL", "PENDING", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"].map((status) => (
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
@@ -95,7 +148,7 @@ export default function OrdersPage() {
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-obsidian-400" />
           <input
             type="text"
-            placeholder="Search order # or phone..."
+            placeholder="Search order #..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-obsidian-850 border border-obsidian-700/80 rounded-lg pl-9 pr-3 py-1.5 text-xs text-obsidian-100 placeholder:text-obsidian-500 focus:outline-none focus:border-brand-emerald"
@@ -110,89 +163,39 @@ export default function OrdersPage() {
             <thead className="bg-obsidian-900 border-b border-obsidian-750/70 text-obsidian-400 font-mono">
               <tr>
                 <th className="py-3 px-4 font-semibold">Order #</th>
-                <th className="py-3 px-4 font-semibold">Customer Phone</th>
+                <th className="py-3 px-4 font-semibold">Created At</th>
                 <th className="py-3 px-4 font-semibold">Total Amount</th>
-                <th className="py-3 px-4 font-semibold">Payment</th>
-                <th className="py-3 px-4 font-semibold">Order Status</th>
-                <th className="py-3 px-4 text-right font-semibold">Details</th>
+                <th className="py-3 px-4 font-semibold">Payment Status</th>
+                <th className="py-3 px-4 font-semibold">Fulfillment Status</th>
+                <th className="py-3 px-4 text-right font-semibold">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-obsidian-750/50">
-              {filteredOrders.length === 0 && !isLoading ? (
+              {isLoading && orders.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-obsidian-400">
-                    No orders matching your filters.
+                  <td colSpan={6} className="py-12 text-center text-obsidian-400">
+                    <div className="inline-flex items-center gap-2">
+                      <RefreshCw className="w-4 h-4 animate-spin text-brand-emerald" />
+                      <span>Querying PostgreSQL orders...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : filteredOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center">
+                    <div className="max-w-sm mx-auto space-y-2">
+                      <Package className="w-8 h-8 text-obsidian-600 mx-auto" />
+                      <p className="text-xs font-medium text-obsidian-300">No matching orders found</p>
+                      <p className="text-[11px] text-obsidian-500">
+                        {statusFilter !== "ALL"
+                          ? `No orders currently matching status "${statusFilter}".`
+                          : "Orders placed by WhatsApp customers via AI conversation will populate here automatically."}
+                      </p>
+                    </div>
                   </td>
                 </tr>
               ) : (
-                (filteredOrders.length > 0
-                  ? filteredOrders
-                  : [
-                      {
-                        id: "ord-1",
-                        organization_id: "org1",
-                        customer_id: "c1",
-                        order_number: "ORD-9021",
-                        customer_phone: "+1 (415) 555-2671",
-                        total_amount: 32.5,
-                        subtotal: 27.5,
-                        shipping_cost: 5.0,
-                        status: "PENDING" as OrderStatus,
-                        payment_status: "PAID" as const,
-                        currency: "USD",
-                        shipping_address: "742 Evergreen Terrace, Springfield",
-                        created_at: "2026-11-10T14:20:00Z",
-                        updated_at: "2026-11-10T14:20:00Z",
-                        items: [
-                          {
-                            id: "i1",
-                            product_id: "p1",
-                            product_name: "Organic Fuji Apples",
-                            sku: "APP-FUJI-01",
-                            unit_price: 3.5,
-                            quantity: 5,
-                            subtotal: 17.5,
-                          },
-                          {
-                            id: "i2",
-                            product_id: "p2",
-                            product_name: "Valencia Sweet Oranges",
-                            sku: "ORG-VAL-02",
-                            unit_price: 2.99,
-                            quantity: 2,
-                            subtotal: 5.98,
-                          },
-                        ],
-                      },
-                      {
-                        id: "ord-2",
-                        organization_id: "org1",
-                        customer_id: "c2",
-                        order_number: "ORD-9020",
-                        customer_phone: "+1 (650) 555-8932",
-                        total_amount: 54.98,
-                        subtotal: 49.98,
-                        shipping_cost: 5.0,
-                        status: "CONFIRMED" as OrderStatus,
-                        payment_status: "PAID" as const,
-                        currency: "USD",
-                        shipping_address: "100 Market St, San Francisco, CA",
-                        created_at: "2026-11-10T12:00:00Z",
-                        updated_at: "2026-11-10T12:00:00Z",
-                        items: [
-                          {
-                            id: "i3",
-                            product_id: "p3",
-                            product_name: "Alphonso Mango Box",
-                            sku: "MNG-ALP-03",
-                            unit_price: 24.99,
-                            quantity: 2,
-                            subtotal: 49.98,
-                          },
-                        ],
-                      },
-                    ]
-                ).map((order) => (
+                filteredOrders.map((order) => (
                   <tr
                     key={order.id}
                     className="hover:bg-obsidian-800/60 transition-colors cursor-pointer"
@@ -202,10 +205,15 @@ export default function OrdersPage() {
                       {order.order_number}
                     </td>
                     <td className="py-3.5 px-4 font-mono text-obsidian-300">
-                      {order.customer_phone}
+                      {new Date(order.created_at).toLocaleString([], {
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </td>
                     <td className="py-3.5 px-4 font-mono font-bold text-white">
-                      ${Number(order.total_amount).toFixed(2)}
+                      {order.currency || "USD"} ${Number(order.total_amount).toFixed(2)}
                     </td>
                     <td className="py-3.5 px-4">
                       <Badge
@@ -224,6 +232,8 @@ export default function OrdersPage() {
                             ? "warning"
                             : order.status === "SHIPPED"
                             ? "active"
+                            : order.status === "DELIVERED"
+                            ? "success"
                             : "critical"
                         }
                         size="sm"
@@ -255,11 +265,13 @@ export default function OrdersPage() {
             {/* Drawer Header */}
             <div className="flex items-center justify-between pb-4 border-b border-obsidian-750">
               <div>
-                <h3 className="text-base font-bold text-white font-mono">
-                  {selectedOrder.order_number}
+                <h3 className="text-base font-bold text-white font-mono flex items-center gap-2">
+                  <Package className="w-4 h-4 text-brand-emerald" />
+                  <span>{selectedOrder.order_number}</span>
                 </h3>
-                <p className="text-xs text-obsidian-400 font-mono mt-0.5">
-                  Placed {new Date(selectedOrder.created_at).toLocaleString()}
+                <p className="text-xs text-obsidian-400 font-mono mt-0.5 flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  <span>Placed {new Date(selectedOrder.created_at).toLocaleString()}</span>
                 </p>
               </div>
               <button
@@ -272,10 +284,24 @@ export default function OrdersPage() {
 
             {/* Status & Payment Badges */}
             <div className="flex items-center gap-2 my-5">
-              <Badge variant="active" size="md">
+              <Badge
+                variant={
+                  selectedOrder.status === "CONFIRMED" || selectedOrder.status === "DELIVERED"
+                    ? "success"
+                    : selectedOrder.status === "PENDING"
+                    ? "warning"
+                    : selectedOrder.status === "SHIPPED"
+                    ? "active"
+                    : "critical"
+                }
+                size="md"
+              >
                 Status: {selectedOrder.status}
               </Badge>
-              <Badge variant="success" size="md">
+              <Badge
+                variant={selectedOrder.payment_status === "PAID" ? "success" : "neutral"}
+                size="md"
+              >
                 Payment: {selectedOrder.payment_status}
               </Badge>
             </div>
@@ -294,8 +320,8 @@ export default function OrdersPage() {
               <div className="flex items-center gap-2.5 text-xs text-obsidian-300">
                 <CreditCard className="w-4 h-4 text-brand-cyan shrink-0" />
                 <div>
-                  <span className="font-semibold text-white">Recipient Phone: </span>
-                  <span className="font-mono text-obsidian-400">{selectedOrder.customer_phone}</span>
+                  <span className="font-semibold text-white">Customer Reference ID: </span>
+                  <span className="font-mono text-obsidian-400">{selectedOrder.customer_id}</span>
                 </div>
               </div>
             </div>
@@ -303,22 +329,28 @@ export default function OrdersPage() {
             {/* Line Items List */}
             <div className="space-y-3 flex-1 mb-6">
               <h4 className="text-xs font-bold uppercase tracking-wider text-obsidian-400 font-mono">
-                Line Items
+                Order Items ({selectedOrder.items?.length || 0})
               </h4>
               <div className="divide-y divide-obsidian-750/60 border border-obsidian-750 rounded-xl overflow-hidden bg-obsidian-850">
-                {selectedOrder.items?.map((item) => (
-                  <div key={item.id} className="p-3 flex items-center justify-between text-xs">
-                    <div>
-                      <p className="font-semibold text-white">{item.product_name}</p>
-                      <p className="text-obsidian-400 font-mono text-[11px]">
-                        Qty: {item.quantity} × ${Number(item.unit_price).toFixed(2)}
-                      </p>
-                    </div>
-                    <span className="font-mono font-bold text-white">
-                      ${Number(item.subtotal).toFixed(2)}
-                    </span>
+                {!selectedOrder.items || selectedOrder.items.length === 0 ? (
+                  <div className="p-4 text-center text-xs text-obsidian-500 font-mono">
+                    No line items attached
                   </div>
-                ))}
+                ) : (
+                  selectedOrder.items.map((item: OrderItemRead) => (
+                    <div key={item.id} className="p-3 flex items-center justify-between text-xs">
+                      <div>
+                        <p className="font-semibold text-white">{item.product_name}</p>
+                        <p className="text-obsidian-400 font-mono text-[11px]">
+                          SKU: {item.sku} &bull; Qty: {item.quantity} &times; ${Number(item.unit_price).toFixed(2)}
+                        </p>
+                      </div>
+                      <span className="font-mono font-bold text-white">
+                        ${Number(item.subtotal).toFixed(2)}
+                      </span>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
@@ -340,37 +372,51 @@ export default function OrdersPage() {
               </div>
             </div>
 
-            {/* Status Actions */}
+            {/* Status Transition Action Buttons */}
             <div className="space-y-2 pt-2">
               {selectedOrder.status === "PENDING" && (
                 <Button
-                  className="w-full"
+                  className="w-full flex items-center justify-center gap-2"
                   size="md"
                   onClick={() => handleUpdateStatus("CONFIRMED")}
                   isLoading={isUpdatingStatus}
                 >
-                  Confirm Order
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Confirm Order</span>
                 </Button>
               )}
               {selectedOrder.status === "CONFIRMED" && (
                 <Button
-                  className="w-full"
+                  className="w-full flex items-center justify-center gap-2"
                   size="md"
                   onClick={() => handleUpdateStatus("SHIPPED")}
                   isLoading={isUpdatingStatus}
                 >
-                  Mark as Shipped
+                  <Truck className="w-4 h-4" />
+                  <span>Dispatch &amp; Mark as Shipped</span>
+                </Button>
+              )}
+              {selectedOrder.status === "SHIPPED" && (
+                <Button
+                  className="w-full flex items-center justify-center gap-2"
+                  size="md"
+                  onClick={() => handleUpdateStatus("DELIVERED")}
+                  isLoading={isUpdatingStatus}
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Mark as Delivered</span>
                 </Button>
               )}
               {selectedOrder.status !== "CANCELLED" && selectedOrder.status !== "DELIVERED" && (
                 <Button
                   variant="danger"
-                  className="w-full"
+                  className="w-full flex items-center justify-center gap-2"
                   size="sm"
                   onClick={() => handleUpdateStatus("CANCELLED")}
                   isLoading={isUpdatingStatus}
                 >
-                  Cancel Order
+                  <Ban className="w-3.5 h-3.5" />
+                  <span>Cancel Order &amp; Restore Stock</span>
                 </Button>
               )}
             </div>
@@ -380,4 +426,3 @@ export default function OrdersPage() {
     </div>
   );
 }
-

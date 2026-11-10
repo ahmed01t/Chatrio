@@ -56,11 +56,11 @@ export function Navbar() {
         {/* Profile Avatar Pill */}
         <div className="flex items-center gap-2 pl-2 border-l border-obsidian-750">
           <div className="w-7 h-7 rounded-lg bg-obsidian-800 border border-obsidian-700 flex items-center justify-center text-xs font-bold text-white font-mono">
-            {user?.first_name ? user.first_name[0].toUpperCase() : "A"}
+            {user?.full_name ? user.full_name[0].toUpperCase() : "A"}
           </div>
           <div className="hidden lg:block text-left">
             <p className="text-xs font-semibold text-white leading-none">
-              {user?.first_name} {user?.last_name}
+              {user?.full_name || "Store Admin"}
             </p>
             <p className="text-[10px] text-obsidian-400 leading-none mt-1">
               Store Owner

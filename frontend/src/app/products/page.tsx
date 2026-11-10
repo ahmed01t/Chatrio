@@ -9,45 +9,70 @@ import {
   DollarSign,
   AlertCircle,
   CheckCircle2,
+  RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
-import { Product } from "@/types";
-import { api } from "@/lib/api";
+import { CategoryRead, ProductRead } from "@/types";
+import { productsService } from "@/services/products.service";
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductRead[]>([]);
+  const [categories, setCategories] = useState<CategoryRead[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Form state
+  // Modal Form State
   const [name, setName] = useState("");
   const [sku, setSku] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
   const [description, setDescription] = useState("");
+  const [categoryId, setCategoryId] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  const fetchProducts = async () => {
+  /**
+   * Fetches products and categories directly from backend routers:
+   * 1. GET /api/v1/products   -> backend/app/modules/products/router.py:126
+   * 2. GET /api/v1/categories -> backend/app/modules/products/router.py:73
+   */
+  const loadData = async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      const items = await api.getProducts({ search: searchQuery });
-      setProducts(items);
-    } catch (err) {
-      console.error("Failed to load products:", err);
+      const [prodRes, catRes] = await Promise.all([
+        productsService.listProducts({
+          search: searchQuery || undefined,
+          category_id: selectedCategory !== "ALL" ? selectedCategory : undefined,
+          page: 1,
+          page_size: 100,
+        }),
+        productsService.listCategories(),
+      ]);
+
+      setProducts(prodRes.items);
+      setCategories(catRes);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to load products from database.");
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchProducts();
-  }, [searchQuery]);
+    loadData();
+  }, [searchQuery, selectedCategory]);
 
+  /**
+   * Creates a product in PostgreSQL inventory via backend router:
+   * POST /api/v1/products (backend/app/modules/products/router.py:100)
+   */
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
@@ -58,18 +83,19 @@ export default function ProductsPage() {
       const parsedStock = parseInt(stock, 10);
 
       if (isNaN(parsedPrice) || parsedPrice <= 0) {
-        throw new Error("Price must be a valid positive number.");
+        throw new Error("Price must be a positive number.");
       }
       if (isNaN(parsedStock) || parsedStock < 0) {
-        throw new Error("Stock must be zero or greater.");
+        throw new Error("Stock quantity cannot be negative.");
       }
 
-      const newProd = await api.createProduct({
-        name,
-        sku: sku.toUpperCase(),
+      const newProd = await productsService.createProduct({
+        name: name.trim(),
+        sku: sku.trim().toUpperCase(),
         price: parsedPrice,
         stock_quantity: parsedStock,
-        description: description || undefined,
+        description: description.trim() || undefined,
+        category_id: categoryId || undefined,
       });
 
       setProducts((prev) => [newProd, ...prev]);
@@ -79,20 +105,25 @@ export default function ProductsPage() {
       setPrice("");
       setStock("");
       setDescription("");
+      setCategoryId("");
     } catch (err: unknown) {
-      setFormError(err instanceof Error ? err.message : "Failed to create product.");
+      setFormError(err instanceof Error ? err.message : "Failed to create product in catalog.");
     } finally {
       setIsSaving(false);
     }
   };
 
+  /**
+   * Deletes a product via backend router:
+   * DELETE /api/v1/products/{id} (backend/app/modules/products/router.py:207)
+   */
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to remove this product from the catalog?")) return;
+    if (!confirm("Are you sure you want to permanently delete this product?")) return;
     try {
-      await api.deleteProduct(id);
+      await productsService.deleteProduct(id);
       setProducts((prev) => prev.filter((p) => p.id !== id));
-    } catch (err) {
-      console.error("Failed to delete product:", err);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to delete product.");
     }
   };
 
@@ -109,26 +140,58 @@ export default function ProductsPage() {
             Deterministic products and pricing accessible to the LangGraph AI agent.
           </p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)} size="md">
-          <Plus className="w-4 h-4" />
-          <span>Add New Product</span>
-        </Button>
+
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" size="sm" onClick={loadData} isLoading={isLoading}>
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>Refresh</span>
+          </Button>
+          <Button onClick={() => setIsModalOpen(true)} size="sm">
+            <Plus className="w-4 h-4" />
+            <span>Add New Product</span>
+          </Button>
+        </div>
       </div>
 
-      {/* Filter and Search Bar */}
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-obsidian-400" />
-          <input
-            type="text"
-            placeholder="Search products by title or SKU..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-obsidian-850 border border-obsidian-700/80 rounded-lg pl-9 pr-3.5 py-2 text-xs text-obsidian-100 placeholder:text-obsidian-500 focus:outline-none focus:border-brand-emerald"
-          />
+      {error && (
+        <div className="p-4 rounded-xl bg-brand-rose/10 border border-brand-rose/30 text-xs text-rose-300 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span>{error}</span>
         </div>
+      )}
+
+      {/* Filter and Search Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2 flex-1 max-w-md">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-obsidian-400" />
+            <input
+              type="text"
+              placeholder="Search products by title or SKU..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-obsidian-850 border border-obsidian-700/80 rounded-lg pl-9 pr-3.5 py-2 text-xs text-obsidian-100 placeholder:text-obsidian-500 focus:outline-none focus:border-brand-emerald"
+            />
+          </div>
+
+          {categories.length > 0 && (
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="bg-obsidian-850 border border-obsidian-700/80 rounded-lg px-3 py-2 text-xs text-obsidian-200 focus:outline-none focus:border-brand-emerald"
+            >
+              <option value="ALL">All Categories</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+
         <span className="text-xs text-obsidian-400 font-mono">
-          Showing {products.length} products
+          Showing {products.length} catalog items
         </span>
       </div>
 
@@ -141,7 +204,7 @@ export default function ProductsPage() {
                 <th className="py-3 px-4 font-semibold">Product Name</th>
                 <th className="py-3 px-4 font-semibold">SKU</th>
                 <th className="py-3 px-4 font-semibold">Price</th>
-                <th className="py-3 px-4 font-semibold">Inventory Stock</th>
+                <th className="py-3 px-4 font-semibold">Stock Quantity</th>
                 <th className="py-3 px-4 font-semibold">Status</th>
                 <th className="py-3 px-4 text-right font-semibold">Actions</th>
               </tr>
@@ -149,51 +212,19 @@ export default function ProductsPage() {
             <tbody className="divide-y divide-obsidian-750/50">
               {products.length === 0 && !isLoading ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-obsidian-400">
-                    No products found in your catalog. Click &quot;Add New Product&quot; to begin!
+                  <td colSpan={6} className="py-12 text-center text-obsidian-400 space-y-2">
+                    <Package className="w-8 h-8 text-obsidian-600 mx-auto" />
+                    <p className="font-semibold text-white">Your product catalog is empty</p>
+                    <p className="text-xs text-obsidian-500 max-w-sm mx-auto">
+                      Click &quot;Add New Product&quot; to insert verified inventory that the AI agent can sell in WhatsApp.
+                    </p>
                   </td>
                 </tr>
               ) : (
-                (products.length > 0
-                  ? products
-                  : [
-                      {
-                        id: "p1",
-                        organization_id: "org1",
-                        name: "Organic Fuji Apples",
-                        sku: "APP-FUJI-01",
-                        price: 3.5,
-                        stock_quantity: 45,
-                        is_active: true,
-                        created_at: "2026-11-10",
-                        updated_at: "2026-11-10",
-                      },
-                      {
-                        id: "p2",
-                        organization_id: "org1",
-                        name: "Valencia Sweet Oranges",
-                        sku: "ORG-VAL-02",
-                        price: 2.99,
-                        stock_quantity: 8,
-                        is_active: true,
-                        created_at: "2026-11-10",
-                        updated_at: "2026-11-10",
-                      },
-                      {
-                        id: "p3",
-                        organization_id: "org1",
-                        name: "Alphonso Mango Box",
-                        sku: "MNG-ALP-03",
-                        price: 24.99,
-                        stock_quantity: 0,
-                        is_active: false,
-                        created_at: "2026-11-10",
-                        updated_at: "2026-11-10",
-                      },
-                    ]
-                ).map((product) => {
+                products.map((product) => {
                   const isOutOfStock = product.stock_quantity <= 0;
-                  const isLowStock = product.stock_quantity > 0 && product.stock_quantity <= 10;
+                  const isLowStock =
+                    product.stock_quantity > 0 && product.stock_quantity <= 10;
 
                   return (
                     <tr
@@ -202,6 +233,11 @@ export default function ProductsPage() {
                     >
                       <td className="py-3.5 px-4 font-semibold text-white">
                         {product.name}
+                        {product.description && (
+                          <p className="text-[11px] text-obsidian-400 font-normal truncate max-w-xs mt-0.5">
+                            {product.description}
+                          </p>
+                        )}
                       </td>
                       <td className="py-3.5 px-4 font-mono text-obsidian-400">
                         {product.sku}
@@ -260,7 +296,7 @@ export default function ProductsPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title="Add New Catalog Product"
-        description="Add a verified item to your PostgreSQL inventory for AI automated ordering."
+        description="Persists verified product item into PostgreSQL database."
       >
         {formError && (
           <div className="mb-4 p-3 rounded-lg bg-brand-rose/10 border border-brand-rose/30 text-xs text-rose-300">
@@ -271,7 +307,7 @@ export default function ProductsPage() {
         <form onSubmit={handleCreateProduct} className="space-y-4">
           <Input
             label="Product Title"
-            placeholder="e.g. Hass Avocado (4 Pack)"
+            placeholder="e.g. Organic Fuji Apples (1 lb)"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
@@ -280,7 +316,7 @@ export default function ProductsPage() {
           <div className="grid grid-cols-2 gap-3">
             <Input
               label="SKU Code"
-              placeholder="e.g. AVO-HASS-04"
+              placeholder="e.g. APP-FUJI-01"
               value={sku}
               onChange={(e) => setSku(e.target.value)}
               required
@@ -289,7 +325,7 @@ export default function ProductsPage() {
               label="Unit Price ($)"
               type="number"
               step="0.01"
-              placeholder="4.99"
+              placeholder="3.50"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               icon={<DollarSign className="w-3.5 h-3.5" />}
@@ -298,7 +334,7 @@ export default function ProductsPage() {
           </div>
 
           <Input
-            label="Initial Stock Quantity"
+            label="Initial Stock Inventory"
             type="number"
             placeholder="50"
             value={stock}
@@ -306,13 +342,31 @@ export default function ProductsPage() {
             required
           />
 
+          {categories.length > 0 && (
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-obsidian-300">Category</label>
+              <select
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                className="w-full bg-obsidian-900 border border-obsidian-700/80 rounded-lg p-2 text-xs text-obsidian-100 focus:outline-none focus:border-brand-emerald"
+              >
+                <option value="">Uncategorized</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div className="space-y-1.5">
             <label className="block text-xs font-medium text-obsidian-300">
               Description (Optional)
             </label>
             <textarea
               rows={3}
-              placeholder="Fresh ripe Hass avocados, imported and ready to eat."
+              placeholder="Crisp sweet organic Fuji apples freshly picked."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full bg-obsidian-900 border border-obsidian-700/80 rounded-lg p-3 text-xs text-obsidian-100 placeholder:text-obsidian-500 focus:outline-none focus:border-brand-emerald"
@@ -337,4 +391,3 @@ export default function ProductsPage() {
     </div>
   );
 }
-

@@ -26,12 +26,12 @@ services:
     environment:
       # Default credentials for local development
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: [PASSWORD]
+      POSTGRES_PASSWORD: "Ahmed123"
       POSTGRES_DB: chatrio_db
     ports:
       # Port mapping: "Laptop Port : Container Port"
-      # This allows your Python backend on localhost:5432 to talk to PostgreSQL inside Docker.
-      - "5432:5432"
+      # Mapped to 5433 to prevent conflict with local Windows PostgreSQL service on 5432
+      - "5433:5432"
     volumes:
       # Persistent Volume:
       # Without a volume, if you turn off Docker, all your customer and order data would vanish!
