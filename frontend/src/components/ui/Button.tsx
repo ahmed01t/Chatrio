@@ -1,13 +1,14 @@
 "use client";
 
 /**
- * Button — tasteskill.dev design system
+ * Button — tasteskill.dev design system, dark-mode aware
  *
- * Rules:
- * - Exactly one filled button = main action (primary)
- * - Secondary: white/quiet, border hairline
- * - Buttons step on hover (brightness), press on click (scale 0.97)
- * - 44px minimum height, 10px border-radius (soft scale)
+ * - primary: filled terracotta (only one per view = main action)
+ * - secondary: quiet white/panel border button
+ * - ghost: text-only
+ * - danger: soft rose
+ * - Step on hover (brightness 95%), press on click (scale 0.97)
+ * - 10px border-radius (soft scale)
  */
 
 import React from "react";
@@ -33,12 +34,11 @@ export function Button({
     "inline-flex items-center justify-center gap-2 font-medium select-none " +
     "transition-all duration-150 cursor-pointer " +
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 " +
-    "focus-visible:ring-accent focus-visible:ring-offset-canvas " +
+    "focus-visible:ring-accent " +
     "disabled:opacity-40 disabled:cursor-not-allowed " +
-    // step on hover, press on click
     "hover:brightness-95 active:scale-[0.97] active:brightness-90";
 
-  const radius = "rounded-[10px]"; // soft --r-btn
+  const radius = "rounded-[10px]";
 
   const sizes = {
     sm: "h-8  px-3   text-[13px]",
@@ -46,28 +46,45 @@ export function Button({
     lg: "h-11 px-5   text-[15px]",
   };
 
-  const variants = {
-    primary:
-      "bg-accent text-white shadow-sm font-semibold " +
-      "hover:bg-accent-hover",
-    secondary:
-      "bg-white text-ink-800 border border-border font-medium " +
-      "hover:border-border-strong hover:bg-panel-muted",
-    danger:
-      "bg-rose-50 text-rose-700 border border-rose-200 font-medium " +
-      "hover:bg-rose-100",
-    ghost:
-      "text-ink-600 hover:text-ink-900 hover:bg-canvas-subtle font-medium",
-    outline:
-      "border border-border text-ink-700 hover:text-ink-900 " +
-      "hover:border-border-strong bg-transparent font-medium",
+  /* Inline style objects for variants that need CSS vars */
+  const variantClass = {
+    primary: "bg-accent text-white hover:bg-accent-hover shadow-sm font-semibold",
+    secondary: "font-medium",
+    danger:   "font-medium",
+    ghost:    "font-medium",
+    outline:  "font-medium",
+  };
+
+  /* Extra inline styles for dark-mode-aware variants */
+  const variantStyle: Record<string, React.CSSProperties> = {
+    primary:   {},
+    secondary: {
+      backgroundColor: "var(--g-panel)",
+      color:           "var(--ink-2)",
+      border:          "1px solid var(--line)",
+    },
+    danger: {
+      backgroundColor: "rgba(220, 38, 38, 0.08)",
+      color:           "#F87171",
+      border:          "1px solid rgba(220, 38, 38, 0.25)",
+    },
+    ghost: {
+      backgroundColor: "transparent",
+      color:           "var(--ink-4)",
+    },
+    outline: {
+      backgroundColor: "transparent",
+      color:           "var(--ink-3)",
+      border:          "1px solid var(--line)",
+    },
   };
 
   return (
     <button
       className={twMerge(
-        clsx(base, radius, sizes[size], variants[variant], className)
+        clsx(base, radius, sizes[size], variantClass[variant], className)
       )}
+      style={variantStyle[variant]}
       disabled={disabled || isLoading}
       {...props}
     >

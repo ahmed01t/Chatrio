@@ -572,9 +572,9 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <Link href="/analytics" className="block pt-1">
+            <Link href="/agent" className="block pt-1">
               <Button variant="secondary" size="sm" className="w-full text-xs">
-                View AI Reports
+                Manage AI Agent &amp; Knowledge
               </Button>
             </Link>
           </div>

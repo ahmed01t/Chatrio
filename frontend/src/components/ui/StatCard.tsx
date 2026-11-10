@@ -1,8 +1,5 @@
 /**
- * StatCard — tasteskill.dev aligned-figures style
- *
- * Quiet white panel, big tabular figure, small muted label above,
- * subtle trend line below. Colour is spent only on the trend delta.
+ * StatCard — tasteskill.dev aligned-figures style, dark-mode aware
  */
 import React from "react";
 
@@ -16,11 +13,11 @@ export interface StatCardProps {
 }
 
 const trendColours: Record<NonNullable<StatCardProps["trendType"]>, string> = {
-  success:    "text-data-emerald",
-  terracotta: "text-accent",
-  warning:    "text-data-amber",
-  critical:   "text-rose-600",
-  neutral:    "text-ink-500",
+  success:    "#16A34A",
+  terracotta: "var(--action)",
+  warning:    "#D97706",
+  critical:   "#E11D48",
+  neutral:    "var(--ink-5)",
 };
 
 export function StatCard({
@@ -33,11 +30,22 @@ export function StatCard({
 }: StatCardProps) {
   return (
     <div className="quiet-panel p-5 card-taste flex flex-col gap-3">
-      {/* Label + icon row */}
+      {/* Label + icon */}
       <div className="flex items-center justify-between">
-        <span className="text-[13px] font-medium text-ink-500">{title}</span>
+        <span
+          className="text-[13px] font-medium"
+          style={{ color: "var(--ink-5)" }}
+        >
+          {title}
+        </span>
         {icon && (
-          <div className="w-7 h-7 rounded-[8px] bg-canvas-subtle border border-border flex items-center justify-center">
+          <div
+            className="w-7 h-7 rounded-[8px] flex items-center justify-center"
+            style={{
+              backgroundColor: "var(--g-subtle)",
+              border: "1px solid var(--line)",
+            }}
+          >
             {icon}
           </div>
         )}
@@ -45,22 +53,30 @@ export function StatCard({
 
       {/* Aligned figure */}
       <span
-        className="text-[2rem] leading-none font-bold text-ink-900
-                   tabular-nums tracking-tight"
+        className="text-[2rem] leading-none font-bold tabular-nums tracking-tight"
+        style={{ color: "var(--ink)" }}
       >
         {value}
       </span>
 
       {/* Trend / subtitle */}
       {(trend || subtitle) && (
-        <div className="flex items-center justify-between pt-2 border-t border-border/60 text-[12px]">
+        <div
+          className="flex items-center justify-between pt-2 text-[12px]"
+          style={{ borderTop: "1px solid var(--line-s)" }}
+        >
           {trend && (
-            <span className={`font-semibold ${trendColours[trendType]}`}>
+            <span
+              className="font-semibold"
+              style={{ color: trendColours[trendType] }}
+            >
               {trend}
             </span>
           )}
           {subtitle && (
-            <span className="text-ink-400 truncate">{subtitle}</span>
+            <span className="truncate" style={{ color: "var(--ink-6)" }}>
+              {subtitle}
+            </span>
           )}
         </div>
       )}

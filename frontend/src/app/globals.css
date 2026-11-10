@@ -2,43 +2,110 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ───────────────────────────────────────────────────────────────────────────
-   Fonts are loaded via <link> in layout.tsx to avoid CSS @import ordering
-   issues with PostCSS / Turbopack.
-─────────────────────────────────────────────────────────────────────────── */
+/*
+  Fonts loaded via <link> in layout.tsx (avoids PostCSS @import ordering issues).
+  Tasteskill.dev design system — Instrument Serif + Inter, soft radius, terracotta accent.
+*/
 
-/* ─── Design tokens ───────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   DESIGN TOKENS — CSS custom properties
+   All semantic colours live here. Dark mode swaps them on html.dark.
+   Components reference var(--token) so dark mode is automatic.
+═══════════════════════════════════════════════════════════════════════════ */
+
 :root {
-  /* Ground */
-  --g-main:  #FAFAF9;
-  --g-alt:   #F4F0EB;
-  --g-dark:  #18181B;
+  /* ── Grounds ─────────────────────────────────────────────────────── */
+  --g-main:    #FAFAF9;
+  --g-alt:     #F4F0EB;
+  --g-panel:   #FFFFFF;
+  --g-subtle:  #F2EFEB;
+  --g-muted:   #EDE8E2;
 
-  /* Ink */
-  --ink:     #18181B;
-  --muted:   #71717A;
+  /* ── Ink ─────────────────────────────────────────────────────────── */
+  --ink:       #18181B;
+  --ink-2:     #27272A;
+  --ink-3:     #3F3F46;
+  --ink-4:     #52525B;
+  --ink-5:     #71717A;
+  --ink-6:     #A1A1AA;
+  --ink-7:     #D4D4D8;
+  --ink-8:     #E4E4E7;
 
-  /* Accent — terracotta */
-  --action:  #E8541A;
-  --action-h: #C8420E;
+  /* ── Accent (terracotta — one accent only) ────────────────────────── */
+  --action:    #E8541A;
+  --action-h:  #C8420E;
+  --action-p:  #A33309;
+  --action-bg: #FFF3EE;
+  --action-sub:#FFE4D6;
 
-  /* Border hairline */
-  --line:    rgba(24, 24, 27, 0.12);
+  /* ── Hairline border (12% ink) ───────────────────────────────────── */
+  --line:      rgba(24, 24, 27, 0.12);
+  --line-s:    rgba(24, 24, 27, 0.07);
+  --line-h:    rgba(24, 24, 27, 0.20);
 
-  /* Radius — soft scale */
-  --r-sm:    8px;
-  --r-md:    12px;
-  --r-lg:    20px;
-  --r-btn:   10px;
+  /* ── Radius — soft scale ──────────────────────────────────────────── */
+  --r-sm:  8px;
+  --r-md:  12px;
+  --r-lg:  20px;
+  --r-btn: 10px;
 
-  /* Layout rhythm */
-  --nav:     68px;
-  --padt:    80px;
-  --padb:    64px;
-  --gut:     80px;
+  /* ── Shadows ─────────────────────────────────────────────────────── */
+  --shadow-panel:    0 1px 2px 0 rgba(24,24,27,.04), 0 1px 10px -4px rgba(24,24,27,.06);
+  --shadow-card:     0 4px 16px -4px rgba(24,24,27,.08), 0 1px 2px 0 rgba(24,24,27,.03);
+  --shadow-elevated: 0 8px 24px -6px rgba(24,24,27,.10), 0 2px 4px 0 rgba(24,24,27,.04);
+
+  /* ── Layout rhythm ───────────────────────────────────────────────── */
+  --nav:   68px;
+  --padt:  80px;
+  --padb:  64px;
+  --gut:   80px;
 }
 
-/* ─── Base reset ──────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   DARK MODE TOKENS — tasteskill "evening grade" for software apps
+   Applied when <html class="dark"> — toggled by ThemeContext
+═══════════════════════════════════════════════════════════════════════════ */
+
+html.dark {
+  /* ── Grounds ─────────────────────────────────────────────────────── */
+  --g-main:    #111113;
+  --g-alt:     #17171A;
+  --g-panel:   #1C1C1F;
+  --g-subtle:  #232327;
+  --g-muted:   #2C2C31;
+
+  /* ── Ink (inverted zinc) ─────────────────────────────────────────── */
+  --ink:       #F4F4F5;
+  --ink-2:     #E4E4E7;
+  --ink-3:     #D4D4D8;
+  --ink-4:     #A1A1AA;
+  --ink-5:     #71717A;
+  --ink-6:     #52525B;
+  --ink-7:     #3F3F46;
+  --ink-8:     #27272A;
+
+  /* ── Accent unchanged (terracotta reads on dark too) ─────────────── */
+  --action:    #F0612A;
+  --action-h:  #D95520;
+  --action-p:  #E8541A;
+  --action-bg: rgba(232, 84, 26, 0.12);
+  --action-sub:rgba(232, 84, 26, 0.20);
+
+  /* ── Hairline border (12% white) ─────────────────────────────────── */
+  --line:      rgba(255, 255, 255, 0.10);
+  --line-s:    rgba(255, 255, 255, 0.06);
+  --line-h:    rgba(255, 255, 255, 0.18);
+
+  /* ── Shadows (deeper, no warm cast) ─────────────────────────────── */
+  --shadow-panel:    0 1px 2px 0 rgba(0,0,0,.20), 0 1px 10px -4px rgba(0,0,0,.30);
+  --shadow-card:     0 4px 16px -4px rgba(0,0,0,.35), 0 1px 2px 0 rgba(0,0,0,.20);
+  --shadow-elevated: 0 8px 24px -6px rgba(0,0,0,.45), 0 2px 4px 0 rgba(0,0,0,.25);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BASE RESET
+═══════════════════════════════════════════════════════════════════════════ */
+
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; }
 
@@ -52,13 +119,102 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   overflow-x: hidden;
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
-/* ─── Typographic system ──────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   SEMANTIC UTILITY CLASSES — all use CSS vars, so dark mode is free
+═══════════════════════════════════════════════════════════════════════════ */
 
-/* Display face — editorial headings (Instrument Serif) */
+/* Quiet panel */
+.quiet-panel {
+  background-color: var(--g-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-panel);
+  transition: background-color 200ms ease, border-color 200ms ease;
+}
+
+/* Card micro-lift — 2px on hover, 200ms spring */
+.card-taste {
+  transition:
+    transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 200ms ease;
+}
+.card-taste:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-h);
+  box-shadow: var(--shadow-card);
+}
+
+/* Warm ambient ground (auth pages, hero) */
+.canvas-glow {
+  background:
+    radial-gradient(ellipse 60% 50% at 10% 0%,
+      rgba(232, 84, 26, 0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 90% 100%,
+      rgba(232, 84, 26, 0.04) 0%, transparent 70%),
+    var(--g-main);
+}
+html.dark .canvas-glow {
+  background:
+    radial-gradient(ellipse 60% 50% at 10% 0%,
+      rgba(232, 84, 26, 0.09) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 90% 100%,
+      rgba(232, 84, 26, 0.05) 0%, transparent 70%),
+    var(--g-main);
+}
+
+/* Skeleton shimmer */
+.skeleton {
+  background: linear-gradient(90deg,
+    var(--g-subtle) 25%, var(--g-muted) 50%, var(--g-subtle) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s linear infinite;
+  border-radius: var(--r-sm);
+}
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+
+/* Focus ring */
+:focus-visible {
+  outline: 2px solid var(--action);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+/* Selection */
+::selection {
+  background-color: rgba(232, 84, 26, 0.18);
+  color: var(--ink);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--g-main); }
+::-webkit-scrollbar-thumb { background: var(--line-h); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-7); }
+
+/* Hairlines */
+.hairline        { border-color: var(--line);   }
+.hairline-strong { border-color: var(--line-h); }
+
+/* Text */
+.text-muted { color: var(--ink-5); }
+
+/* Tabular figures */
+.tabular-figures {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Display face */
 .display {
-  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-family: "Instrument Serif", Georgia, serif;
   font-weight: 400;
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -67,106 +223,11 @@ body {
 h1, h2 { letter-spacing: -0.025em; }
 h3, h4 { letter-spacing: -0.015em; }
 
-/* ─── Quiet panel (tasteskill.dev app-screen card) ──────────────────────── */
-.quiet-panel {
-  background-color: #FFFFFF;
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  box-shadow:
-    0 1px 2px 0 rgba(24, 24, 27, 0.04),
-    0 1px 10px -4px rgba(24, 24, 27, 0.06);
-}
+/* Measure */
+.measure { max-width: 62ch; }
 
-/* ─── Card micro-lift (hover 2px, 200ms spring) ─────────────────────────── */
-.card-taste {
-  transition:
-    transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 200ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-.card-taste:hover {
-  transform: translateY(-2px);
-  border-color: rgba(24, 24, 27, 0.18);
-  box-shadow:
-    0 4px 16px -4px rgba(24, 24, 27, 0.08),
-    0 1px 2px 0 rgba(24, 24, 27, 0.04);
-}
-
-/* ─── Button step & press ───────────────────────────────────────────────── */
-.btn-step {
-  transition:
-    filter 100ms ease,
-    transform 100ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-.btn-step:hover  { filter: brightness(0.95); }
-.btn-step:active { transform: scale(0.97); }
-
-/* ─── Warm ambient ground (hero / app shell) ────────────────────────────── */
-.canvas-glow {
-  background:
-    radial-gradient(ellipse 60% 50% at 10% 0%,
-      rgba(232, 84, 26, 0.06) 0%,
-      transparent 70%),
-    radial-gradient(ellipse 50% 40% at 90% 100%,
-      rgba(232, 84, 26, 0.04) 0%,
-      transparent 70%),
-    var(--g-main);
-}
-
-/* ─── Skeleton shimmer ──────────────────────────────────────────────────── */
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    #F0EDE8 25%,
-    #E8E3DC 50%,
-    #F0EDE8 75%
-  );
-  background-size: 800px 100%;
-  animation: shimmer 1.6s linear infinite;
-  border-radius: var(--r-sm);
-}
-
-@keyframes shimmer {
-  0%   { background-position: -400px 0; }
-  100% { background-position: 400px 0;  }
-}
-
-/* ─── Focus ring (terracotta, tasteskill.dev) ───────────────────────────── */
-:focus-visible {
-  outline: 2px solid var(--action);
-  outline-offset: 2px;
-  border-radius: var(--r-sm);
-}
-
-/* ─── Scrollbar (clean, warm) ───────────────────────────────────────────── */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track  { background: var(--g-main); }
-::-webkit-scrollbar-thumb  { background: #D5CEC5; border-radius: 999px; }
-::-webkit-scrollbar-thumb:hover { background: #BEB5A8; }
-
-/* ─── Hairline dividers ──────────────────────────────────────────────────── */
-.hairline        { border-color: var(--line); }
-.hairline-strong { border-color: rgba(24, 24, 27, 0.18); }
-
-/* ─── Status indicators ─────────────────────────────────────────────────── */
-.status-dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: currentColor;
-}
-
-/* ─── Selection colour ───────────────────────────────────────────────────── */
-::selection {
-  background-color: rgba(232, 84, 26, 0.15);
-  color: var(--ink);
-}
-
-/* ─── Hero entrance animation ───────────────────────────────────────────── */
-[data-enter] {
-  animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
+/* Hero entrance */
+[data-enter] { animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
 [data-enter="1"] { animation-delay: 0.05s; }
 [data-enter="2"] { animation-delay: 0.12s; }
 [data-enter="3"] { animation-delay: 0.20s; }
@@ -177,14 +238,84 @@ h3, h4 { letter-spacing: -0.015em; }
   to   { opacity: 1; transform: translateY(0);    }
 }
 
-/* ─── Utility: measure (max 62ch line length) ────────────────────────────── */
-.measure { max-width: 62ch; }
+/* ═══════════════════════════════════════════════════════════════════════════
+   DARK-MODE TAILWIND OVERRIDES
+   Override Tailwind hardcoded colour classes that don't use CSS vars.
+   Pattern: html.dark .classname { ... }
+═══════════════════════════════════════════════════════════════════════════ */
 
-/* ─── Muted text colour ──────────────────────────────────────────────────── */
-.text-muted { color: var(--muted); }
+/* Page & shell backgrounds */
+html.dark .bg-canvas,
+html.dark .bg-\[var\(--g-main\)\] { background-color: var(--g-main); }
+html.dark .bg-white  { background-color: var(--g-panel) !important; }
+html.dark .bg-canvas-subtle { background-color: var(--g-subtle) !important; }
+html.dark .bg-panel-muted   { background-color: var(--g-muted)  !important; }
 
-/* ─── Thin/light number display ──────────────────────────────────────────── */
-.tabular-figures {
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum";
+/* Border overrides */
+html.dark .border-border        { border-color: var(--line)   !important; }
+html.dark .border-border-strong { border-color: var(--line-h) !important; }
+html.dark .divide-border\/60 > * + * { border-color: var(--line-s) !important; }
+
+/* Text overrides */
+html.dark .text-ink-900 { color: var(--ink)   !important; }
+html.dark .text-ink-800 { color: var(--ink-2) !important; }
+html.dark .text-ink-700 { color: var(--ink-3) !important; }
+html.dark .text-ink-600 { color: var(--ink-4) !important; }
+html.dark .text-ink-500 { color: var(--ink-5) !important; }
+html.dark .text-ink-400 { color: var(--ink-6) !important; }
+
+/* Accent tint backgrounds */
+html.dark .bg-accent-light  { background-color: var(--action-bg)  !important; }
+html.dark .bg-accent-subtle { background-color: var(--action-sub) !important; }
+
+/* Input fields */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: var(--g-subtle) !important;
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+html.dark input::placeholder,
+html.dark textarea::placeholder { color: var(--ink-6) !important; }
+
+/* Hover backgrounds */
+html.dark .hover\:bg-canvas-subtle:hover { background-color: var(--g-subtle) !important; }
+html.dark .hover\:bg-panel-muted:hover   { background-color: var(--g-muted)  !important; }
+
+/* Button secondary in dark */
+html.dark .bg-white.border-border {
+  background-color: var(--g-subtle) !important;
+  border-color: var(--line) !important;
+}
+
+/* Rose/error states in dark */
+html.dark .bg-rose-50  { background-color: rgba(220, 38, 38, 0.10) !important; }
+html.dark .border-rose-200 { border-color: rgba(220, 38, 38, 0.30) !important; }
+html.dark .text-rose-700   { color: #FCA5A5 !important; }
+html.dark .hover\:bg-rose-50:hover { background-color: rgba(220, 38, 38, 0.10) !important; }
+html.dark .hover\:text-rose-600:hover { color: #FCA5A5 !important; }
+
+/* Emerald states */
+html.dark .bg-emerald-50   { background-color: rgba(16, 185, 129, 0.10) !important; }
+html.dark .border-emerald-200 { border-color: rgba(16, 185, 129, 0.25) !important; }
+html.dark .text-emerald-700   { color: #6EE7B7 !important; }
+
+/* Amber states */
+html.dark .bg-amber-50   { background-color: rgba(217, 119, 6, 0.10) !important; }
+
+/* kbd shortcut chip */
+html.dark kbd {
+  background-color: var(--g-muted) !important;
+  border-color: var(--line) !important;
+  color: var(--ink-5) !important;
+}
+
+/* Oatmeal baseline bars */
+html.dark .bg-oatmeal       { background-color: var(--g-muted) !important; }
+html.dark .bg-oatmeal-dark  { background-color: var(--g-subtle) !important; }
+
+/* ─── Dark mode theme transition ────────────────────────────────────────── */
+html {
+  transition: background-color 200ms ease;
 }

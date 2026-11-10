@@ -1,12 +1,8 @@
 "use client";
 
 /**
- * Sidebar — tasteskill.dev inspired
- *
- * - White quiet-panel left rail, 1px hairline right border
- * - Active item: terracotta pill on left edge + accent tint bg
- * - Hover: ink-900 text + subtle bg (no colour)
- * - 60px collapsed / 232px expanded
+ * Sidebar — tasteskill.dev inspired, dark-mode aware
+ * Uses CSS custom properties directly so tokens swap automatically on html.dark
  */
 
 import React from "react";
@@ -18,7 +14,7 @@ import {
   Package,
   ShoppingCart,
   Users,
-  Activity,
+  Bot,
   Settings,
   LogOut,
 } from "lucide-react";
@@ -26,48 +22,54 @@ import { clsx } from "clsx";
 import { useAuth } from "@/context/AuthContext";
 
 const navItems = [
-  { label: "Overview",   href: "/",           icon: LayoutDashboard, exact: true  },
-  { label: "Inbox",      href: "/inbox",       icon: MessageSquare,   badge: "LIVE" },
-  { label: "Products",   href: "/products",    icon: Package  },
-  { label: "Orders",     href: "/orders",      icon: ShoppingCart },
-  { label: "Customers",  href: "/customers",   icon: Users    },
-  { label: "Analytics",  href: "/analytics",   icon: Activity },
-  { label: "Settings",   href: "/settings",    icon: Settings },
+  { label: "Overview",   href: "/",          icon: LayoutDashboard, exact: true },
+  { label: "Inbox",      href: "/inbox",      icon: MessageSquare,   badge: "LIVE" },
+  { label: "Products",   href: "/products",   icon: Package   },
+  { label: "Orders",     href: "/orders",     icon: ShoppingCart },
+  { label: "Customers",  href: "/customers",  icon: Users     },
+  { label: "AI Agent",   href: "/agent",      icon: Bot       },
+  { label: "Settings",   href: "/settings",   icon: Settings  },
 ];
 
 export function Sidebar() {
-  const pathname  = usePathname();
+  const pathname              = usePathname();
   const { logout, organization } = useAuth();
 
   function isActive(item: (typeof navItems)[0]) {
-    if (item.exact) return pathname === item.href;
-    return pathname.startsWith(item.href);
+    return item.exact ? pathname === item.href : pathname.startsWith(item.href);
   }
 
   return (
     <aside
+      style={{
+        backgroundColor: "var(--g-panel)",
+        borderRight: "1px solid var(--line)",
+      }}
       className="fixed inset-y-0 left-0 z-40 flex flex-col
-                 w-[60px] sm:w-[232px]
-                 bg-white border-r border-border"
+                 w-[60px] sm:w-[232px] transition-colors duration-200"
     >
       {/* ── Brand ──────────────────────────────────────────────── */}
       <div
-        className="h-[68px] flex items-center px-3 sm:px-4
-                   border-b border-border gap-3 shrink-0"
+        style={{ borderBottom: "1px solid var(--line)" }}
+        className="h-[68px] flex items-center px-3 sm:px-4 gap-3 shrink-0"
       >
-        {/* Logo mark */}
         <div
           className="w-9 h-9 rounded-[10px] bg-accent flex items-center
                      justify-center font-semibold text-white text-base shrink-0"
         >
           C
         </div>
-
         <div className="hidden sm:block min-w-0">
-          <span className="block text-[15px] font-semibold text-ink-900 leading-none tracking-tight">
+          <span
+            style={{ color: "var(--ink)" }}
+            className="block text-[15px] font-semibold leading-none tracking-tight"
+          >
             Chatrio
           </span>
-          <span className="block text-[12px] text-ink-500 mt-0.5 truncate leading-none">
+          <span
+            style={{ color: "var(--ink-5)" }}
+            className="block text-[12px] mt-0.5 truncate leading-none"
+          >
             {organization?.name || "My Store"}
           </span>
         </div>
@@ -84,12 +86,18 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               title={item.label}
+              style={
+                active
+                  ? {
+                      backgroundColor: "var(--action-bg)",
+                      color: "var(--action)",
+                    }
+                  : { color: "var(--ink-4)" }
+              }
               className={clsx(
                 "relative flex items-center gap-3 px-3 py-2.5 rounded-[10px]",
                 "text-[14px] font-medium transition-all duration-150",
-                active
-                  ? "bg-accent-light text-accent"
-                  : "text-ink-600 hover:text-ink-900 hover:bg-canvas-subtle"
+                !active && "hover:bg-canvas-subtle"
               )}
             >
               {/* Active left pill */}
@@ -103,8 +111,9 @@ export function Sidebar() {
               <Icon
                 className={clsx(
                   "w-[18px] h-[18px] shrink-0 transition-colors",
-                  active ? "text-accent" : "text-ink-400"
+                  active ? "text-accent" : ""
                 )}
+                style={active ? {} : { color: "var(--ink-6)" }}
               />
 
               <span className="hidden sm:block flex-1 truncate">
@@ -125,14 +134,18 @@ export function Sidebar() {
       </nav>
 
       {/* ── Footer ───────────────────────────────────────────────── */}
-      <div className="shrink-0 px-2 pb-4 border-t border-border pt-3">
+      <div
+        style={{ borderTop: "1px solid var(--line)" }}
+        className="shrink-0 px-2 pb-4 pt-3"
+      >
         <button
           onClick={logout}
           title="Sign out"
+          style={{ color: "var(--ink-5)" }}
           className="w-full flex items-center justify-center sm:justify-start
                      gap-3 px-3 py-2.5 rounded-[10px]
-                     text-[13px] font-medium text-ink-500
-                     hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                     text-[13px] font-medium transition-colors
+                     hover:text-rose-500 hover:bg-rose-500/10"
         >
           <LogOut className="w-[18px] h-[18px] shrink-0" />
           <span className="hidden sm:inline">Sign out</span>
