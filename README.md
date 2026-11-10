@@ -1,4 +1,4 @@
-# Chatrio — Autonomous AI WhatsApp Conversational Commerce Platform
+# Chatrio — Autonomous Omnichannel AI Conversational Commerce Platform
 
 [![Python](https://img.shields.io/badge/Python-3.12%20%7C%203.14-blue?logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
@@ -8,78 +8,128 @@
 [![LangGraph](https://img.shields.io/badge/LangGraph-Agentic%20Workflow-FF6F00?logo=langchain&logoColor=white)](https://langchain.com)
 [![License](https://img.shields.io/badge/License-Proprietary-red)](#)
 
-Chatrio is a multi-tenant B2B conversational commerce platform that turns **WhatsApp** into an autonomous, 24/7 sales and customer fulfillment channel. 
+Chatrio is a multi-tenant B2B conversational commerce platform that turns messaging channels into autonomous, 24/7 sales, fulfillment, and customer support channels.
 
-Powered by **LangGraph**, **FastAPI**, **PostgreSQL with pgvector**, and **Next.js**, Chatrio ingests messy, conversational WhatsApp voice and text messages, performs semantic catalog search, reserves inventory deterministically, and assembles orders directly in conversation—while giving human agents a shared live inbox with one-click AI takeover.
+Built on an **omnichannel, channel-agnostic foundation** and powered by **LangGraph**, **FastAPI**, **PostgreSQL with pgvector**, and **Next.js 16**, Chatrio enables merchants to sell products, answer queries, check real-time inventory, and assemble orders directly inside conversations—launching with **WhatsApp Cloud API** and engineered for seamless expansion to **Instagram Direct**, **Facebook Messenger**, **Web Live Chat**, **Telegram**, and **SMS**.
 
 ---
 
-## Architecture Overview
+## Omnichannel System Architecture
 
 ```mermaid
 flowchart TD
-    subgraph WhatsApp["WhatsApp Ecosystem"]
-        Customer["Customer on WhatsApp"]
-        MetaCloud["Meta WhatsApp Cloud API"]
+    subgraph Channels["Omnichannel Ingress & Egress"]
+        WhatsApp["WhatsApp Cloud API\n(Primary Launch)"]
+        Instagram["Instagram Direct\n(Meta Graph API)"]
+        Messenger["Facebook Messenger\n(Meta Graph API)"]
+        WebChat["Website Live Chat\n(WebSocket / React Widget)"]
+        Telegram["Telegram / SMS\n(Bot API / Twilio)"]
     end
 
-    subgraph Ingestion["Ingestion & Queue Pipeline"]
-        WebhookHandler["FastAPI Webhook Handler\n(HMAC-SHA256 Verified)"]
-        RedisBuffer["Redis 7 Debounce Buffer\n(2.0s Coalescing Window)"]
+    subgraph Adapters["Channel Adapters & Ingestion"]
+        WebhookHandler["Channel Ingress & Webhook Handler\n(HMAC-SHA256 & Auth Verification)"]
+        RedisBuffer["Redis 7 Debounce Buffer\n(2.0s Rapid-Burst Coalescing Window)"]
         WorkerQueue["BullMQ Background Workers"]
     end
 
-    subgraph Brain["Agentic Core (LangGraph)"]
-        Agent["LangGraph Conversational Agent"]
+    subgraph Core["Channel-Agnostic Core (LangGraph)"]
+        NormalizedBus["Normalized Message Bus\n(channel: WHATSAPP | WEB | API)"]
+        Agent["LangGraph Conversational AI Agent"]
         Guardrails["Server-side Invariant Guardrails"]
-        Tools["Deterministic Business Tools\n(Stock, Orders, Outbox)"]
+        Tools["Deterministic Business Tools\n(Catalog, Stock Reservation, Orders)"]
     end
 
     subgraph Storage["Storage & Infrastructure"]
-        Postgres[("PostgreSQL 16 + pgvector\n(Multi-Tenant Scoped)")]
+        Postgres[("PostgreSQL 16 + pgvector\n(Multi-Tenant Scoped DB)")]
         OutboxTable[("Transactional Outbox Engine")]
     end
 
-    subgraph MerchantApp["Merchant Dashboard (Next.js 16)"]
+    subgraph Dashboard["Merchant Operations Dashboard (Next.js 16)"]
         Staff["Store Admin / Support Agent"]
         InboxUI["Shared Live Inbox & AI Takeover"]
         CatalogUI["Product & Stock Manager"]
         FulfillmentUI["Order Board & State Machine"]
+        AnalyticsUI["AI Ops Telemetry & Signals"]
     end
 
-    Customer <-->|Text / Voice / Media| MetaCloud
-    MetaCloud -->|Webhook POST < 50ms| WebhookHandler
-    WebhookHandler -->|Buffer Rapid Bursts| RedisBuffer
+    WhatsApp <-->|Webhooks / Outbox| WebhookHandler
+    Instagram <-->|Webhooks / Outbox| WebhookHandler
+    Messenger <-->|Webhooks / Outbox| WebhookHandler
+    WebChat <-->|Webhooks / Outbox| WebhookHandler
+    Telegram <-->|Webhooks / Outbox| WebhookHandler
+
+    WebhookHandler --> RedisBuffer
     RedisBuffer --> WorkerQueue
-    WorkerQueue --> Agent
+    WorkerQueue --> NormalizedBus
+    NormalizedBus --> Agent
     Agent <--> Tools
     Tools <--> Guardrails
     Guardrails <--> Postgres
     Tools --> OutboxTable
-    OutboxTable -->|Reliable Dispatch| MetaCloud
+    OutboxTable -->|Reliable Message Dispatch| WebhookHandler
 
-    Staff <-->|Real-time Control| MerchantApp
-    MerchantApp <-->|REST API v1| WebhookHandler
+    Staff <-->|Real-time Control & 1-Click Takeover| Dashboard
+    Dashboard <-->|REST API v1| WebhookHandler
 ```
+
+---
+
+## Omnichannel by Design
+
+Chatrio strictly separates **channel adapters** from the **core business logic**. 
+
+The AI agent, semantic vector search, inventory reservations, and order state machines have zero awareness of whether a customer is typing on WhatsApp, chatting on an Instagram story, or using an embedded website widget.
+
+```
+                    ┌──────────────────────────────┐
+                    │      Incoming Channels       │
+                    │ WhatsApp | Instagram | Web   │
+                    └──────────────┬───────────────┘
+                                   │
+                                   ▼
+                    ┌──────────────────────────────┐
+                    │    Normalized Message DTO    │
+                    │   (channel, sender, text)    │
+                    └──────────────┬───────────────┘
+                                   │
+                                   ▼
+┌──────────────────────────────────────────────────────────────────────┐
+│                    Channel-Agnostic Core Engine                      │
+│                                                                      │
+│  • LangGraph State Machine     • Semantic Vector Search (pgvector)   │
+│  • Inventory Locking Guardrail • Deterministic Order Creation        │
+│  • Transactional Outbox Engine • Multi-Tenant PostgreSQL Isolation   │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+### Supported & Extensible Channels
+
+| Channel | Status | Integration Protocol | Capabilities |
+| :--- | :---: | :--- | :--- |
+| **WhatsApp Cloud API** | **Active (Production)** | Meta Cloud Graph API + Webhooks | Voice notes, media, interactive buttons, catalog lists, 24h customer window policy |
+| **Instagram Direct** | **Ready via Adapter** | Meta Graph API (Messenger platform) | DM product inquiry, story mentions, image recognition, order assembly |
+| **Facebook Messenger** | **Ready via Adapter** | Meta Graph API Webhooks | Standard text, carousels, customer checkout links |
+| **Web Live Chat** | **Built-in (`WEB`)** | REST & WebSocket Widget | Website customer chat, synchronized with the merchant's shared inbox |
+| **Telegram / SMS** | **Extensible** | Bot API / Twilio | Standard two-way conversational commerce |
 
 ---
 
 ## Core Capabilities & Engineering Highlights
 
-### 1. Deterministic Business Logic vs. AI Boundaries
-- **Zero Raw Database Writing by LLM**: The AI model (LangGraph) functions as an intent classifier and tool invoker. It cannot directly update prices, inventory, or order records.
+### 1. Deterministic Business Authority vs. AI Boundaries
+- **Zero Raw Database Writing by LLM**: The AI model (LangGraph) functions strictly as an intent classifier and tool invoker. It cannot alter pricing, customer balances, or order records directly.
 - **Server-Side Invariant Guardrails**: Every tool invocation undergoes server-side validation against session authorization, tenant isolation, and strict business rules.
-- **Vector Semantic Search (`pgvector`)**: Customers can describe products conversationally (e.g., *"crisp red apples for baking"*), matching catalog SKUs via cosine vector distance.
+- **Vector Semantic Search (`pgvector`)**: Customers can describe products naturally (e.g., *"crisp organic apples for baking"*), matching catalog SKUs via cosine distance vector search.
 
-### 2. WhatsApp Ingestion & Resiliency
-- **HMAC-SHA256 Webhook Verification**: Every payload from Meta is verified against `X-Hub-Signature-256` before parsing.
-- **2.0-Second Redis Debounce Buffer**: WhatsApp customers frequently send thoughts across multiple short messages (*"Hi"*, *"Do you have oranges?"*, *"And 2 apples"*). Redis buffers and merges rapid bursts into a single conversational turn.
-- **Meta 24-Hour Customer Window Policy**: Enforces Meta's 24-hour service window, preventing unauthorized outbound charges and alerting agents when template messages are required.
+### 2. WhatsApp & Messaging Resiliency
+- **HMAC-SHA256 Signature Verification**: Every incoming webhook payload is cryptographically verified against `X-Hub-Signature-256` before processing.
+- **2.0-Second Redis Debounce Buffer**: Chat customers frequently send thoughts across multiple short bursts (*"Hi"*, *"Do you have oranges?"*, *"And 2 apples"*). Redis buffers and merges rapid bursts into a single conversational turn.
+- **Meta 24-Hour Policy Engine**: Enforces Meta's 24-hour customer service window, preventing unauthorized outbound charges and alerting agents when template messages are required.
 - **Transactional Outbox Engine**: Outbound messages are committed inside database transactions before dispatch, guaranteeing zero lost messages during network drops.
 
 ### 3. High-Performance Merchant Dashboard (Next.js 16)
 - **Obsidian Dark Aesthetic**: Built with `#0B0D11`, glowing emerald/cyan indicators, SVG trend sparklines, and responsive slide-over drawers.
-- **Live Shared WhatsApp Inbox**: Real-time customer chat feed with message delivery receipts (`SENT`, `DELIVERED`, `READ`).
+- **Live Shared WhatsApp & Omnichannel Inbox**: Real-time customer chat feed with message delivery receipts (`SENT`, `DELIVERED`, `READ`).
 - **One-Click Human Takeover**: Operators can pause the AI instantly with `PATCH /api/v1/conversations/{id}/takeover` to handle delicate customer interactions manually.
 - **Zero Mock Data Architecture**: 100% type-safe modular services mapping directly to FastAPI controllers.
 
@@ -97,10 +147,10 @@ Chatrio/
 │   │   │   ├── auth/               # Merchant Auth & Multi-Tenancy Router & Service
 │   │   │   ├── products/           # Catalog, Categories & Stock Management
 │   │   │   ├── customers/          # Customer Directory & Profile Store
-│   │   │   ├── conversations/      # Chat History, Messages & Human Takeover
+│   │   │   ├── conversations/      # Chat History, Messages & Human Takeover (channel: WHATSAPP/WEB/API)
 │   │   │   ├── orders/             # Order State Machine & Line Items
 │   │   │   ├── outbox/             # Transactional Outbox Engine & Worker
-│   │   │   └── webhooks/           # WhatsApp Webhook Verification & Processing
+│   │   │   └── webhooks/           # WhatsApp & Meta Ingestion & Signature Verification
 │   │   └── main.py                 # FastAPI Application Lifespan & Middleware
 │   ├── migrations/                 # Alembic Database Version Control
 │   ├── tests/                      # 207 Automated Pytest Unit & Integration Tests
@@ -266,4 +316,3 @@ npm run build
 
 Copyright &copy; 2026 Chatrio. All rights reserved.
 Proprietary software for enterprise conversational commerce.
-
