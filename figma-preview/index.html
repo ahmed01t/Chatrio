@@ -1,0 +1,1763 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatrio — Autonomous Omnichannel Conversational Commerce</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            obsidian: {
+              950: '#07090C',
+              900: '#0B0D11',
+              850: '#10131A',
+              800: '#131720',
+              750: '#171D27',
+              700: '#1F2633',
+              600: '#2B3545',
+              500: '#4B5565',
+              400: '#94A3B8',
+              300: '#CBD5E1',
+            },
+            brand: {
+              emerald: '#10B981',
+              whatsapp: '#25D366',
+              cyan: '#0EA5E9',
+              amber: '#F59E0B',
+              rose: '#EF4444',
+              purple: '#8B5CF6',
+              indigo: '#6366F1',
+            }
+          },
+          boxShadow: {
+            'glow-emerald': '0 0 25px -4px rgba(16, 185, 129, 0.35)',
+            'glow-cyan': '0 0 25px -4px rgba(14, 165, 233, 0.35)',
+            'glow-whatsapp': '0 0 25px -4px rgba(37, 211, 102, 0.35)',
+            'glow-purple': '0 0 25px -4px rgba(139, 92, 246, 0.35)',
+            'glow-amber': '0 0 25px -4px rgba(245, 158, 11, 0.35)',
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'float': 'float 6s ease-in-out infinite',
+            'glow-pulse': 'glowPulse 2s ease-in-out infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-6px)' },
+            },
+            glowPulse: {
+              '0%, 100%': { opacity: '0.4' },
+              '50%': { opacity: '0.8' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #07090C; }
+    ::-webkit-scrollbar-thumb { background: #1F2633; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #2B3545; }
+
+    /* Glassmorphism Classes */
+    .glass-panel {
+      background: rgba(16, 19, 26, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .glass-card {
+      background: rgba(19, 23, 32, 0.65);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .glass-input {
+      background: rgba(11, 13, 17, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Ambient background gradient orbs */
+    .ambient-glow-1 {
+      position: absolute;
+      top: -100px;
+      left: 15%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%);
+      pointer-events: none;
+      filter: blur(60px);
+      z-index: 0;
+    }
+    .ambient-glow-2 {
+      position: absolute;
+      bottom: -150px;
+      right: 10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(14, 165, 233, 0.09) 0%, transparent 70%);
+      pointer-events: none;
+      filter: blur(80px);
+      z-index: 0;
+    }
+    .ambient-glow-3 {
+      position: absolute;
+      top: 40%;
+      right: 35%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.07) 0%, transparent 70%);
+      pointer-events: none;
+      filter: blur(70px);
+      z-index: 0;
+    }
+  </style>
+</head>
+<body class="bg-obsidian-950 text-slate-100 font-sans min-h-screen flex flex-col selection:bg-brand-emerald/30 selection:text-brand-emerald relative overflow-hidden">
+
+  <!-- Ambient Glow Effects -->
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+  <div class="ambient-glow-3"></div>
+
+  <!-- TOP APP BAR -->
+  <header class="h-16 border-b border-obsidian-750/70 glass-panel sticky top-0 z-40 flex items-center justify-between px-6">
+    <!-- Brand / Tenant Info -->
+    <div class="flex items-center space-x-6">
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('inbox')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-emerald/20 via-brand-cyan/20 to-brand-whatsapp/20 border border-brand-emerald/40 flex items-center justify-center shadow-glow-emerald">
+          <i data-lucide="message-square-code" class="w-5 h-5 text-brand-emerald"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">Chatrio</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-brand-emerald/10 text-brand-emerald border border-brand-emerald/30 font-semibold tracking-wide">v1.2 ACTIVE</span>
+          </div>
+          <p class="text-[11px] text-obsidian-400 font-mono">Autonomous Omnichannel AI</p>
+        </div>
+      </div>
+
+      <!-- Tenant Selector -->
+      <div class="hidden md:flex items-center pl-4 border-l border-obsidian-750/80">
+        <button class="flex items-center space-x-2.5 px-3 py-1.5 rounded-lg bg-obsidian-850/90 hover:bg-obsidian-800 border border-obsidian-700/80 text-xs transition-all">
+          <span class="w-2 h-2 rounded-full bg-brand-emerald animate-ping"></span>
+          <span class="w-2 h-2 rounded-full bg-brand-emerald -ml-4"></span>
+          <span class="text-slate-200 font-medium">Apex Organics Corp.</span>
+          <span class="text-[10px] font-mono text-obsidian-400 bg-obsidian-750 px-1.5 py-0.5 rounded">US-EAST</span>
+          <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-obsidian-400"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Engine Status Pill & Action Buttons -->
+    <div class="flex items-center space-x-4">
+      <!-- Live Telemetry Pill -->
+      <div class="hidden lg:flex items-center space-x-3 px-3.5 py-1.5 rounded-full bg-obsidian-900/80 border border-obsidian-700/70 text-xs font-mono">
+        <div class="flex items-center space-x-1.5 text-emerald-400">
+          <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
+          <span>LangGraph Core: <strong>Ready</strong></span>
+        </div>
+        <span class="text-obsidian-600">|</span>
+        <div class="flex items-center space-x-1.5 text-cyan-400">
+          <i data-lucide="database" class="w-3.5 h-3.5"></i>
+          <span>pgvector: <strong>3,410 SKUs</strong></span>
+        </div>
+        <span class="text-obsidian-600">|</span>
+        <div class="flex items-center space-x-1.5 text-amber-400">
+          <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+          <span>Debounce: <strong>2.0s buffer</strong></span>
+        </div>
+      </div>
+
+      <!-- Notification & Sound -->
+      <button onclick="toggleAudioFx()" id="audioBtn" title="Toggle UI sound effects" class="w-9 h-9 rounded-lg bg-obsidian-850 hover:bg-obsidian-800 border border-obsidian-700/80 flex items-center justify-center text-obsidian-400 hover:text-slate-200 transition-all">
+        <i data-lucide="volume-2" id="audioIcon" class="w-4 h-4 text-brand-emerald"></i>
+      </button>
+
+      <!-- Admin Profile -->
+      <div class="flex items-center space-x-3 pl-3 border-l border-obsidian-750">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-emerald/40 to-brand-cyan/40 border border-brand-emerald/50 flex items-center justify-center font-bold text-xs text-white shadow-glow-emerald">
+          AM
+        </div>
+        <div class="hidden sm:block text-left">
+          <div class="text-xs font-semibold text-slate-200 leading-tight">Alex Morgan</div>
+          <div class="text-[10px] text-obsidian-400 font-mono">Store SuperAdmin</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN APP CONTAINER -->
+  <div class="flex-1 flex overflow-hidden">
+
+    <!-- LEFT SIDEBAR NAVIGATION RAIL -->
+    <nav class="w-20 lg:w-64 border-r border-obsidian-750/70 glass-panel flex flex-col justify-between p-3 select-none z-30">
+      <!-- Nav Links -->
+      <div class="space-y-1.5">
+        <div class="hidden lg:block px-3 py-2 text-[11px] font-mono tracking-wider text-obsidian-400 uppercase font-semibold">
+          Omnichannel Ops
+        </div>
+
+        <!-- 1. Live Inbox -->
+        <button onclick="switchTab('inbox')" id="nav-inbox" class="w-full flex items-center space-x-3.5 px-3.5 py-3 rounded-xl text-sm font-medium transition-all group bg-brand-emerald/10 text-brand-emerald border border-brand-emerald/30 shadow-glow-emerald">
+          <i data-lucide="message-square" class="w-5 h-5 flex-shrink-0"></i>
+          <span class="hidden lg:inline font-semibold">Live Inbox</span>
+          <span class="hidden lg:inline-flex ml-auto text-[10px] font-mono px-2 py-0.5 rounded-full bg-brand-whatsapp text-obsidian-950 font-bold animate-pulse">14</span>
+        </button>
+
+        <!-- 2. Catalog & Vector Search -->
+        <button onclick="switchTab('catalog')" id="nav-catalog" class="w-full flex items-center space-x-3.5 px-3.5 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-slate-200 hover:bg-obsidian-800/80 border border-transparent">
+          <i data-lucide="package-search" class="w-5 h-5 flex-shrink-0"></i>
+          <span class="hidden lg:inline">Catalog & Search</span>
+          <span class="hidden lg:inline-flex ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded bg-obsidian-750 text-cyan-400 font-semibold">pgvector</span>
+        </button>
+
+        <!-- 3. Orders & State Machine -->
+        <button onclick="switchTab('orders')" id="nav-orders" class="w-full flex items-center space-x-3.5 px-3.5 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-slate-200 hover:bg-obsidian-800/80 border border-transparent">
+          <i data-lucide="truck" class="w-5 h-5 flex-shrink-0"></i>
+          <span class="hidden lg:inline">Fulfillment Board</span>
+          <span class="hidden lg:inline-flex ml-auto text-[10px] font-mono px-2 py-0.5 rounded-full bg-obsidian-700 text-slate-200">12</span>
+        </button>
+
+        <!-- 4. AI Telemetry & Debounce -->
+        <button onclick="switchTab('telemetry')" id="nav-telemetry" class="w-full flex items-center space-x-3.5 px-3.5 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-slate-200 hover:bg-obsidian-800/80 border border-transparent">
+          <i data-lucide="activity" class="w-5 h-5 flex-shrink-0"></i>
+          <span class="hidden lg:inline">AI Telemetry</span>
+          <span class="hidden lg:inline-flex ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded bg-brand-purple/20 text-brand-purple font-semibold">2.0s</span>
+        </button>
+
+        <div class="hidden lg:block pt-4 px-3 py-2 text-[11px] font-mono tracking-wider text-obsidian-400 uppercase font-semibold">
+          Channels & Meta
+        </div>
+
+        <!-- 5. Channel Config -->
+        <button onclick="switchTab('settings')" id="nav-settings" class="w-full flex items-center space-x-3.5 px-3.5 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-slate-200 hover:bg-obsidian-800/80 border border-transparent">
+          <i data-lucide="settings-2" class="w-5 h-5 flex-shrink-0"></i>
+          <span class="hidden lg:inline">Channels & Config</span>
+          <span class="hidden lg:inline-flex ml-auto w-2 h-2 rounded-full bg-brand-emerald"></span>
+        </button>
+      </div>
+
+      <!-- Quick Stats Card in Sidebar -->
+      <div class="hidden lg:block p-3.5 rounded-2xl glass-card border border-brand-emerald/20 bg-gradient-to-b from-brand-emerald/5 to-transparent">
+        <div class="flex items-center justify-between text-xs font-semibold text-slate-300 mb-2">
+          <span class="flex items-center space-x-1.5">
+            <i data-lucide="bot" class="w-3.5 h-3.5 text-brand-emerald"></i>
+            <span>Autonomous Mode</span>
+          </span>
+          <span class="text-[10px] font-mono text-brand-emerald font-bold">96.4%</span>
+        </div>
+        <p class="text-[11px] text-obsidian-400 leading-relaxed mb-3">
+          142 orders closed without human intervention today.
+        </p>
+        <div class="w-full bg-obsidian-750 h-1.5 rounded-full overflow-hidden">
+          <div class="bg-gradient-to-r from-brand-emerald to-brand-cyan h-full rounded-full" style="width: 96.4%"></div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- CONTENT DISPLAY AREA -->
+    <main class="flex-1 flex overflow-hidden bg-obsidian-950 relative">
+
+      <!-- ======================================================== -->
+      <!-- TAB 1: LIVE OMNICHANNEL INBOX & 1-CLICK TAKEOVER (MAIN)   -->
+      <!-- ======================================================== -->
+      <div id="tab-inbox" class="flex-1 flex w-full h-full">
+
+        <!-- SUB-PANEL: CONVERSATION LIST (320px) -->
+        <aside class="w-80 lg:w-96 border-r border-obsidian-750/70 glass-panel flex flex-col flex-shrink-0">
+          <!-- Search & Filter Bar -->
+          <div class="p-3.5 border-b border-obsidian-750/70 space-y-3">
+            <div class="relative">
+              <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-obsidian-400"></i>
+              <input type="text" placeholder="Search orders, phone, text..." class="w-full pl-9 pr-4 py-2 rounded-xl text-xs glass-input text-slate-200 placeholder-obsidian-400 focus:outline-none focus:border-brand-emerald transition-all">
+            </div>
+
+            <!-- Channel Pills -->
+            <div class="flex items-center space-x-1.5 overflow-x-auto pb-1 text-[11px]">
+              <button class="px-2.5 py-1 rounded-lg bg-brand-emerald/20 text-brand-emerald border border-brand-emerald/30 font-semibold flex items-center space-x-1 flex-shrink-0">
+                <span>All</span>
+                <span class="bg-brand-emerald text-obsidian-950 text-[10px] px-1 rounded-full font-bold">31</span>
+              </button>
+              <button class="px-2.5 py-1 rounded-lg bg-obsidian-850 hover:bg-obsidian-800 text-slate-300 border border-obsidian-700 flex items-center space-x-1 flex-shrink-0">
+                <i data-lucide="message-circle" class="w-3 h-3 text-brand-whatsapp"></i>
+                <span>WhatsApp</span>
+                <span class="text-obsidian-400 text-[10px]">14</span>
+              </button>
+              <button class="px-2.5 py-1 rounded-lg bg-obsidian-850 hover:bg-obsidian-800 text-slate-300 border border-obsidian-700 flex items-center space-x-1 flex-shrink-0">
+                <i data-lucide="instagram" class="w-3 h-3 text-pink-400"></i>
+                <span>IG</span>
+                <span class="text-obsidian-400 text-[10px]">6</span>
+              </button>
+              <button class="px-2.5 py-1 rounded-lg bg-obsidian-850 hover:bg-obsidian-800 text-slate-300 border border-obsidian-700 flex items-center space-x-1 flex-shrink-0">
+                <i data-lucide="globe" class="w-3 h-3 text-brand-cyan"></i>
+                <span>Web</span>
+                <span class="text-obsidian-400 text-[10px]">8</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Active Conversations Feed -->
+          <div class="flex-1 overflow-y-auto divide-y divide-obsidian-750/40">
+
+            <!-- Conv 1: Active Zack Sullivan (WhatsApp) -->
+            <div onclick="selectConversation('zack')" id="conv-zack" class="p-3.5 bg-obsidian-850/90 border-l-4 border-brand-emerald cursor-pointer transition-all hover:bg-obsidian-800/90">
+              <div class="flex items-start justify-between mb-1">
+                <div class="flex items-center space-x-2">
+                  <div class="relative">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-emerald/40 to-slate-700 border border-brand-emerald/40 flex items-center justify-center font-bold text-xs text-white">
+                      ZS
+                    </div>
+                    <div class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-obsidian-900 flex items-center justify-center">
+                      <i data-lucide="message-circle" class="w-3 h-3 text-brand-whatsapp"></i>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-semibold text-slate-100 flex items-center space-x-1.5">
+                      <span>Zack Sullivan</span>
+                      <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">AI Active</span>
+                    </h4>
+                    <p class="text-[11px] text-obsidian-400 font-mono">+1 (415) 892-1092</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="text-[10px] font-mono text-brand-emerald font-semibold">Just now</span>
+                  <div class="flex items-center justify-end space-x-0.5 text-brand-cyan mt-1" title="Delivered & Read">
+                    <i data-lucide="check-check" class="w-3 h-3"></i>
+                  </div>
+                </div>
+              </div>
+              <p class="text-xs text-slate-300 line-clamp-1 mt-1.5">
+                "Got it! I've reserved 10 lbs for your cart..."
+              </p>
+              <div class="flex items-center justify-between mt-2 pt-2 border-t border-obsidian-750/40 text-[10px] font-mono">
+                <span class="text-brand-amber flex items-center space-x-1">
+                  <i data-lucide="clock" class="w-3 h-3"></i>
+                  <span>24h Meta: 18h left</span>
+                </span>
+                <span class="px-1.5 py-0.5 rounded bg-brand-emerald/10 text-brand-emerald font-semibold">$44.90 Cart</span>
+              </div>
+            </div>
+
+            <!-- Conv 2: Maya Lin (Instagram DM) -->
+            <div onclick="selectConversation('maya')" id="conv-maya" class="p-3.5 hover:bg-obsidian-850/50 cursor-pointer transition-all border-l-4 border-transparent">
+              <div class="flex items-start justify-between mb-1">
+                <div class="flex items-center space-x-2">
+                  <div class="relative">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-pink-500/30 to-purple-500/30 border border-pink-500/30 flex items-center justify-center font-bold text-xs text-pink-300">
+                      ML
+                    </div>
+                    <div class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-obsidian-900 flex items-center justify-center">
+                      <i data-lucide="instagram" class="w-3 h-3 text-pink-400"></i>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-semibold text-slate-100 flex items-center space-x-1.5">
+                      <span>Maya Lin</span>
+                      <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">Needs Takeover</span>
+                    </h4>
+                    <p class="text-[11px] text-obsidian-400 font-mono">@mayalin.design</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="text-[10px] font-mono text-obsidian-400">8m ago</span>
+                  <div class="w-2 h-2 rounded-full bg-brand-amber ml-auto mt-1"></div>
+                </div>
+              </div>
+              <p class="text-xs text-slate-400 line-clamp-1 mt-1.5">
+                "Can you guarantee delivery to Brooklyn before Friday 5 PM?"
+              </p>
+              <div class="flex items-center justify-between mt-2 text-[10px] font-mono text-obsidian-400">
+                <span class="text-pink-400">Story Mention Order</span>
+                <span>$128.00 Pending</span>
+              </div>
+            </div>
+
+            <!-- Conv 3: David Chen (Web Chat) -->
+            <div onclick="selectConversation('david')" id="conv-david" class="p-3.5 hover:bg-obsidian-850/50 cursor-pointer transition-all border-l-4 border-transparent">
+              <div class="flex items-start justify-between mb-1">
+                <div class="flex items-center space-x-2">
+                  <div class="relative">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500/30 to-blue-500/30 border border-cyan-500/30 flex items-center justify-center font-bold text-xs text-cyan-300">
+                      DC
+                    </div>
+                    <div class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-obsidian-900 flex items-center justify-center">
+                      <i data-lucide="globe" class="w-3 h-3 text-brand-cyan"></i>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-semibold text-slate-100 flex items-center space-x-1.5">
+                      <span>David Chen</span>
+                      <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">AI Resolved</span>
+                    </h4>
+                    <p class="text-[11px] text-obsidian-400 font-mono">Web Live Widget #891</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="text-[10px] font-mono text-obsidian-400">14m ago</span>
+                  <i data-lucide="check" class="w-3 h-3 text-brand-emerald ml-auto mt-1"></i>
+                </div>
+              </div>
+              <p class="text-xs text-slate-400 line-clamp-1 mt-1.5">
+                "Thank you! The return policy document explained everything."
+              </p>
+              <div class="flex items-center justify-between mt-2 text-[10px] font-mono text-obsidian-400">
+                <span class="text-cyan-400">Policy Query</span>
+                <span>100% Autonomous</span>
+              </div>
+            </div>
+
+            <!-- Conv 4: Elena Rostova (WhatsApp) -->
+            <div onclick="selectConversation('elena')" id="conv-elena" class="p-3.5 hover:bg-obsidian-850/50 cursor-pointer transition-all border-l-4 border-transparent">
+              <div class="flex items-start justify-between mb-1">
+                <div class="flex items-center space-x-2">
+                  <div class="relative">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500/30 to-teal-500/30 border border-emerald-500/30 flex items-center justify-center font-bold text-xs text-emerald-300">
+                      ER
+                    </div>
+                    <div class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-obsidian-900 flex items-center justify-center">
+                      <i data-lucide="message-circle" class="w-3 h-3 text-brand-whatsapp"></i>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-semibold text-slate-100 flex items-center space-x-1.5">
+                      <span>Elena Rostova</span>
+                      <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-brand-whatsapp/10 text-brand-whatsapp border border-brand-whatsapp/20">Order #8491</span>
+                    </h4>
+                    <p class="text-[11px] text-obsidian-400 font-mono">+44 7911 123456</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="text-[10px] font-mono text-obsidian-400">32m ago</span>
+                  <div class="flex items-center justify-end space-x-0.5 text-brand-cyan mt-1">
+                    <i data-lucide="check-check" class="w-3 h-3"></i>
+                  </div>
+                </div>
+              </div>
+              <p class="text-xs text-slate-400 line-clamp-1 mt-1.5">
+                "Payment authorized via Apple Pay. Awaiting dispatch tracking."
+              </p>
+              <div class="flex items-center justify-between mt-2 text-[10px] font-mono text-obsidian-400">
+                <span class="text-brand-whatsapp">WhatsApp Cloud</span>
+                <span class="text-emerald-400 font-semibold">$340.50 Paid</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Simulation Trigger Button -->
+          <div class="p-3 border-t border-obsidian-750/70 bg-obsidian-900/60">
+            <button onclick="simulateIncomingBurst()" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-brand-emerald/20 to-brand-cyan/20 hover:from-brand-emerald/30 hover:to-brand-cyan/30 border border-brand-emerald/40 text-xs font-semibold text-brand-emerald flex items-center justify-center space-x-2 transition-all shadow-glow-emerald">
+              <i data-lucide="play-circle" class="w-4 h-4 text-brand-cyan"></i>
+              <span>Simulate Customer Rapid Burst (2.0s)</span>
+            </button>
+          </div>
+        </aside>
+
+        <!-- CHAT THREAD WORKSPACE (CENTER) -->
+        <section class="flex-1 flex flex-col h-full bg-obsidian-950 relative overflow-hidden">
+
+          <!-- CONVERSATION HEADER -->
+          <div class="h-16 border-b border-obsidian-750/70 glass-panel px-6 flex items-center justify-between z-10">
+            <div class="flex items-center space-x-3.5">
+              <div class="relative">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-emerald/40 to-slate-700 border border-brand-emerald/50 flex items-center justify-center font-bold text-sm text-white">
+                  ZS
+                </div>
+                <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-brand-whatsapp flex items-center justify-center text-[10px] text-obsidian-950 font-bold">
+                  <i data-lucide="check" class="w-2.5 h-2.5"></i>
+                </span>
+              </div>
+              <div>
+                <div class="flex items-center space-x-2">
+                  <h3 class="text-sm font-bold text-slate-100">Zack Sullivan</h3>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-brand-whatsapp/10 text-brand-whatsapp border border-brand-whatsapp/30 font-semibold flex items-center space-x-1">
+                    <i data-lucide="message-circle" class="w-2.5 h-2.5"></i>
+                    <span>WhatsApp Cloud API</span>
+                  </span>
+                  <span class="text-[10px] font-mono text-obsidian-400">+1 (415) 892-1092</span>
+                </div>
+                <!-- 24-hr Policy Counter -->
+                <div class="flex items-center space-x-2 text-[11px] text-obsidian-400 font-mono mt-0.5">
+                  <span class="text-emerald-400 flex items-center space-x-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-brand-emerald animate-ping"></span>
+                    <span>Meta 24-Hr Service Window Active</span>
+                  </span>
+                  <span>•</span>
+                  <span class="text-amber-400">18h 42m remaining</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- ONE-CLICK HUMAN TAKEOVER TOGGLE -->
+            <div class="flex items-center space-x-3">
+              <div id="aiStateBadge" class="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-brand-emerald/10 border border-brand-emerald/30 text-xs font-mono text-brand-emerald">
+                <span class="w-2 h-2 rounded-full bg-brand-emerald animate-pulse"></span>
+                <span id="aiStateText">AI Autonomous (LangGraph)</span>
+              </div>
+
+              <!-- 1-Click Takeover Button -->
+              <button onclick="toggleHumanTakeover()" id="takeoverBtn" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 border border-amber-500/40 text-xs font-semibold text-amber-300 flex items-center space-x-2 transition-all shadow-glow-amber">
+                <i data-lucide="hand" class="w-4 h-4 text-amber-400"></i>
+                <span id="takeoverBtnText">1-Click Human Takeover</span>
+              </button>
+
+              <!-- Customer Inspector Drawer Toggle -->
+              <button onclick="toggleInspector()" class="p-2 rounded-xl bg-obsidian-850 hover:bg-obsidian-800 border border-obsidian-700/80 text-obsidian-400 hover:text-slate-200">
+                <i data-lucide="panel-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- HUMAN TAKEOVER ALERT BANNER (Revealed on takeover) -->
+          <div id="takeoverBanner" class="hidden bg-gradient-to-r from-amber-950/80 via-orange-950/80 to-amber-950/80 border-b border-amber-500/40 px-6 py-2.5 flex items-center justify-between text-xs text-amber-200">
+            <div class="flex items-center space-x-3">
+              <div class="w-6 h-6 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-400">
+                <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <strong class="font-bold">Human Takeover Engaged</strong> — LangGraph autonomous responses paused via <code class="font-mono bg-obsidian-900/80 px-1 py-0.5 rounded text-[11px]">PATCH /api/v1/conversations/{id}/takeover</code>. You have manual control.
+              </div>
+            </div>
+            <button onclick="toggleHumanTakeover()" class="text-[11px] font-mono px-3 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-semibold">
+              Resume AI Control
+            </button>
+          </div>
+
+          <!-- MESSAGE STREAM CONTAINER -->
+          <div id="chatStream" class="flex-1 overflow-y-auto p-6 space-y-5">
+
+            <!-- Timestamp Divider -->
+            <div class="flex items-center justify-center my-4">
+              <span class="text-[10px] font-mono text-obsidian-400 px-3 py-1 rounded-full bg-obsidian-900 border border-obsidian-800">
+                Today, November 10, 2026 • WhatsApp Session Initiated
+              </span>
+            </div>
+
+            <!-- Customer Message 1 -->
+            <div class="flex items-start space-x-3 max-w-xl">
+              <div class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-300 flex-shrink-0 mt-1">
+                ZS
+              </div>
+              <div class="space-y-1">
+                <div class="p-3.5 rounded-2xl rounded-tl-sm bg-obsidian-800/90 border border-obsidian-700/80 text-slate-200 text-xs leading-relaxed shadow-sm">
+                  Hey! Do you have fresh organic honeycrisp apples in stock? Looking for around 10 lbs for baking pies this weekend. 🍎
+                </div>
+                <div class="text-[10px] font-mono text-obsidian-400 pl-1">14:21 • Delivered via Meta Ingress</div>
+              </div>
+            </div>
+
+            <!-- System Telemetry Badge (LangGraph Tool Call) -->
+            <div class="flex items-center justify-center">
+              <div class="px-3.5 py-1.5 rounded-xl bg-brand-purple/10 border border-brand-purple/30 text-brand-purple text-[11px] font-mono flex items-center space-x-2">
+                <i data-lucide="cpu" class="w-3.5 h-3.5 text-brand-purple animate-spin" style="animation-duration: 4s;"></i>
+                <span>LangGraph: <strong>catalog_search</strong>("organic honeycrisp apples") → Cosine Score: <strong>0.942</strong> (SKU-108)</span>
+              </div>
+            </div>
+
+            <!-- AI Agent Response 1 -->
+            <div class="flex items-start justify-end space-x-3 max-w-xl ml-auto">
+              <div class="space-y-1 text-right">
+                <div class="p-3.5 rounded-2xl rounded-tr-sm bg-brand-emerald/15 border border-brand-emerald/30 text-slate-100 text-xs leading-relaxed text-left shadow-glow-emerald">
+                  <div class="flex items-center space-x-1.5 text-brand-emerald font-semibold text-[11px] mb-1">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                    <span>Chatrio AI Agent</span>
+                  </div>
+                  Yes, Zack! We have fresh Washington State Organic Honeycrisp Apples in stock right now ($4.49/lb). Our system can reserve 10 lbs right now for same-day dispatch.
+                </div>
+                <div class="flex items-center justify-end space-x-1 text-[10px] font-mono text-obsidian-400 pr-1">
+                  <span>14:21</span>
+                  <i data-lucide="check-check" class="w-3 h-3 text-brand-cyan"></i>
+                </div>
+              </div>
+              <div class="w-8 h-8 rounded-lg bg-brand-emerald/20 border border-brand-emerald/40 flex items-center justify-center text-xs font-bold text-brand-emerald flex-shrink-0 mt-1 shadow-glow-emerald">
+                <i data-lucide="bot" class="w-4 h-4"></i>
+              </div>
+            </div>
+
+            <!-- Customer Message 2: VOICE NOTE WITH ANIMATED WAVEFORM -->
+            <div class="flex items-start space-x-3 max-w-xl">
+              <div class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-300 flex-shrink-0 mt-1">
+                ZS
+              </div>
+              <div class="space-y-1.5">
+                <!-- Audio Waveform Player Bubble -->
+                <div class="p-3.5 rounded-2xl rounded-tl-sm bg-obsidian-800/90 border border-obsidian-700/80 text-slate-200 text-xs shadow-sm w-72 sm:w-80">
+                  <div class="flex items-center space-x-3">
+                    <button onclick="playVoiceNote()" id="voicePlayBtn" class="w-9 h-9 rounded-full bg-brand-whatsapp text-obsidian-950 flex items-center justify-center flex-shrink-0 hover:scale-105 transition-all shadow-glow-whatsapp">
+                      <i data-lucide="play" id="voicePlayIcon" class="w-4 h-4 fill-obsidian-950"></i>
+                    </button>
+                    <!-- Waveform Bars -->
+                    <div class="flex-1 flex items-center space-x-1 h-8 px-1" id="waveform">
+                      <span class="w-1 bg-brand-whatsapp/80 h-3 rounded-full"></span>
+                      <span class="w-1 bg-brand-whatsapp/80 h-5 rounded-full"></span>
+                      <span class="w-1 bg-brand-whatsapp h-7 rounded-full"></span>
+                      <span class="w-1 bg-brand-whatsapp h-4 rounded-full"></span>
+                      <span class="w-1 bg-brand-whatsapp/80 h-6 rounded-full"></span>
+                      <span class="w-1 bg-brand-whatsapp h-8 rounded-full"></span>
+                      <span class="w-1 bg-brand-whatsapp/80 h-5 rounded-full"></span>
+                      <span class="w-1 bg-brand-whatsapp h-3 rounded-full"></span>
+                      <span class="w-1 bg-brand-whatsapp/60 h-6 rounded-full"></span>
+                      <span class="w-1 bg-brand-whatsapp/80 h-7 rounded-full"></span>
+                      <span class="w-1 bg-brand-whatsapp/40 h-4 rounded-full"></span>
+                      <span class="w-1 bg-brand-whatsapp/70 h-5 rounded-full"></span>
+                      <span class="w-1 bg-brand-whatsapp/50 h-3 rounded-full"></span>
+                      <span class="w-1 bg-brand-whatsapp/80 h-6 rounded-full"></span>
+                      <span class="w-1 bg-brand-whatsapp/40 h-2 rounded-full"></span>
+                    </div>
+                    <span class="text-[11px] font-mono text-obsidian-400" id="voiceDuration">0:24</span>
+                  </div>
+                  <!-- Audio Transcription -->
+                  <div class="mt-2.5 pt-2 border-t border-obsidian-700/60 text-[11px] text-obsidian-300 font-sans italic flex items-start space-x-1.5">
+                    <i data-lucide="mic" class="w-3.5 h-3.5 text-brand-whatsapp mt-0.5 flex-shrink-0"></i>
+                    <span>"Yeah 10 lbs sounds perfect, please add it and let me know the total with delivery."</span>
+                  </div>
+                </div>
+                <div class="text-[10px] font-mono text-obsidian-400 pl-1">14:22 • Voice Note Transcribed (Whisper Large v3)</div>
+              </div>
+            </div>
+
+            <!-- AI INTERACTIVE WHATSAPP PRODUCT & ORDER CARD -->
+            <div class="flex items-start justify-end space-x-3 max-w-xl ml-auto">
+              <div class="space-y-1 text-right">
+                <div class="p-4 rounded-2xl rounded-tr-sm bg-obsidian-850 border border-brand-emerald/40 text-left shadow-glow-emerald w-80 sm:w-96">
+                  <div class="flex items-center justify-between pb-2 mb-3 border-b border-obsidian-750">
+                    <span class="text-xs font-bold text-slate-100 flex items-center space-x-1.5">
+                      <i data-lucide="shopping-bag" class="w-4 h-4 text-brand-emerald"></i>
+                      <span>WhatsApp Interactive Order Card</span>
+                    </span>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-brand-emerald/15 text-brand-emerald font-bold">STOCK LOCKED</span>
+                  </div>
+
+                  <!-- Product Summary Item -->
+                  <div class="flex items-center space-x-3 bg-obsidian-900/90 p-2.5 rounded-xl border border-obsidian-750 mb-3">
+                    <div class="w-12 h-12 rounded-lg bg-gradient-to-tr from-amber-500/20 to-red-500/20 border border-amber-500/30 flex items-center justify-center text-xl">
+                      🍎
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-xs font-semibold text-slate-200">Organic Honeycrisp Apples</div>
+                      <div class="text-[10px] font-mono text-obsidian-400">SKU: APP-ORG-HC10 • 48 lbs in stock</div>
+                      <div class="text-xs font-bold text-brand-emerald mt-0.5">10 lbs × $4.49/lb = $44.90</div>
+                    </div>
+                  </div>
+
+                  <!-- Order Line Items -->
+                  <div class="space-y-1 text-[11px] font-mono text-obsidian-300 pb-2 mb-2 border-b border-obsidian-750">
+                    <div class="flex justify-between">
+                      <span>Subtotal:</span>
+                      <span class="text-slate-200 font-semibold">$44.90</span>
+                    </div>
+                    <div class="flex justify-between text-brand-emerald">
+                      <span>Same-Day Courier:</span>
+                      <span class="font-semibold">FREE (Over $40)</span>
+                    </div>
+                    <div class="flex justify-between text-slate-100 font-bold text-xs pt-1">
+                      <span>Total Due:</span>
+                      <span class="text-brand-emerald text-sm">$44.90</span>
+                    </div>
+                  </div>
+
+                  <!-- Interactive WhatsApp Native Action Buttons -->
+                  <div class="space-y-2 mt-3">
+                    <button onclick="confirmOrderDemo()" class="w-full py-2.5 px-3 rounded-xl bg-brand-whatsapp hover:bg-emerald-500 text-obsidian-950 font-bold text-xs flex items-center justify-center space-x-2 transition-all shadow-glow-whatsapp">
+                      <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                      <span>Confirm & Assemble Order</span>
+                    </button>
+                    <div class="grid grid-cols-2 gap-2">
+                      <button class="py-1.5 px-2 rounded-lg bg-obsidian-800 hover:bg-obsidian-750 border border-obsidian-700 text-[11px] text-slate-300 font-medium">
+                        Change Qty
+                      </button>
+                      <button class="py-1.5 px-2 rounded-lg bg-obsidian-800 hover:bg-obsidian-750 border border-obsidian-700 text-[11px] text-slate-300 font-medium">
+                        Add Pie Spices (+$6)
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center justify-end space-x-1 text-[10px] font-mono text-obsidian-400 pr-1">
+                  <span>14:22</span>
+                  <i data-lucide="check-check" class="w-3 h-3 text-brand-cyan"></i>
+                </div>
+              </div>
+              <div class="w-8 h-8 rounded-lg bg-brand-emerald/20 border border-brand-emerald/40 flex items-center justify-center text-xs font-bold text-brand-emerald flex-shrink-0 mt-1 shadow-glow-emerald">
+                <i data-lucide="bot" class="w-4 h-4"></i>
+              </div>
+            </div>
+
+            <!-- Dynamic burst inject container -->
+            <div id="dynamicBurstBox" class="space-y-4"></div>
+
+          </div>
+
+          <!-- CHAT INPUT / OPERATOR DISPATCH BOX -->
+          <div class="p-4 border-t border-obsidian-750/70 glass-panel z-10">
+            <div class="flex items-center space-x-3">
+              <!-- Attachment / Quick replies -->
+              <button class="p-2.5 rounded-xl bg-obsidian-850 hover:bg-obsidian-800 border border-obsidian-700/80 text-obsidian-400 hover:text-slate-200 transition-all">
+                <i data-lucide="paperclip" class="w-4 h-4"></i>
+              </button>
+              <button class="p-2.5 rounded-xl bg-obsidian-850 hover:bg-obsidian-800 border border-obsidian-700/80 text-obsidian-400 hover:text-slate-200 transition-all" title="Insert Catalog Product Card">
+                <i data-lucide="package" class="w-4 h-4 text-brand-emerald"></i>
+              </button>
+
+              <!-- Text Input -->
+              <div class="flex-1 relative">
+                <input type="text" id="operatorInput" placeholder="Reply as AI Agent (or Take Over for direct manual message)..." class="w-full px-4 py-2.5 rounded-xl text-xs glass-input text-slate-200 placeholder-obsidian-400 focus:outline-none focus:border-brand-emerald transition-all">
+              </div>
+
+              <!-- Send Button -->
+              <button onclick="sendOperatorMessage()" class="px-4 py-2.5 rounded-xl bg-brand-emerald hover:bg-emerald-400 text-obsidian-950 font-bold text-xs flex items-center space-x-1.5 transition-all shadow-glow-emerald">
+                <span>Send</span>
+                <i data-lucide="send" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+            <div class="flex items-center justify-between text-[10px] font-mono text-obsidian-400 mt-2 px-1">
+              <span>Transactional Outbox: <strong>Guaranteed Zero Loss</strong></span>
+              <span class="text-brand-emerald">HMAC-SHA256 Cryptographic Signature Active</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- RIGHT COLLAPSIBLE CUSTOMER 360 & TELEMETRY INSPECTOR (320px) -->
+        <aside id="customerInspector" class="w-80 border-l border-obsidian-750/70 glass-panel flex flex-col p-4 overflow-y-auto space-y-5">
+          <!-- Header -->
+          <div class="flex items-center justify-between pb-3 border-b border-obsidian-750">
+            <h4 class="text-xs font-bold text-slate-200 flex items-center space-x-2">
+              <i data-lucide="user-check" class="w-4 h-4 text-brand-cyan"></i>
+              <span>Customer 360 & Vector Profile</span>
+            </h4>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-semibold">VIP TIER</span>
+          </div>
+
+          <!-- Customer Identity Card -->
+          <div class="p-3.5 rounded-2xl glass-card border border-obsidian-700">
+            <div class="flex items-center space-x-3 mb-3">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-brand-emerald to-brand-cyan p-0.5">
+                <div class="w-full h-full bg-obsidian-900 rounded-[10px] flex items-center justify-center font-bold text-sm text-white">
+                  ZS
+                </div>
+              </div>
+              <div>
+                <h5 class="text-xs font-bold text-slate-100">Zack Sullivan</h5>
+                <p class="text-[11px] text-obsidian-400 font-mono">Customer ID: #CUST-9821</p>
+                <div class="flex items-center space-x-1 text-[10px] text-brand-emerald font-semibold mt-0.5">
+                  <i data-lucide="shield-check" class="w-3 h-3"></i>
+                  <span>Phone Verified</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-center text-[11px] font-mono">
+              <div class="p-2 rounded-xl bg-obsidian-900/80 border border-obsidian-750">
+                <div class="text-obsidian-400 text-[10px]">Lifetime Value</div>
+                <div class="text-slate-100 font-bold text-sm mt-0.5">$1,420.50</div>
+              </div>
+              <div class="p-2 rounded-xl bg-obsidian-900/80 border border-obsidian-750">
+                <div class="text-obsidian-400 text-[10px]">Total Orders</div>
+                <div class="text-brand-cyan font-bold text-sm mt-0.5">8 Completed</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Delivery Address & Channel Ingress -->
+          <div class="space-y-2 text-xs">
+            <div class="text-[11px] font-mono text-obsidian-400 uppercase tracking-wider font-semibold">
+              Fulfillment Address
+            </div>
+            <div class="p-3 rounded-xl glass-card text-obsidian-300 text-[11px] space-y-1">
+              <div class="font-semibold text-slate-200">742 Evergreen Terrace</div>
+              <div>Seattle, WA 98101, United States</div>
+              <div class="text-brand-emerald font-mono text-[10px] flex items-center space-x-1 pt-1">
+                <i data-lucide="map-pin" class="w-3 h-3"></i>
+                <span>Zone 1 — Same Day Eligible</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vector Semantic Match Profile (pgvector) -->
+          <div class="space-y-2">
+            <div class="text-[11px] font-mono text-obsidian-400 uppercase tracking-wider font-semibold flex items-center justify-between">
+              <span>Vector Intent Match</span>
+              <span class="text-brand-purple">pgvector</span>
+            </div>
+            <div class="p-3 rounded-xl glass-card border border-brand-purple/20 space-y-2">
+              <div class="flex justify-between text-xs">
+                <span class="text-slate-300 font-medium">Baking Apples (Pie)</span>
+                <span class="font-mono text-brand-purple font-bold">0.942 Cosine</span>
+              </div>
+              <div class="w-full bg-obsidian-800 h-1.5 rounded-full overflow-hidden">
+                <div class="bg-brand-purple h-full rounded-full" style="width: 94.2%"></div>
+              </div>
+              <div class="flex justify-between text-xs pt-1">
+                <span class="text-slate-300 font-medium">Bulk Organic Fruit</span>
+                <span class="font-mono text-cyan-400 font-bold">0.881 Cosine</span>
+              </div>
+              <div class="w-full bg-obsidian-800 h-1.5 rounded-full overflow-hidden">
+                <div class="bg-brand-cyan h-full rounded-full" style="width: 88.1%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Transactional Outbox State -->
+          <div class="p-3 rounded-xl bg-obsidian-900 border border-obsidian-750 text-[11px] font-mono space-y-1.5">
+            <div class="flex items-center justify-between text-slate-300">
+              <span>Outbox Worker:</span>
+              <span class="text-brand-emerald font-bold">DISPATCHED</span>
+            </div>
+            <div class="text-obsidian-400 truncate">UUID: outbox_7f8a92bb-14e</div>
+            <div class="text-obsidian-400">Meta Delivery Ack: <strong>48ms</strong></div>
+          </div>
+        </aside>
+
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- TAB 2: PRODUCT CATALOG & VECTOR SEMANTIC SEARCH          -->
+      <!-- ======================================================== -->
+      <div id="tab-catalog" class="hidden flex-1 flex flex-col h-full p-8 overflow-y-auto space-y-6">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-black text-slate-100 tracking-tight flex items-center space-x-3">
+              <span>Product Catalog & Semantic Search</span>
+              <span class="text-xs font-mono px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-semibold">PostgreSQL 16 + pgvector</span>
+            </h2>
+            <p class="text-xs text-obsidian-400 mt-1">
+              Natural language conversational search matches customer queries to SKUs with vector cosine similarity.
+            </p>
+          </div>
+          <button class="px-4 py-2.5 rounded-xl bg-brand-emerald hover:bg-emerald-400 text-obsidian-950 font-bold text-xs flex items-center space-x-2 transition-all shadow-glow-emerald">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Add New SKU</span>
+          </button>
+        </div>
+
+        <!-- Interactive Vector Search Demo Box -->
+        <div class="p-5 rounded-2xl glass-panel border border-brand-purple/30 bg-gradient-to-b from-brand-purple/5 to-transparent space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2 text-xs font-bold text-purple-300">
+              <i data-lucide="sparkles" class="w-4 h-4 text-brand-purple"></i>
+              <span>Live pgvector Cosine Semantic Matcher (Simulate AI Agent Tool)</span>
+            </div>
+            <span class="text-[10px] font-mono text-obsidian-400">Embeddings: text-embedding-3-small (1536 dim)</span>
+          </div>
+
+          <div class="relative">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3.5 text-brand-purple"></i>
+            <input type="text" id="semanticSearchInput" oninput="runSemanticSearchDemo()" value="crisp organic apples for baking pies" placeholder="Type naturally, e.g. 'sweet berries for smoothie' or 'citrus fruit for breakfast'..." class="w-full pl-10 pr-24 py-3 rounded-xl text-xs glass-input text-slate-100 placeholder-obsidian-400 focus:outline-none focus:border-brand-purple transition-all font-mono">
+            <button onclick="runSemanticSearchDemo()" class="absolute right-2 top-2 px-3 py-1.5 rounded-lg bg-brand-purple text-white text-[11px] font-semibold hover:bg-purple-600 transition-all">
+              Execute
+            </button>
+          </div>
+
+          <div id="semanticResults" class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+            <!-- Dynamic Result 1 -->
+            <div class="p-3 rounded-xl bg-obsidian-900/90 border border-brand-purple/40 text-xs">
+              <div class="flex justify-between items-center mb-1">
+                <span class="font-bold text-slate-100">Organic Honeycrisp Apples</span>
+                <span class="font-mono text-brand-emerald font-bold bg-brand-emerald/10 px-1.5 py-0.5 rounded text-[10px]">0.942 Cosine</span>
+              </div>
+              <p class="text-[11px] text-obsidian-400">Crisp, tart-sweet apples ideal for pies, crisps, and baking.</p>
+              <div class="text-[10px] font-mono text-cyan-400 mt-2">$4.49/lb • 48 lbs in stock</div>
+            </div>
+            <!-- Dynamic Result 2 -->
+            <div class="p-3 rounded-xl bg-obsidian-900/90 border border-obsidian-750 text-xs">
+              <div class="flex justify-between items-center mb-1">
+                <span class="font-bold text-slate-200">Granny Smith Organic</span>
+                <span class="font-mono text-cyan-400 font-bold bg-cyan-500/10 px-1.5 py-0.5 rounded text-[10px]">0.887 Cosine</span>
+              </div>
+              <p class="text-[11px] text-obsidian-400">Firm, sour green apples holding shape during high-heat baking.</p>
+              <div class="text-[10px] font-mono text-cyan-400 mt-2">$3.89/lb • 92 lbs in stock</div>
+            </div>
+            <!-- Dynamic Result 3 -->
+            <div class="p-3 rounded-xl bg-obsidian-900/90 border border-obsidian-750 text-xs">
+              <div class="flex justify-between items-center mb-1">
+                <span class="font-bold text-slate-200">Organic Gala Apples</span>
+                <span class="font-mono text-obsidian-400 font-bold bg-obsidian-800 px-1.5 py-0.5 rounded text-[10px]">0.781 Cosine</span>
+              </div>
+              <p class="text-[11px] text-obsidian-400">Mild sweet snacking apple; softer texture in heavy oven pies.</p>
+              <div class="text-[10px] font-mono text-cyan-400 mt-2">$3.49/lb • 120 lbs in stock</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Catalog SKUs Table -->
+        <div class="rounded-2xl glass-panel border border-obsidian-750 overflow-hidden">
+          <div class="p-4 border-b border-obsidian-750 flex items-center justify-between">
+            <h3 class="text-xs font-bold text-slate-200 font-mono uppercase tracking-wider">
+              Store Catalog Inventory (3,410 Total SKUs)
+            </h3>
+            <div class="flex items-center space-x-2 text-xs">
+              <span class="text-obsidian-400">Filter:</span>
+              <button class="px-2 py-1 rounded bg-obsidian-800 text-slate-200 font-mono text-[11px]">All Categories</button>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-obsidian-900/80 text-obsidian-400 font-mono uppercase text-[10px] border-b border-obsidian-750">
+                <tr>
+                  <th class="p-3.5">SKU & Product</th>
+                  <th class="p-3.5">Category</th>
+                  <th class="p-3.5">Stock Level</th>
+                  <th class="p-3.5">Price</th>
+                  <th class="p-3.5">pgvector Status</th>
+                  <th class="p-3.5">Reservation Guardrail</th>
+                  <th class="p-3.5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-obsidian-750/50 text-slate-200">
+                <tr class="hover:bg-obsidian-850/40 transition-all">
+                  <td class="p-3.5 flex items-center space-x-3">
+                    <span class="text-xl">🍎</span>
+                    <div>
+                      <div class="font-semibold text-slate-100">Organic Honeycrisp Apples</div>
+                      <div class="text-[10px] font-mono text-obsidian-400">APP-ORG-HC10</div>
+                    </div>
+                  </td>
+                  <td class="p-3.5 text-obsidian-300">Fresh Produce</td>
+                  <td class="p-3.5 font-mono text-brand-emerald font-semibold">48 lbs available</td>
+                  <td class="p-3.5 font-mono font-bold">$4.49 / lb</td>
+                  <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-brand-purple/15 text-brand-purple font-mono text-[10px] font-semibold">Indexed (1536d)</span></td>
+                  <td class="p-3.5 font-mono text-[11px] text-amber-400">10 lbs locked in cart</td>
+                  <td class="p-3.5 text-right">
+                    <button class="p-1.5 rounded hover:bg-obsidian-800 text-obsidian-400 hover:text-slate-100">
+                      <i data-lucide="edit-3" class="w-4 h-4"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr class="hover:bg-obsidian-850/40 transition-all">
+                  <td class="p-3.5 flex items-center space-x-3">
+                    <span class="text-xl">🥑</span>
+                    <div>
+                      <div class="font-semibold text-slate-100">Hass Avocados (Case of 24)</div>
+                      <div class="text-[10px] font-mono text-obsidian-400">AVO-HASS-24</div>
+                    </div>
+                  </td>
+                  <td class="p-3.5 text-obsidian-300">Bulk Produce</td>
+                  <td class="p-3.5 font-mono text-brand-emerald font-semibold">31 cases</td>
+                  <td class="p-3.5 font-mono font-bold">$28.00 / case</td>
+                  <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-brand-purple/15 text-brand-purple font-mono text-[10px] font-semibold">Indexed (1536d)</span></td>
+                  <td class="p-3.5 font-mono text-[11px] text-obsidian-400">0 locked</td>
+                  <td class="p-3.5 text-right">
+                    <button class="p-1.5 rounded hover:bg-obsidian-800 text-obsidian-400 hover:text-slate-100">
+                      <i data-lucide="edit-3" class="w-4 h-4"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr class="hover:bg-obsidian-850/40 transition-all">
+                  <td class="p-3.5 flex items-center space-x-3">
+                    <span class="text-xl">🫐</span>
+                    <div>
+                      <div class="font-semibold text-slate-100">Wild Organic Blueberries</div>
+                      <div class="text-[10px] font-mono text-obsidian-400">BER-WLD-BLU</div>
+                    </div>
+                  </td>
+                  <td class="p-3.5 text-obsidian-300">Berries</td>
+                  <td class="p-3.5 font-mono text-brand-amber font-semibold">8 pints (Low Stock)</td>
+                  <td class="p-3.5 font-mono font-bold">$5.99 / pint</td>
+                  <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-brand-purple/15 text-brand-purple font-mono text-[10px] font-semibold">Indexed (1536d)</span></td>
+                  <td class="p-3.5 font-mono text-[11px] text-amber-400">4 pints locked</td>
+                  <td class="p-3.5 text-right">
+                    <button class="p-1.5 rounded hover:bg-obsidian-800 text-obsidian-400 hover:text-slate-100">
+                      <i data-lucide="edit-3" class="w-4 h-4"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- TAB 3: ORDERS & FULFILLMENT STATE MACHINE               -->
+      <!-- ======================================================== -->
+      <div id="tab-orders" class="hidden flex-1 flex flex-col h-full p-8 overflow-y-auto space-y-6">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-black text-slate-100 tracking-tight flex items-center space-x-3">
+              <span>Fulfillment & Order State Machine</span>
+              <span class="text-xs font-mono px-2.5 py-1 rounded-full bg-brand-emerald/10 text-brand-emerald border border-brand-emerald/30 font-semibold">Deterministic State Machine</span>
+            </h2>
+            <p class="text-xs text-obsidian-400 mt-1">
+              Orders created deterministically through LangGraph tool invocation. No unrestricted LLM SQL writes.
+            </p>
+          </div>
+          <div class="flex items-center space-x-3">
+            <span class="text-xs font-mono text-obsidian-400">Filter by Channel:</span>
+            <button class="px-3 py-1.5 rounded-lg bg-brand-whatsapp/20 text-brand-whatsapp text-xs font-semibold border border-brand-whatsapp/40 flex items-center space-x-1">
+              <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+              <span>WhatsApp (19)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Kanban Board Pipeline -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
+
+          <!-- Lane 1: Confirmed -->
+          <div class="rounded-2xl glass-panel border border-obsidian-750 flex flex-col p-4">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-obsidian-750">
+              <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span>
+                <span class="text-xs font-bold text-slate-200">CONFIRMED</span>
+              </div>
+              <span class="text-xs font-mono text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded font-bold">3</span>
+            </div>
+
+            <div class="space-y-3 flex-1 overflow-y-auto" id="lane-confirmed">
+              <!-- Order Card 1 -->
+              <div class="p-3.5 rounded-xl glass-card border border-blue-500/30 hover:border-blue-500/60 transition-all space-y-2">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h5 class="text-xs font-bold text-slate-100">#ORD-9021</h5>
+                    <p class="text-[11px] text-obsidian-400">Zack Sullivan</p>
+                  </div>
+                  <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-brand-whatsapp/15 text-brand-whatsapp flex items-center space-x-1">
+                    <i data-lucide="message-circle" class="w-2.5 h-2.5"></i>
+                    <span>WA</span>
+                  </span>
+                </div>
+                <div class="text-[11px] text-slate-300">10 lbs Organic Honeycrisp Apples</div>
+                <div class="flex justify-between items-center pt-2 border-t border-obsidian-750 text-xs font-mono">
+                  <span class="font-bold text-brand-emerald">$44.90</span>
+                  <button onclick="advanceOrder('ORD-9021', 'PROCESSING')" class="px-2 py-1 rounded bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 text-[10px] font-semibold border border-blue-500/40">
+                    Advance →
+                  </button>
+                </div>
+              </div>
+
+              <!-- Order Card 2 -->
+              <div class="p-3.5 rounded-xl glass-card border border-obsidian-700 hover:border-obsidian-600 transition-all space-y-2">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h5 class="text-xs font-bold text-slate-100">#ORD-9018</h5>
+                    <p class="text-[11px] text-obsidian-400">Sarah Connor</p>
+                  </div>
+                  <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-pink-500/15 text-pink-400 flex items-center space-x-1">
+                    <i data-lucide="instagram" class="w-2.5 h-2.5"></i>
+                    <span>IG</span>
+                  </span>
+                </div>
+                <div class="text-[11px] text-slate-300">2× Hass Avocados (Case)</div>
+                <div class="flex justify-between items-center pt-2 border-t border-obsidian-750 text-xs font-mono">
+                  <span class="font-bold text-brand-emerald">$56.00</span>
+                  <button class="px-2 py-1 rounded bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 text-[10px] font-semibold border border-blue-500/40">
+                    Advance →
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lane 2: Processing -->
+          <div class="rounded-2xl glass-panel border border-obsidian-750 flex flex-col p-4">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-obsidian-750">
+              <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                <span class="text-xs font-bold text-slate-200">PROCESSING</span>
+              </div>
+              <span class="text-xs font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded font-bold">4</span>
+            </div>
+
+            <div class="space-y-3 flex-1 overflow-y-auto" id="lane-processing">
+              <div class="p-3.5 rounded-xl glass-card border border-amber-500/30 hover:border-amber-500/60 transition-all space-y-2">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h5 class="text-xs font-bold text-slate-100">#ORD-9015</h5>
+                    <p class="text-[11px] text-obsidian-400">Elena Rostova</p>
+                  </div>
+                  <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-brand-whatsapp/15 text-brand-whatsapp flex items-center space-x-1">
+                    <i data-lucide="message-circle" class="w-2.5 h-2.5"></i>
+                    <span>WA</span>
+                  </span>
+                </div>
+                <div class="text-[11px] text-slate-300">Crate #4 Organic Gala + Blueberries</div>
+                <div class="flex justify-between items-center pt-2 border-t border-obsidian-750 text-xs font-mono">
+                  <span class="font-bold text-brand-emerald">$340.50</span>
+                  <button class="px-2 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-[10px] font-semibold border border-amber-500/40">
+                    Ship →
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lane 3: Shipped -->
+          <div class="rounded-2xl glass-panel border border-obsidian-750 flex flex-col p-4">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-obsidian-750">
+              <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-brand-cyan"></span>
+                <span class="text-xs font-bold text-slate-200">SHIPPED & IN TRANSIT</span>
+              </div>
+              <span class="text-xs font-mono text-brand-cyan bg-cyan-500/10 px-2 py-0.5 rounded font-bold">5</span>
+            </div>
+
+            <div class="space-y-3 flex-1 overflow-y-auto">
+              <div class="p-3.5 rounded-xl glass-card border border-cyan-500/30 hover:border-cyan-500/60 transition-all space-y-2">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h5 class="text-xs font-bold text-slate-100">#ORD-9008</h5>
+                    <p class="text-[11px] text-obsidian-400">Liam Hemsworth</p>
+                  </div>
+                  <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-brand-whatsapp/15 text-brand-whatsapp flex items-center space-x-1">
+                    <i data-lucide="message-circle" class="w-2.5 h-2.5"></i>
+                    <span>WA</span>
+                  </span>
+                </div>
+                <div class="text-[11px] text-slate-300">Courier: FedEx Ground Tracking #9812-44</div>
+                <div class="flex justify-between items-center pt-2 border-t border-obsidian-750 text-xs font-mono">
+                  <span class="font-bold text-brand-emerald">$89.20</span>
+                  <button class="px-2 py-1 rounded bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 text-[10px] font-semibold border border-cyan-500/40">
+                    Deliver →
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lane 4: Delivered -->
+          <div class="rounded-2xl glass-panel border border-obsidian-750 flex flex-col p-4">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-obsidian-750">
+              <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-brand-emerald"></span>
+                <span class="text-xs font-bold text-slate-200">DELIVERED</span>
+              </div>
+              <span class="text-xs font-mono text-brand-emerald bg-emerald-500/10 px-2 py-0.5 rounded font-bold">142</span>
+            </div>
+
+            <div class="space-y-3 flex-1 overflow-y-auto">
+              <div class="p-3.5 rounded-xl glass-card border border-emerald-500/20 text-obsidian-400 space-y-1">
+                <div class="flex justify-between items-center text-xs">
+                  <span class="font-bold text-slate-300">#ORD-8994</span>
+                  <span class="text-[10px] font-mono text-brand-emerald">Delivered 2h ago</span>
+                </div>
+                <div class="text-[11px] text-slate-400">Zack Sullivan • $92.50</div>
+                <div class="text-[10px] font-mono text-obsidian-400">WhatsApp receipt acknowledged</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- TAB 4: AI OPS TELEMETRY & 2.0s DEBOUNCE VISUALIZER        -->
+      <!-- ======================================================== -->
+      <div id="tab-telemetry" class="hidden flex-1 flex flex-col h-full p-8 overflow-y-auto space-y-6">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-black text-slate-100 tracking-tight flex items-center space-x-3">
+              <span>AI Ops Telemetry & Burst Debounce</span>
+              <span class="text-xs font-mono px-2.5 py-1 rounded-full bg-brand-purple/10 text-brand-purple border border-brand-purple/30 font-semibold">Redis 7 + BullMQ</span>
+            </h2>
+            <p class="text-xs text-obsidian-400 mt-1">
+              Real-time monitoring of Redis rapid-burst debouncing buffer, LangGraph token usage, and outbox reliability.
+            </p>
+          </div>
+        </div>
+
+        <!-- 4 Top Stat Cards with Sparklines -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <!-- Stat 1 -->
+          <div class="p-5 rounded-2xl glass-panel border border-brand-emerald/30 space-y-2">
+            <div class="flex justify-between items-center text-xs text-obsidian-400 font-mono">
+              <span>Burst Coalescing Ratio</span>
+              <i data-lucide="layers" class="w-4 h-4 text-brand-emerald"></i>
+            </div>
+            <div class="text-2xl font-black text-slate-100 font-mono">84.2%</div>
+            <p class="text-[11px] text-brand-emerald font-mono">12,400 bursts → 1,960 turns</p>
+          </div>
+
+          <!-- Stat 2 -->
+          <div class="p-5 rounded-2xl glass-panel border border-brand-cyan/30 space-y-2">
+            <div class="flex justify-between items-center text-xs text-obsidian-400 font-mono">
+              <span>LangGraph P95 Latency</span>
+              <i data-lucide="gauge" class="w-4 h-4 text-brand-cyan"></i>
+            </div>
+            <div class="text-2xl font-black text-slate-100 font-mono">480ms</div>
+            <p class="text-[11px] text-brand-cyan font-mono">-42ms vs previous release</p>
+          </div>
+
+          <!-- Stat 3 -->
+          <div class="p-5 rounded-2xl glass-panel border border-brand-purple/30 space-y-2">
+            <div class="flex justify-between items-center text-xs text-obsidian-400 font-mono">
+              <span>Daily Token Volume</span>
+              <i data-lucide="brain-circuit" class="w-4 h-4 text-brand-purple"></i>
+            </div>
+            <div class="text-2xl font-black text-slate-100 font-mono">248.4k</div>
+            <p class="text-[11px] text-brand-purple font-mono">Cost: $0.18 / day (ultra-lean)</p>
+          </div>
+
+          <!-- Stat 4 -->
+          <div class="p-5 rounded-2xl glass-panel border border-brand-whatsapp/30 space-y-2">
+            <div class="flex justify-between items-center text-xs text-obsidian-400 font-mono">
+              <span>Transactional Outbox</span>
+              <i data-lucide="check-circle" class="w-4 h-4 text-brand-whatsapp"></i>
+            </div>
+            <div class="text-2xl font-black text-slate-100 font-mono">100.0%</div>
+            <p class="text-[11px] text-brand-whatsapp font-mono">0 dropped messages in 30 days</p>
+          </div>
+        </div>
+
+        <!-- INTERACTIVE DEBOUNCE BUFFER SIMULATOR -->
+        <div class="p-6 rounded-2xl glass-panel border border-amber-500/30 bg-gradient-to-b from-amber-500/5 to-transparent space-y-4">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+            <div>
+              <h3 class="text-sm font-bold text-amber-300 flex items-center space-x-2">
+                <i data-lucide="clock" class="w-4 h-4 text-amber-400"></i>
+                <span>2.0-Second Redis Rapid-Burst Coalescing Window Simulator</span>
+              </h3>
+              <p class="text-xs text-obsidian-400 mt-0.5">
+                Customer behavior: Sending 3 separate WhatsApp messages within 1.5s is coalesced into ONE conversational turn.
+              </p>
+            </div>
+            <button onclick="triggerDebounceTest()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-obsidian-950 font-bold text-xs flex items-center space-x-2 transition-all shadow-glow-amber">
+              <i data-lucide="zap" class="w-4 h-4"></i>
+              <span>Fire 3 Rapid Bursts</span>
+            </button>
+          </div>
+
+          <!-- Debounce Buffer Visualizer Pipeline -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+            <div class="p-4 rounded-xl bg-obsidian-900 border border-obsidian-750 text-xs space-y-2">
+              <div class="font-mono text-obsidian-400 uppercase text-[10px]">Step 1: Incoming WhatsApp Bursts</div>
+              <div id="burstLog" class="font-mono text-[11px] text-slate-300 space-y-1">
+                <div>• [0.0s] "Hi!"</div>
+                <div>• [0.6s] "Do you have apples?"</div>
+                <div>• [1.2s] "Need 10 lbs please"</div>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-xl bg-obsidian-900 border border-amber-500/30 text-xs space-y-2">
+              <div class="font-mono text-amber-400 uppercase text-[10px]">Step 2: Redis 2.0s Debounce Buffer</div>
+              <div class="text-[11px] font-mono text-slate-300">
+                Key: <code class="text-amber-300">debounce:cust_9821</code>
+              </div>
+              <div class="w-full bg-obsidian-800 h-2.5 rounded-full overflow-hidden">
+                <div id="debounceProgress" class="bg-amber-400 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
+              </div>
+              <div class="text-[10px] font-mono text-obsidian-400" id="debounceTimerLabel">Status: Buffer Closed & Dispatched</div>
+            </div>
+
+            <div class="p-4 rounded-xl bg-obsidian-900 border border-brand-emerald/30 text-xs space-y-2">
+              <div class="font-mono text-brand-emerald uppercase text-[10px]">Step 3: Unified LangGraph Prompt</div>
+              <div class="p-2 rounded bg-obsidian-850 font-mono text-[11px] text-brand-emerald border border-brand-emerald/20">
+                "Hi! Do you have apples? Need 10 lbs please"
+              </div>
+              <div class="text-[10px] font-mono text-slate-400">Result: 1 LLM turn instead of 3. Zero token waste.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LangGraph State Machine Architecture Graph -->
+        <div class="p-6 rounded-2xl glass-panel border border-obsidian-750 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-slate-200 font-mono uppercase tracking-wider">
+              LangGraph State Machine Architecture Flow
+            </h3>
+            <span class="text-[10px] font-mono text-brand-emerald bg-brand-emerald/10 px-2 py-0.5 rounded">All Nodes Operational</span>
+          </div>
+
+          <!-- Flow Diagram Nodes -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-center text-xs font-mono">
+            <div class="p-3.5 rounded-xl bg-obsidian-900 border border-brand-whatsapp/40 shadow-glow-whatsapp">
+              <div class="text-[10px] text-obsidian-400 mb-1">INGRESS</div>
+              <div class="font-bold text-brand-whatsapp">Meta Webhook</div>
+              <div class="text-[9px] text-obsidian-400 mt-1">HMAC SHA256</div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-obsidian-900 border border-amber-500/40 shadow-glow-amber">
+              <div class="text-[10px] text-obsidian-400 mb-1">BUFFER</div>
+              <div class="font-bold text-amber-400">Redis 2.0s</div>
+              <div class="text-[9px] text-obsidian-400 mt-1">Burst Merge</div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-obsidian-900 border border-brand-cyan/40 shadow-glow-cyan">
+              <div class="text-[10px] text-obsidian-400 mb-1">BUS</div>
+              <div class="font-bold text-brand-cyan">Normalized Bus</div>
+              <div class="text-[9px] text-obsidian-400 mt-1">Channel Agnostic</div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-obsidian-900 border border-brand-purple/40 shadow-glow-purple">
+              <div class="text-[10px] text-obsidian-400 mb-1">REASONING</div>
+              <div class="font-bold text-brand-purple">LangGraph Core</div>
+              <div class="text-[9px] text-obsidian-400 mt-1">Intent + Tool Call</div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-obsidian-900 border border-brand-emerald/40 shadow-glow-emerald">
+              <div class="text-[10px] text-obsidian-400 mb-1">GUARDRAILS</div>
+              <div class="font-bold text-brand-emerald">PostgreSQL 16</div>
+              <div class="text-[9px] text-obsidian-400 mt-1">Deterministic DB</div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-obsidian-900 border border-slate-700">
+              <div class="text-[10px] text-obsidian-400 mb-1">EGRESS</div>
+              <div class="font-bold text-slate-200">Outbox Engine</div>
+              <div class="text-[9px] text-obsidian-400 mt-1">Zero Lost Msg</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- TAB 5: CHANNELS & CONFIGURATION                         -->
+      <!-- ======================================================== -->
+      <div id="tab-settings" class="hidden flex-1 flex flex-col h-full p-8 overflow-y-auto space-y-6">
+        <div>
+          <h2 class="text-2xl font-black text-slate-100 tracking-tight flex items-center space-x-3">
+            <span>Omnichannel Credentials & Security</span>
+            <span class="text-xs font-mono px-2.5 py-1 rounded-full bg-brand-emerald/10 text-brand-emerald border border-brand-emerald/30 font-semibold">Tenant Isolation Active</span>
+          </h2>
+          <p class="text-xs text-obsidian-400 mt-1">
+            Configure Meta Cloud API credentials, webhook signature secrets, and multi-tenant parameters.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- WhatsApp Cloud API Config -->
+          <div class="p-6 rounded-2xl glass-panel border border-brand-whatsapp/30 space-y-4">
+            <div class="flex items-center space-x-3 pb-3 border-b border-obsidian-750">
+              <div class="w-10 h-10 rounded-xl bg-brand-whatsapp/20 flex items-center justify-center text-brand-whatsapp shadow-glow-whatsapp">
+                <i data-lucide="message-circle" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h3 class="text-sm font-bold text-slate-100">WhatsApp Cloud API (Meta Graph v20.0)</h3>
+                <span class="text-[10px] font-mono text-brand-emerald font-semibold">Status: Connected & Verified</span>
+              </div>
+            </div>
+
+            <div class="space-y-3 text-xs">
+              <div>
+                <label class="block text-obsidian-400 font-mono text-[11px] mb-1">Phone Number ID</label>
+                <input type="text" value="109824098230912" readonly class="w-full px-3 py-2 rounded-xl glass-input font-mono text-slate-300">
+              </div>
+              <div>
+                <label class="block text-obsidian-400 font-mono text-[11px] mb-1">WhatsApp Business Account (WABA) ID</label>
+                <input type="text" value="389102938102938" readonly class="w-full px-3 py-2 rounded-xl glass-input font-mono text-slate-300">
+              </div>
+              <div>
+                <label class="block text-obsidian-400 font-mono text-[11px] mb-1">Webhook Secret (X-Hub-Signature-256)</label>
+                <input type="password" value="secret_meta_webhook_hmac_256_verified" readonly class="w-full px-3 py-2 rounded-xl glass-input font-mono text-slate-300">
+              </div>
+              <div class="pt-2">
+                <button class="px-4 py-2 rounded-xl bg-brand-whatsapp text-obsidian-950 font-bold text-xs hover:bg-emerald-400 transition-all">
+                  Test Webhook Ping
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Other Channels Expansion -->
+          <div class="p-6 rounded-2xl glass-panel border border-obsidian-750 space-y-4">
+            <h3 class="text-sm font-bold text-slate-100 pb-3 border-b border-obsidian-750">
+              Channel Adapters Matrix
+            </h3>
+
+            <div class="space-y-3">
+              <!-- Instagram -->
+              <div class="flex items-center justify-between p-3 rounded-xl glass-card">
+                <div class="flex items-center space-x-3">
+                  <i data-lucide="instagram" class="w-5 h-5 text-pink-400"></i>
+                  <div>
+                    <div class="text-xs font-semibold text-slate-200">Instagram Direct</div>
+                    <div class="text-[10px] text-obsidian-400">Meta Graph Platform</div>
+                  </div>
+                </div>
+                <span class="px-2 py-0.5 rounded bg-brand-emerald/15 text-brand-emerald text-[10px] font-mono font-bold">ACTIVE</span>
+              </div>
+
+              <!-- Web Chat -->
+              <div class="flex items-center justify-between p-3 rounded-xl glass-card">
+                <div class="flex items-center space-x-3">
+                  <i data-lucide="globe" class="w-5 h-5 text-cyan-400"></i>
+                  <div>
+                    <div class="text-xs font-semibold text-slate-200">Website Live Widget</div>
+                    <div class="text-[10px] text-obsidian-400">WebSocket / React Client</div>
+                  </div>
+                </div>
+                <span class="px-2 py-0.5 rounded bg-brand-emerald/15 text-brand-emerald text-[10px] font-mono font-bold">ACTIVE</span>
+              </div>
+
+              <!-- Telegram -->
+              <div class="flex items-center justify-between p-3 rounded-xl glass-card">
+                <div class="flex items-center space-x-3">
+                  <i data-lucide="send" class="w-5 h-5 text-blue-400"></i>
+                  <div>
+                    <div class="text-xs font-semibold text-slate-200">Telegram Bot API</div>
+                    <div class="text-[10px] text-obsidian-400">Extensible Adapter</div>
+                  </div>
+                </div>
+                <span class="px-2 py-0.5 rounded bg-obsidian-750 text-obsidian-400 text-[10px] font-mono">STANDBY</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- TOAST NOTIFICATION POPUP -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="p-4 rounded-2xl glass-panel border border-brand-emerald/40 shadow-glow-emerald flex items-center space-x-3 text-xs">
+      <div id="toastIcon" class="w-8 h-8 rounded-xl bg-brand-emerald/20 flex items-center justify-center text-brand-emerald">
+        <i data-lucide="check" class="w-4 h-4"></i>
+      </div>
+      <div>
+        <div id="toastTitle" class="font-bold text-slate-100">Notification</div>
+        <div id="toastMessage" class="text-obsidian-400">Action performed successfully</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC & INTERACTIVITY -->
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Web Audio API Synthesizer for High-Tech UI Clicks
+    let audioCtx = null;
+    let audioFxEnabled = true;
+
+    function playTone(freq = 600, type = 'sine', duration = 0.08) {
+      if (!audioFxEnabled) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function toggleAudioFx() {
+      audioFxEnabled = !audioFxEnabled;
+      const icon = document.getElementById('audioIcon');
+      if (audioFxEnabled) {
+        icon.classList.remove('text-obsidian-500');
+        icon.classList.add('text-brand-emerald');
+        showToast('Sound Effects Enabled', 'Subtle micro-interaction audio feedback on');
+        playTone(800);
+      } else {
+        icon.classList.remove('text-brand-emerald');
+        icon.classList.add('text-obsidian-500');
+        showToast('Sound Effects Muted', 'Audio feedback silenced');
+      }
+    }
+
+    // Tab Navigation Switcher
+    function switchTab(tabId) {
+      playTone(520);
+      const tabs = ['inbox', 'catalog', 'orders', 'telemetry', 'settings'];
+      tabs.forEach(t => {
+        const el = document.getElementById('tab-' + t);
+        const nav = document.getElementById('nav-' + t);
+        if (t === tabId) {
+          el.classList.remove('hidden');
+          nav.classList.add('bg-brand-emerald/10', 'text-brand-emerald', 'border-brand-emerald/30', 'shadow-glow-emerald');
+          nav.classList.remove('text-slate-400', 'border-transparent');
+        } else {
+          el.classList.add('hidden');
+          nav.classList.remove('bg-brand-emerald/10', 'text-brand-emerald', 'border-brand-emerald/30', 'shadow-glow-emerald');
+          nav.classList.add('text-slate-400', 'border-transparent');
+        }
+      });
+      lucide.createIcons();
+    }
+
+    // One-Click Human Takeover Engine
+    let isHumanTakeover = false;
+    function toggleHumanTakeover() {
+      isHumanTakeover = !isHumanTakeover;
+      const banner = document.getElementById('takeoverBanner');
+      const btn = document.getElementById('takeoverBtn');
+      const btnText = document.getElementById('takeoverBtnText');
+      const badge = document.getElementById('aiStateBadge');
+      const badgeText = document.getElementById('aiStateText');
+      const input = document.getElementById('operatorInput');
+
+      if (isHumanTakeover) {
+        playTone(400, 'triangle', 0.2);
+        banner.classList.remove('hidden');
+        btn.classList.remove('from-amber-500/20', 'to-orange-500/20', 'text-amber-300', 'border-amber-500/40');
+        btn.classList.add('bg-brand-emerald', 'text-obsidian-950', 'hover:bg-emerald-400');
+        btnText.innerText = 'Resume AI Autonomy';
+        badge.classList.remove('text-brand-emerald', 'border-brand-emerald/30', 'bg-brand-emerald/10');
+        badge.classList.add('text-amber-400', 'border-amber-500/30', 'bg-amber-500/10');
+        badgeText.innerText = 'HUMAN OPERATOR ACTIVE';
+        input.placeholder = 'Type direct WhatsApp message to Zack as human operator...';
+        showToast('Human Takeover Active', 'AI Agent paused via PATCH /conversations/{id}/takeover');
+      } else {
+        playTone(750, 'sine', 0.15);
+        banner.classList.add('hidden');
+        btn.classList.add('from-amber-500/20', 'to-orange-500/20', 'text-amber-300', 'border-amber-500/40');
+        btn.classList.remove('bg-brand-emerald', 'text-obsidian-950', 'hover:bg-emerald-400');
+        btnText.innerText = '1-Click Human Takeover';
+        badge.classList.add('text-brand-emerald', 'border-brand-emerald/30', 'bg-brand-emerald/10');
+        badge.classList.remove('text-amber-400', 'border-amber-500/30', 'bg-amber-500/10');
+        badgeText.innerText = 'AI Autonomous (LangGraph)';
+        input.placeholder = 'Reply as AI Agent (or Take Over for direct manual message)...';
+        showToast('AI Control Resumed', 'LangGraph autonomous tools re-engaged');
+      }
+      lucide.createIcons();
+    }
+
+    // Toggle Inspector Drawer
+    function toggleInspector() {
+      playTone(480);
+      const inspector = document.getElementById('customerInspector');
+      inspector.classList.toggle('hidden');
+    }
+
+    // Voice Note Player Simulation with Waveform Animation
+    let isPlayingVoice = false;
+    let voiceInterval = null;
+    function playVoiceNote() {
+      isPlayingVoice = !isPlayingVoice;
+      const btn = document.getElementById('voicePlayIcon');
+      const durationEl = document.getElementById('voiceDuration');
+      const waveBars = document.querySelectorAll('#waveform span');
+
+      if (isPlayingVoice) {
+        playTone(650);
+        btn.setAttribute('data-lucide', 'pause');
+        lucide.createIcons();
+        let seconds = 0;
+        voiceInterval = setInterval(() => {
+          seconds++;
+          const sec = seconds < 10 ? '0' + seconds : seconds;
+          durationEl.innerText = `0:${sec}`;
+          waveBars.forEach(bar => {
+            const h = Math.floor(Math.random() * 24) + 8;
+            bar.style.height = `${h}px`;
+          });
+          if (seconds >= 24) {
+            clearInterval(voiceInterval);
+            isPlayingVoice = false;
+            btn.setAttribute('data-lucide', 'play');
+            lucide.createIcons();
+            durationEl.innerText = '0:24';
+          }
+        }, 100);
+      } else {
+        clearInterval(voiceInterval);
+        btn.setAttribute('data-lucide', 'play');
+        lucide.createIcons();
+      }
+    }
+
+    // Simulate Customer Rapid Burst (2.0s Debounce Visualizer)
+    function simulateIncomingBurst() {
+      playTone(700);
+      const burstBox = document.getElementById('dynamicBurstBox');
+      const chatStream = document.getElementById('chatStream');
+
+      showToast('Simulating Burst', 'Customer sending 2 rapid bursts to WhatsApp');
+
+      const burstMsg1 = document.createElement('div');
+      burstMsg1.className = 'flex items-start space-x-3 max-w-xl animate-bounce';
+      burstMsg1.innerHTML = `
+        <div class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-300 flex-shrink-0 mt-1">ZS</div>
+        <div class="space-y-1">
+          <div class="p-3.5 rounded-2xl rounded-tl-sm bg-obsidian-800 border border-obsidian-700 text-slate-200 text-xs">
+            "Also can you make sure they're firm? The ones last time were delicious!"
+          </div>
+          <div class="text-[10px] font-mono text-obsidian-400 pl-1">Just now • Redis Buffer Active (2.0s)</div>
+        </div>
+      `;
+      burstBox.appendChild(burstMsg1);
+      chatStream.scrollTop = chatStream.scrollHeight;
+
+      // Auto-reply from AI after debounce coalescing
+      setTimeout(() => {
+        playTone(850);
+        const aiReply = document.createElement('div');
+        aiReply.className = 'flex items-start justify-end space-x-3 max-w-xl ml-auto';
+        aiReply.innerHTML = `
+          <div class="space-y-1 text-right">
+            <div class="p-3.5 rounded-2xl rounded-tr-sm bg-brand-emerald/15 border border-brand-emerald/30 text-slate-100 text-xs text-left shadow-glow-emerald">
+              <div class="flex items-center space-x-1.5 text-brand-emerald font-semibold text-[11px] mb-1">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                <span>Chatrio AI Agent (Post-Debounce)</span>
+              </div>
+              Absolutely Zack! Hand-selected extra-firm Washington Honeycrisp batch reserved for you.
+            </div>
+            <div class="flex items-center justify-end space-x-1 text-[10px] font-mono text-obsidian-400 pr-1">
+              <span>Just now</span>
+              <i data-lucide="check-check" class="w-3 h-3 text-brand-cyan"></i>
+            </div>
+          </div>
+          <div class="w-8 h-8 rounded-lg bg-brand-emerald/20 border border-brand-emerald/40 flex items-center justify-center text-xs font-bold text-brand-emerald flex-shrink-0 mt-1 shadow-glow-emerald">
+            <i data-lucide="bot" class="w-4 h-4"></i>
+          </div>
+        `;
+        burstBox.appendChild(aiReply);
+        lucide.createIcons();
+        chatStream.scrollTop = chatStream.scrollHeight;
+        showToast('Debounce Dispatched', 'Single coalesced LangGraph turn generated');
+      }, 2100);
+    }
+
+    // Send operator manual message
+    function sendOperatorMessage() {
+      const input = document.getElementById('operatorInput');
+      const text = input.value.trim();
+      if (!text) return;
+      playTone(800);
+
+      const burstBox = document.getElementById('dynamicBurstBox');
+      const chatStream = document.getElementById('chatStream');
+
+      const msg = document.createElement('div');
+      msg.className = 'flex items-start justify-end space-x-3 max-w-xl ml-auto';
+      msg.innerHTML = `
+        <div class="space-y-1 text-right">
+          <div class="p-3.5 rounded-2xl rounded-tr-sm bg-obsidian-800 border ${isHumanTakeover ? 'border-amber-500/50' : 'border-brand-emerald/40'} text-slate-100 text-xs text-left">
+            <div class="flex items-center space-x-1.5 ${isHumanTakeover ? 'text-amber-400' : 'text-brand-emerald'} font-semibold text-[11px] mb-1">
+              <i data-lucide="${isHumanTakeover ? 'user' : 'bot'}" class="w-3.5 h-3.5"></i>
+              <span>${isHumanTakeover ? 'Alex Morgan (Operator Takeover)' : 'Chatrio AI Agent'}</span>
+            </div>
+            ${text}
+          </div>
+          <div class="flex items-center justify-end space-x-1 text-[10px] font-mono text-obsidian-400 pr-1">
+            <span>Just now</span>
+            <i data-lucide="check" class="w-3 h-3 text-brand-cyan"></i>
+          </div>
+        </div>
+        <div class="w-8 h-8 rounded-lg ${isHumanTakeover ? 'bg-amber-500/20 border-amber-500/40 text-amber-300' : 'bg-brand-emerald/20 border-brand-emerald/40 text-brand-emerald'} border flex items-center justify-center text-xs font-bold flex-shrink-0 mt-1">
+          ${isHumanTakeover ? 'AM' : '<i data-lucide="bot" class="w-4 h-4"></i>'}
+        </div>
+      `;
+      burstBox.appendChild(msg);
+      input.value = '';
+      lucide.createIcons();
+      chatStream.scrollTop = chatStream.scrollHeight;
+      showToast('Dispatched to Meta Cloud API', 'Outbox table committed with zero latency');
+    }
+
+    // Order Advance demo
+    function advanceOrder(ordId, nextState) {
+      playTone(720);
+      showToast(`Order #${ordId} Advanced`, `Status changed to ${nextState}`);
+    }
+
+    function confirmOrderDemo() {
+      playTone(900, 'sine', 0.25);
+      showToast('Order #ORD-9021 Assembled', 'Confirmed in PostgreSQL & Stock deducted');
+    }
+
+    // Debounce Simulation on Tab 4
+    function triggerDebounceTest() {
+      playTone(500);
+      const progress = document.getElementById('debounceProgress');
+      const timer = document.getElementById('debounceTimerLabel');
+      progress.style.width = '0%';
+      timer.innerText = 'Buffering rapid bursts... 2.0s window active';
+
+      let count = 0;
+      const interval = setInterval(() => {
+        count += 10;
+        progress.style.width = count + '%';
+        if (count >= 100) {
+          clearInterval(interval);
+          playTone(850);
+          timer.innerText = 'Buffer Complete: Dispatched 1 turn to LangGraph';
+          showToast('Coalescing Complete', '3 customer bursts merged into 1 turn');
+        }
+      }, 200);
+    }
+
+    // Semantic Search Demo
+    function runSemanticSearchDemo() {
+      playTone(600);
+      const input = document.getElementById('semanticSearchInput').value.toLowerCase();
+      const results = document.getElementById('semanticResults');
+      if (input.includes('citrus') || input.includes('orange') || input.includes('lemon')) {
+        results.innerHTML = `
+          <div class="p-3 rounded-xl bg-obsidian-900/90 border border-brand-purple/40 text-xs">
+            <div class="flex justify-between items-center mb-1">
+              <span class="font-bold text-slate-100">Meyer Organic Lemons</span>
+              <span class="font-mono text-brand-emerald font-bold bg-brand-emerald/10 px-1.5 py-0.5 rounded text-[10px]">0.961 Cosine</span>
+            </div>
+            <p class="text-[11px] text-obsidian-400">Sweet-sour juicy lemons perfect for detox juices & baking.</p>
+            <div class="text-[10px] font-mono text-cyan-400 mt-2">$3.20/lb • 80 lbs in stock</div>
+          </div>
+          <div class="p-3 rounded-xl bg-obsidian-900/90 border border-obsidian-750 text-xs">
+            <div class="flex justify-between items-center mb-1">
+              <span class="font-bold text-slate-200">Valencia Juice Oranges</span>
+              <span class="font-mono text-cyan-400 font-bold bg-cyan-500/10 px-1.5 py-0.5 rounded text-[10px]">0.912 Cosine</span>
+            </div>
+            <p class="text-[11px] text-obsidian-400">Thin-skinned sweet oranges yielding high juice volume.</p>
+            <div class="text-[10px] font-mono text-cyan-400 mt-2">$2.99/lb • 140 lbs in stock</div>
+          </div>
+        `;
+      } else {
+        results.innerHTML = `
+          <div class="p-3 rounded-xl bg-obsidian-900/90 border border-brand-purple/40 text-xs">
+            <div class="flex justify-between items-center mb-1">
+              <span class="font-bold text-slate-100">Organic Honeycrisp Apples</span>
+              <span class="font-mono text-brand-emerald font-bold bg-brand-emerald/10 px-1.5 py-0.5 rounded text-[10px]">0.942 Cosine</span>
+            </div>
+            <p class="text-[11px] text-obsidian-400">Crisp, tart-sweet apples ideal for pies, crisps, and baking.</p>
+            <div class="text-[10px] font-mono text-cyan-400 mt-2">$4.49/lb • 48 lbs in stock</div>
+          </div>
+          <div class="p-3 rounded-xl bg-obsidian-900/90 border border-obsidian-750 text-xs">
+            <div class="flex justify-between items-center mb-1">
+              <span class="font-bold text-slate-200">Granny Smith Organic</span>
+              <span class="font-mono text-cyan-400 font-bold bg-cyan-500/10 px-1.5 py-0.5 rounded text-[10px]">0.887 Cosine</span>
+            </div>
+            <p class="text-[11px] text-obsidian-400">Firm, sour green apples holding shape during high-heat baking.</p>
+            <div class="text-[10px] font-mono text-cyan-400 mt-2">$3.89/lb • 92 lbs in stock</div>
+          </div>
+          <div class="p-3 rounded-xl bg-obsidian-900/90 border border-obsidian-750 text-xs">
+            <div class="flex justify-between items-center mb-1">
+              <span class="font-bold text-slate-200">Organic Gala Apples</span>
+              <span class="font-mono text-obsidian-400 font-bold bg-obsidian-800 px-1.5 py-0.5 rounded text-[10px]">0.781 Cosine</span>
+            </div>
+            <p class="text-[11px] text-obsidian-400">Mild sweet snacking apple; softer texture in heavy oven pies.</p>
+            <div class="text-[10px] font-mono text-cyan-400 mt-2">$3.49/lb • 120 lbs in stock</div>
+          </div>
+        `;
+      }
+    }
+
+    // Toast Notification Utility
+    function showToast(title, msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastTitle').innerText = title;
+      document.getElementById('toastMessage').innerText = msg;
+      toast.classList.remove('translate-y-24', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-24', 'opacity-0');
+      }, 3500);
+    }
+
+    // Enter Key on input
+    document.getElementById('operatorInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') sendOperatorMessage();
+    });
+  </script>
+</body>
+</html>

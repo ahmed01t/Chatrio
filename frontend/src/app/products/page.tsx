@@ -90,12 +90,15 @@ export default function ProductsPage() {
       }
 
       const newProd = await productsService.createProduct({
+        title: name.trim(),
         name: name.trim(),
         sku: sku.trim().toUpperCase(),
         price: parsedPrice,
+        currency: "USD",
         stock_quantity: parsedStock,
         description: description.trim() || undefined,
         category_id: categoryId || undefined,
+        category_ids: categoryId ? [categoryId] : [],
       });
 
       setProducts((prev) => [newProd, ...prev]);
@@ -232,7 +235,7 @@ export default function ProductsPage() {
                       className="hover:bg-obsidian-800/60 transition-colors"
                     >
                       <td className="py-3.5 px-4 font-semibold text-white">
-                        {product.name}
+                        {product.title || product.name}
                         {product.description && (
                           <p className="text-[11px] text-obsidian-400 font-normal truncate max-w-xs mt-0.5">
                             {product.description}

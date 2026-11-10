@@ -12,7 +12,7 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field, computed_field, model_validator
 
 from app.modules.products.models import InventoryChangeReason
 
@@ -67,7 +67,14 @@ class CategoryRead(BaseModel):
 class ProductCreate(BaseModel):
     """Schema for creating a new catalog product."""
 
-    title: str = Field(min_length=1, max_length=255, description="Product title / name")
+    model_config = ConfigDict(populate_by_name=True)
+
+    title: str = Field(
+        validation_alias=AliasChoices("title", "name"),
+        min_length=1,
+        max_length=255,
+        description="Product title / name",
+    )
     description: str | None = Field(default=None, description="Detailed product description")
     sku: str = Field(min_length=1, max_length=100, description="Stock Keeping Unit identifier")
     price: Decimal = Field(ge=0, decimal_places=2, description="Unit price (must be >= 0)")
@@ -86,17 +93,42 @@ class ProductCreate(BaseModel):
         description="List of category IDs to associate with this product",
     )
 
+    @model_validator(mode="before")
+    @classmethod
+    def handle_category_id_alias(cls, data: object) -> object:
+        if isinstance(data, dict):
+            cat_id = data.get("category_id")
+            if cat_id and not data.get("category_ids"):
+                data["category_ids"] = [cat_id]
+        return data
+
 
 class ProductUpdate(BaseModel):
     """Schema for updating an existing product."""
 
-    title: str | None = Field(default=None, min_length=1, max_length=255)
+    model_config = ConfigDict(populate_by_name=True)
+
+    title: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("title", "name"),
+        min_length=1,
+        max_length=255,
+    )
     description: str | None = None
     sku: str | None = Field(default=None, min_length=1, max_length=100)
     price: Decimal | None = Field(default=None, ge=0, decimal_places=2)
     currency: str | None = Field(default=None, min_length=3, max_length=3)
     is_active: bool | None = None
     category_ids: list[uuid.UUID] | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def handle_category_id_alias(cls, data: object) -> object:
+        if isinstance(data, dict):
+            cat_id = data.get("category_id")
+            if cat_id and not data.get("category_ids"):
+                data["category_ids"] = [cat_id]
+        return data
 
 
 class ProductRead(BaseModel):
@@ -116,6 +148,12 @@ class ProductRead(BaseModel):
     categories: list[CategoryRead] = []
     created_at: datetime
     updated_at: datetime
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def name(self) -> str:
+        """Alias for frontend compatibility."""
+        return self.title
 
 
 class ProductListResponse(BaseModel):

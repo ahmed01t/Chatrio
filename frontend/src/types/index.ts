@@ -61,16 +61,19 @@ export interface ProductRead {
   organization_id: string;
   category_id?: string | null;
   name: string;
-  slug: string;
+  title?: string;
+  slug?: string;
   sku: string;
   description?: string | null;
   price: string | number;
+  currency?: string;
   stock_quantity: number;
   is_active: boolean;
   image_url?: string | null;
   created_at: string;
   updated_at: string;
   category?: CategoryRead | null;
+  categories?: CategoryRead[];
 }
 
 export interface ProductListResponse {
@@ -81,21 +84,27 @@ export interface ProductListResponse {
 }
 
 export interface ProductCreate {
-  name: string;
+  title?: string;
+  name?: string;
   sku: string;
   price: number;
+  currency?: string;
   stock_quantity: number;
   description?: string;
   category_id?: string | null;
+  category_ids?: string[];
   image_url?: string | null;
 }
 
 export interface ProductUpdate {
+  title?: string;
   name?: string;
   price?: number;
+  currency?: string;
   stock_quantity?: number;
   description?: string;
   category_id?: string | null;
+  category_ids?: string[];
   is_active?: boolean;
 }
 
