@@ -15,7 +15,7 @@ import uuid
 from datetime import UTC, datetime
 from decimal import Decimal
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -138,7 +138,11 @@ class OrderService:
 
         total_amount = subtotal + request.shipping_cost
 
-        # 5. Build and persist Order
+        # 5. Build and persist Order with origin channel metadata
+        order_meta = dict(request.metadata or {})
+        if request.channel and "channel" not in order_meta:
+            order_meta["channel"] = request.channel.strip().upper()
+
         order = Order(
             id=order_id,
             organization_id=organization_id,
@@ -153,7 +157,7 @@ class OrderService:
             total_amount=total_amount,
             shipping_address=request.shipping_address,
             notes=request.notes,
-            metadata_=request.metadata,
+            metadata_=order_meta if order_meta else None,
         )
 
         session.add(order)
@@ -193,6 +197,7 @@ class OrderService:
         customer_id: uuid.UUID | None = None,
         status: OrderStatus | None = None,
         payment_status: PaymentStatus | None = None,
+        channel: str | None = None,
         page: int = 1,
         page_size: int = 20,
     ) -> tuple[list[Order], int]:
@@ -205,6 +210,20 @@ class OrderService:
             base_query = base_query.where(Order.status == status)
         if payment_status is not None:
             base_query = base_query.where(Order.payment_status == payment_status)
+        if channel is not None and channel.strip():
+            clean_ch = channel.strip().upper()
+            if clean_ch == "WHATSAPP":
+                base_query = base_query.where(
+                    or_(
+                        Order.metadata_.is_(None),
+                        func.upper(Order.metadata_["channel"].as_string()).is_(None),
+                        func.upper(Order.metadata_["channel"].as_string()) == "WHATSAPP",
+                    )
+                )
+            else:
+                base_query = base_query.where(
+                    func.upper(Order.metadata_["channel"].as_string()) == clean_ch
+                )
 
         # Count total matches
         count_query = select(func.count()).select_from(base_query.subquery())

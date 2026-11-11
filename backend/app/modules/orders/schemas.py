@@ -11,7 +11,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, computed_field
 
 from app.modules.orders.models import OrderStatus, PaymentStatus
 
@@ -83,6 +83,10 @@ class OrderCreate(BaseModel):
         max_length=1000,
         description="Delivery instructions or merchant notes",
     )
+    channel: str | None = Field(
+        default=None,
+        description="Optional origin channel (e.g. WHATSAPP, INSTAGRAM)",
+    )
     metadata: dict[str, Any] | None = Field(
         default=None,
         validation_alias="metadata_",
@@ -144,6 +148,15 @@ class OrderRead(BaseModel):
     created_at: datetime
     updated_at: datetime
     items: list[OrderItemRead] = Field(default_factory=list)
+
+    @computed_field
+    def channel(self) -> str:
+        """Origin commerce channel (WHATSAPP, INSTAGRAM, WEB, API)."""
+        if self.metadata and isinstance(self.metadata, dict):
+            ch = self.metadata.get("channel")
+            if ch:
+                return str(ch).upper()
+        return "WHATSAPP"
 
 
 class OrderListResponse(BaseModel):

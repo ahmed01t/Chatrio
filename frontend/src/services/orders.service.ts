@@ -24,6 +24,7 @@ export interface ListOrdersParams {
   status?: OrderStatus;
   payment_status?: PaymentStatus;
   customer_id?: string;
+  channel?: string;
   page?: number;
   page_size?: number;
 }
@@ -38,6 +39,7 @@ export const ordersService = {
     if (params?.status) query.set("status", params.status);
     if (params?.payment_status) query.set("payment_status", params.payment_status);
     if (params?.customer_id) query.set("customer_id", params.customer_id);
+    if (params?.channel) query.set("channel", params.channel);
     if (params?.page) query.set("page", String(params.page));
     if (params?.page_size) query.set("page_size", String(params.page_size));
 

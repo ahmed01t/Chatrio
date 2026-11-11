@@ -20,6 +20,8 @@ import {
   CheckCircle2,
   Copy,
   Users,
+  Instagram,
+  AtSign,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -30,6 +32,7 @@ export default function SettingsPage() {
   const [storeName, setStoreName] = useState(organization?.name || "Acme Superstore");
   const [currency, setCurrency] = useState("USD");
   const [phoneId, setPhoneId] = useState("109823489234892");
+  const [igHandle, setIgHandle] = useState("@outfitters.shop");
   const [welcomeMessage, setWelcomeMessage] = useState(
     "Hello! Welcome to our store. How can I help you browse our products today?"
   );
@@ -145,6 +148,57 @@ export default function SettingsPage() {
                 <Button type="button" variant="secondary" size="sm" onClick={handleCopyWebhook}>
                   <Copy className="w-3.5 h-3.5" />
                   <span>{copied ? "Copied!" : "Copy"}</span>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Instagram Direct API Integration Card */}
+        <div className="quiet-panel p-5 card-taste space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-ink-900 tracking-tight flex items-center gap-2">
+              <Instagram className="w-4 h-4 text-rose-600" />
+              <span>Instagram Direct Messaging API</span>
+            </h3>
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+              Connected
+            </span>
+          </div>
+
+          <div className="space-y-3.5">
+            <Input
+              label="Connected Instagram Account"
+              value={igHandle}
+              onChange={(e) => setIgHandle(e.target.value)}
+              placeholder="@outfitters.shop"
+              icon={<AtSign className="w-4 h-4" />}
+            />
+
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-ink-700">
+                Instagram Webhook URL (Meta Graph API)
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value="https://api.chatrio.com/api/v1/webhooks/instagram"
+                  className="flex-1 bg-canvas-subtle border border-border rounded-xl px-3.5 py-2 text-xs font-mono text-ink-700 select-all shadow-sm"
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText("https://api.chatrio.com/api/v1/webhooks/instagram");
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy</span>
                 </Button>
               </div>
             </div>

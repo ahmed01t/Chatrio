@@ -3,10 +3,11 @@
 /**
  * Orders & Fulfillment Board.
  *
- * Implements design-taste-frontend standards:
+ * Implements multi-channel commerce operations:
  * - Quiet panels, aligned figures, colour spent on data
  * - Warm white canvas (#FAF8F5) with terracotta (#EA580C) data highlights
  * - Real-time slide-over order inspector with itemized breakdown and state machine transitions
+ * - Multi-channel filtering: WhatsApp, Instagram, or All channels
  * - Direct client mapping to backend router:
  *   - GET   /api/v1/orders               (ordersService.listOrders)
  *   - PATCH /api/v1/orders/{id}/status   (ordersService.updateStatus)
@@ -15,7 +16,6 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import {
-  ShoppingCart,
   Search,
   MapPin,
   Clock,
@@ -26,17 +26,45 @@ import {
   AlertCircle,
   CheckCircle,
   Truck,
-  Ban,
+  Layers,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { OrderRead, OrderItemRead, OrderStatus } from "@/types";
 import { ordersService } from "@/services/orders.service";
 
+/* ─────────────────────────── icons ────────────────────────────── */
+
+function WhatsAppIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.472 14.382c-.301-.15-1.782-.879-2.058-.98-.276-.101-.477-.15-.678.15s-.779.98-.955 1.18c-.176.201-.352.226-.653.075s-1.272-.469-2.423-1.496c-.896-.799-1.501-1.786-1.677-2.087-.176-.301-.019-.464.132-.614.136-.135.301-.352.452-.527.151-.176.201-.301.301-.502.101-.201.05-.377-.025-.527-.075-.15-.678-1.635-.929-2.239-.244-.589-.493-.509-.678-.519l-.578-.01c-.201 0-.527.075-.803.377s-1.054 1.03-1.054 2.511 1.079 2.913 1.23 3.114c.151.201 2.124 3.243 5.145 4.549.719.311 1.28.497 1.718.636.722.23 1.379.197 1.898.12.578-.087 1.782-.728 2.033-1.431.251-.703.251-1.305.176-1.431-.076-.126-.277-.201-.578-.351z" />
+      <path d="M12.004 2C6.486 2 2 6.486 2 12.004c0 1.894.53 3.666 1.455 5.184L2 22l4.981-1.419c1.472.854 3.181 1.341 5.023 1.341 5.518 0 10.004-4.486 10.004-10.004C22.008 6.486 17.522 2 12.004 2zm0 18.257c-1.634 0-3.153-.473-4.442-1.289l-.319-.2-2.955.842.842-2.883-.21-.334c-.879-1.339-1.347-2.915-1.347-4.577 0-4.552 3.704-8.257 8.257-8.257 4.553 0 8.257 3.704 8.257 8.257 0 4.553-3.704 8.257-8.257 8.257z" />
+    </svg>
+  );
+}
+
+function InstagramIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </svg>
+  );
+}
+
+function getOrderChannel(order: OrderRead): "WHATSAPP" | "INSTAGRAM" | "OTHER" {
+  const ch = (order.channel || (order as unknown as { metadata?: { channel?: string } }).metadata?.channel || "WHATSAPP").toUpperCase();
+  if (ch === "INSTAGRAM") return "INSTAGRAM";
+  return "WHATSAPP";
+}
+
 export default function OrdersPage() {
   const [orders, setOrders] = useState<OrderRead[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<OrderRead | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [channelFilter, setChannelFilter] = useState<"ALL" | "WHATSAPP" | "INSTAGRAM">("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
@@ -46,8 +74,13 @@ export default function OrdersPage() {
     setIsLoading(true);
     setErrorMessage(null);
     try {
-      const filter = statusFilter !== "ALL" ? (statusFilter as OrderStatus) : undefined;
-      const response = await ordersService.listOrders({ status: filter, page_size: 50 });
+      const statusParam = statusFilter !== "ALL" ? (statusFilter as OrderStatus) : undefined;
+      const channelParam = channelFilter !== "ALL" ? channelFilter : undefined;
+      const response = await ordersService.listOrders({
+        status: statusParam,
+        channel: channelParam,
+        page_size: 50,
+      });
       setOrders(response.items || []);
     } catch (err: unknown) {
       console.error("Failed to load orders from PostgreSQL backend:", err);
@@ -55,7 +88,7 @@ export default function OrdersPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [statusFilter]);
+  }, [statusFilter, channelFilter]);
 
   useEffect(() => {
     fetchOrders();
@@ -98,7 +131,7 @@ export default function OrdersPage() {
             Fulfillment &amp; Orders Board
           </h1>
           <p className="text-xs sm:text-sm text-ink-500 mt-1">
-            Deterministic state machine orders assembled conversationally by LangGraph and persisted in PostgreSQL.
+            Deterministic state machine orders assembled conversationally by LangGraph across WhatsApp &amp; Instagram.
           </p>
         </div>
 
@@ -125,7 +158,8 @@ export default function OrdersPage() {
       )}
 
       {/* Filter Tabs & Search */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+        {/* Status filters */}
         <div className="flex flex-wrap gap-1.5 bg-canvas-subtle p-1 rounded-xl border border-border">
           {["ALL", "PENDING", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"].map((status) => (
             <button
@@ -133,7 +167,7 @@ export default function OrdersPage() {
               onClick={() => setStatusFilter(status)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                 statusFilter === status
-                  ? "bg-white text-ink-900 border border-border shadow-sm"
+                  ? "bg-white dark:bg-canvas-card text-ink-900 border border-border shadow-sm"
                   : "text-ink-500 hover:text-ink-900"
               }`}
             >
@@ -142,15 +176,58 @@ export default function OrdersPage() {
           ))}
         </div>
 
-        <div className="relative w-full sm:w-64">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
-          <input
-            type="text"
-            placeholder="Search order #..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white border border-border rounded-xl pl-9 pr-3 py-1.5 text-xs text-ink-900 placeholder:text-ink-400 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all shadow-sm"
-          />
+        {/* Channel Filters & Search */}
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
+          {/* Channel selector pill */}
+          <div className="flex items-center gap-1 bg-canvas-subtle p-1 rounded-xl border border-border">
+            <button
+              onClick={() => setChannelFilter("ALL")}
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
+                channelFilter === "ALL"
+                  ? "bg-white dark:bg-canvas-card text-ink-900 border border-border shadow-sm"
+                  : "text-ink-500 hover:text-ink-900"
+              }`}
+              title="All Channels"
+            >
+              <Layers className="w-3 h-3 text-ink-400" />
+              <span>All</span>
+            </button>
+            <button
+              onClick={() => setChannelFilter("WHATSAPP")}
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
+                channelFilter === "WHATSAPP"
+                  ? "bg-white dark:bg-canvas-card text-emerald-600 border border-border shadow-sm font-bold"
+                  : "text-ink-500 hover:text-ink-900"
+              }`}
+              title="WhatsApp Orders"
+            >
+              <WhatsAppIcon className="w-3 h-3 fill-emerald-600" />
+              <span>WhatsApp</span>
+            </button>
+            <button
+              onClick={() => setChannelFilter("INSTAGRAM")}
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
+                channelFilter === "INSTAGRAM"
+                  ? "bg-white dark:bg-canvas-card text-rose-600 border border-border shadow-sm font-bold"
+                  : "text-ink-500 hover:text-ink-900"
+              }`}
+              title="Instagram Orders"
+            >
+              <InstagramIcon className="w-3 h-3 text-rose-600" />
+              <span>Instagram</span>
+            </button>
+          </div>
+
+          <div className="relative w-full sm:w-60">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+            <input
+              type="text"
+              placeholder="Search order #..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-white dark:bg-canvas-card border border-border rounded-xl pl-9 pr-3 py-1.5 text-xs text-ink-900 placeholder:text-ink-400 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all shadow-sm"
+            />
+          </div>
         </div>
       </div>
 
@@ -161,6 +238,7 @@ export default function OrdersPage() {
             <thead className="bg-canvas-subtle border-b border-border text-ink-500 font-mono">
               <tr>
                 <th className="py-3.5 px-4 font-semibold">Order #</th>
+                <th className="py-3.5 px-4 font-semibold">Channel</th>
                 <th className="py-3.5 px-4 font-semibold">Created At</th>
                 <th className="py-3.5 px-4 font-semibold">Total Amount</th>
                 <th className="py-3.5 px-4 font-semibold">Payment Status</th>
@@ -171,7 +249,7 @@ export default function OrdersPage() {
             <tbody className="divide-y divide-border/60">
               {isLoading && orders.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-ink-500">
+                  <td colSpan={7} className="py-12 text-center text-ink-500">
                     <div className="inline-flex items-center gap-2 font-mono">
                       <RefreshCw className="w-4 h-4 animate-spin text-accent" />
                       <span>Querying PostgreSQL orders...</span>
@@ -180,72 +258,88 @@ export default function OrdersPage() {
                 </tr>
               ) : filteredOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center">
+                  <td colSpan={7} className="py-12 text-center">
                     <div className="max-w-sm mx-auto space-y-2">
                       <Package className="w-8 h-8 text-ink-300 mx-auto" />
                       <p className="text-xs font-semibold text-ink-900">No matching orders found</p>
                       <p className="text-[11px] text-ink-500">
-                        {statusFilter !== "ALL"
-                          ? `No orders currently matching status "${statusFilter}".`
-                          : "Orders placed by WhatsApp customers via AI conversation will populate here automatically."}
+                        {statusFilter !== "ALL" || channelFilter !== "ALL"
+                          ? `No orders currently matching status "${statusFilter}" and channel "${channelFilter}".`
+                          : "Orders placed by customers via WhatsApp or Instagram will populate here automatically."}
                       </p>
                     </div>
                   </td>
                 </tr>
               ) : (
-                filteredOrders.map((order) => (
-                  <tr
-                    key={order.id}
-                    className="hover:bg-canvas-subtle transition-colors cursor-pointer"
-                    onClick={() => setSelectedOrder(order)}
-                  >
-                    <td className="py-3.5 px-4 font-mono font-bold text-ink-900">
-                      {order.order_number}
-                    </td>
-                    <td className="py-3.5 px-4 font-mono text-ink-500">
-                      {new Date(order.created_at).toLocaleString([], {
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </td>
-                    <td className="py-3.5 px-4 font-mono font-bold text-ink-900">
-                      {order.currency || "USD"} ${Number(order.total_amount).toFixed(2)}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <Badge
-                        variant={order.payment_status === "PAID" ? "success" : "neutral"}
-                        size="sm"
-                      >
-                        {order.payment_status}
-                      </Badge>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <Badge
-                        variant={
-                          order.status === "CONFIRMED"
-                            ? "success"
-                            : order.status === "PENDING"
-                            ? "warning"
-                            : order.status === "SHIPPED"
-                            ? "active"
-                            : order.status === "DELIVERED"
-                            ? "success"
-                            : "critical"
-                        }
-                        size="sm"
-                      >
-                        {order.status}
-                      </Badge>
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <Button variant="ghost" size="sm">
-                        View Details
-                      </Button>
-                    </td>
-                  </tr>
-                ))
+                filteredOrders.map((order) => {
+                  const ch = getOrderChannel(order);
+                  return (
+                    <tr
+                      key={order.id}
+                      className="hover:bg-canvas-subtle transition-colors cursor-pointer"
+                      onClick={() => setSelectedOrder(order)}
+                    >
+                      <td className="py-3.5 px-4 font-mono font-bold text-ink-900">
+                        {order.order_number}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        {ch === "INSTAGRAM" ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800">
+                            <InstagramIcon className="w-3 h-3 text-rose-600" />
+                            <span>Instagram</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800">
+                            <WhatsAppIcon className="w-3 h-3 fill-emerald-600" />
+                            <span>WhatsApp</span>
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4 font-mono text-ink-500">
+                        {new Date(order.created_at).toLocaleString([], {
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </td>
+                      <td className="py-3.5 px-4 font-mono font-bold text-ink-900">
+                        {order.currency || "USD"} ${Number(order.total_amount).toFixed(2)}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <Badge
+                          variant={order.payment_status === "PAID" ? "success" : "neutral"}
+                          size="sm"
+                        >
+                          {order.payment_status}
+                        </Badge>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <Badge
+                          variant={
+                            order.status === "CONFIRMED"
+                              ? "success"
+                              : order.status === "PENDING"
+                              ? "warning"
+                              : order.status === "SHIPPED"
+                              ? "active"
+                              : order.status === "DELIVERED"
+                              ? "success"
+                              : "critical"
+                          }
+                          size="sm"
+                        >
+                          {order.status}
+                        </Badge>
+                      </td>
+                      <td className="py-3.5 px-4 text-right">
+                        <Button variant="ghost" size="sm">
+                          View Details
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -259,7 +353,7 @@ export default function OrdersPage() {
             className="fixed inset-0 bg-ink-900/40 backdrop-blur-sm"
             onClick={() => setSelectedOrder(null)}
           />
-          <div className="relative w-full max-w-md bg-white border-l border-border shadow-2xl h-full flex flex-col z-10 p-6 overflow-y-auto">
+          <div className="relative w-full max-w-md bg-white dark:bg-canvas-card border-l border-border shadow-2xl h-full flex flex-col z-10 p-6 overflow-y-auto">
             {/* Drawer Header */}
             <div className="flex items-center justify-between pb-4 border-b border-border">
               <div>
@@ -274,14 +368,14 @@ export default function OrdersPage() {
               </div>
               <button
                 onClick={() => setSelectedOrder(null)}
-                className="p-1 rounded-lg text-ink-400 hover:text-ink-900"
+                className="p-1 rounded-lg text-ink-400 hover:text-ink-900 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Status & Payment Badges */}
-            <div className="flex items-center gap-2 my-5">
+            <div className="flex flex-wrap items-center gap-2 my-5">
               <Badge
                 variant={
                   selectedOrder.status === "CONFIRMED" || selectedOrder.status === "DELIVERED"
@@ -302,6 +396,17 @@ export default function OrdersPage() {
               >
                 Payment: {selectedOrder.payment_status}
               </Badge>
+              {getOrderChannel(selectedOrder) === "INSTAGRAM" ? (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800">
+                  <InstagramIcon className="w-3.5 h-3.5 text-rose-600" />
+                  Instagram DM
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800">
+                  <WhatsAppIcon className="w-3.5 h-3.5 fill-emerald-600" />
+                  WhatsApp Chat
+                </span>
+              )}
             </div>
 
             {/* Customer & Delivery Address */}
@@ -311,7 +416,7 @@ export default function OrdersPage() {
                 <div>
                   <span className="font-semibold text-ink-900 block">Delivery Address:</span>
                   <p className="text-ink-500 mt-0.5">
-                    {selectedOrder.shipping_address || "Address pending WhatsApp collection"}
+                    {selectedOrder.shipping_address || "Address collected conversationally"}
                   </p>
                 </div>
               </div>
@@ -329,7 +434,7 @@ export default function OrdersPage() {
               <h4 className="text-xs font-bold uppercase tracking-wider text-ink-500 font-mono">
                 Order Items ({selectedOrder.items?.length || 0})
               </h4>
-              <div className="divide-y divide-border border border-border rounded-xl overflow-hidden bg-white">
+              <div className="divide-y divide-border border border-border rounded-xl overflow-hidden bg-white dark:bg-canvas-card">
                 {!selectedOrder.items || selectedOrder.items.length === 0 ? (
                   <div className="p-4 text-center text-xs text-ink-400 font-mono">
                     No line items attached
@@ -413,8 +518,7 @@ export default function OrdersPage() {
                   onClick={() => handleUpdateStatus("CANCELLED")}
                   isLoading={isUpdatingStatus}
                 >
-                  <Ban className="w-3.5 h-3.5" />
-                  <span>Cancel Order &amp; Restore Stock</span>
+                  <span>Cancel Order</span>
                 </Button>
               )}
             </div>

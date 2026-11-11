@@ -74,6 +74,10 @@ async def list_orders(
         PaymentStatus | None,
         Query(description="Filter by payment settlement status"),
     ] = None,
+    channel: Annotated[
+        str | None,
+        Query(description="Filter orders by channel (e.g. WHATSAPP, INSTAGRAM)"),
+    ] = None,
     page: Annotated[int, Query(ge=1, description="Page number")] = 1,
     page_size: Annotated[int, Query(ge=1, le=100, description="Items per page")] = 20,
 ) -> OrderListResponse:
@@ -84,6 +88,7 @@ async def list_orders(
         customer_id=customer_id,
         status=order_status,
         payment_status=payment_status,
+        channel=channel,
         page=page,
         page_size=page_size,
     )

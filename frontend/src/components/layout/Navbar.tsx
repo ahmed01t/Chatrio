@@ -92,14 +92,27 @@ export function Navbar() {
 
       {/* ── Right: notifications + theme toggle + user ───────────── */}
       <div className="flex items-center gap-1.5 ml-auto">
-        {/* WhatsApp connected pill */}
-        <div
-          style={{ borderColor: "var(--line)", color: "var(--ink-4)" }}
-          className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full
-                     border text-[12px] font-medium"
-        >
-          <span className="w-1.5 h-1.5 rounded-full bg-data-green" />
-          <span>WhatsApp</span>
+        {/* Active Multi-Channel Connected Pills: WhatsApp & Instagram */}
+        <div className="hidden sm:flex items-center gap-1.5">
+          <div
+            style={{ borderColor: "var(--line)", color: "var(--ink-4)" }}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full
+                       border text-[12px] font-medium transition-colors hover:border-emerald-300"
+            title="Meta WhatsApp Cloud API: Live & Connected"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]" />
+            <span>WhatsApp</span>
+          </div>
+
+          <div
+            style={{ borderColor: "var(--line)", color: "var(--ink-4)" }}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full
+                       border text-[12px] font-medium transition-colors hover:border-rose-300"
+            title="Instagram Messaging API: Live & Connected"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 shadow-[0_0_6px_rgba(244,63,94,0.5)]" />
+            <span>Instagram</span>
+          </div>
         </div>
 
         {/* Notifications */}

@@ -188,7 +188,7 @@ export interface ConversationRead {
   organization_id: string;
   customer_id: string;
   status: ConversationStatus;
-  channel: "WHATSAPP" | "WEB" | "API";
+  channel: "WHATSAPP" | "INSTAGRAM" | "WEB" | "API";
   is_ai_active: boolean;
   last_message_at?: string | null;
   created_at: string;
@@ -253,6 +253,7 @@ export interface OrderRead {
   organization_id: string;
   customer_id: string;
   conversation_id?: string | null;
+  channel?: "WHATSAPP" | "INSTAGRAM" | "WEB" | "API" | string;
   order_number: string;
   status: OrderStatus;
   payment_status: PaymentStatus;

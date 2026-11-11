@@ -61,6 +61,7 @@ class ConversationChannel(StrEnum):
     """Inbound/outbound channel for the conversation."""
 
     WHATSAPP = "WHATSAPP"
+    INSTAGRAM = "INSTAGRAM"
     WEB = "WEB"
     API = "API"
 
