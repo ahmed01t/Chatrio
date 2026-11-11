@@ -281,7 +281,7 @@ export default function AgentManagementPage() {
                     <div className="space-y-1 min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-xs text-ink-900 truncate">
-                          {p.title}
+                          {p.title || p.name}
                         </span>
                         <span className="text-[11px] font-mono text-ink-400 shrink-0">
                           SKU: {p.sku}
