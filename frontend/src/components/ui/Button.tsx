@@ -31,7 +31,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const base =
-    "inline-flex items-center justify-center gap-2 font-medium select-none " +
+    "inline-flex items-center justify-center gap-2 font-medium select-none whitespace-nowrap " +
     "transition-all duration-150 cursor-pointer " +
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 " +
     "focus-visible:ring-accent " +
@@ -41,7 +41,7 @@ export function Button({
   const radius = "rounded-[10px]";
 
   const sizes = {
-    sm: "h-8  px-3   text-[13px]",
+    sm: "h-9  px-3.5 text-[13px]",
     md: "h-10 px-4   text-[14px]",
     lg: "h-11 px-5   text-[15px]",
   };

@@ -62,19 +62,19 @@ export function StatCard({
       {/* Trend / subtitle */}
       {(trend || subtitle) && (
         <div
-          className="flex items-center justify-between pt-2 text-[12px]"
+          className="flex items-center justify-between gap-2 pt-2 text-[12px] min-w-0"
           style={{ borderTop: "1px solid var(--line-s)" }}
         >
           {trend && (
             <span
-              className="font-semibold"
+              className="font-semibold shrink-0"
               style={{ color: trendColours[trendType] }}
             >
               {trend}
             </span>
           )}
           {subtitle && (
-            <span className="truncate" style={{ color: "var(--ink-6)" }}>
+            <span className="truncate text-right" style={{ color: "var(--ink-6)" }} title={subtitle}>
               {subtitle}
             </span>
           )}
