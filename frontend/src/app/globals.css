@@ -31,12 +31,12 @@
   --ink-7:     #D4D4D8;
   --ink-8:     #E4E4E7;
 
-  /* ── Accent (terracotta — one accent only) ────────────────────────── */
-  --action:    #E8541A;
-  --action-h:  #C8420E;
-  --action-p:  #A33309;
-  --action-bg: #FFF3EE;
-  --action-sub:#FFE4D6;
+  /* ── Accent (WhatsApp emerald) ────────────────────────────────────── */
+  --action:    #10B981;
+  --action-h:  #059669;
+  --action-p:  #047857;
+  --action-bg: #ECFDF5;
+  --action-sub:#D1FAE5;
 
   /* ── Hairline border (12% ink) ───────────────────────────────────── */
   --line:      rgba(24, 24, 27, 0.12);
@@ -68,11 +68,11 @@
 
 html.dark {
   /* ── Grounds ─────────────────────────────────────────────────────── */
-  --g-main:    #111113;
-  --g-alt:     #17171A;
-  --g-panel:   #1C1C1F;
-  --g-subtle:  #232327;
-  --g-muted:   #2C2C31;
+  --g-main:    #0B0D11;
+  --g-alt:     #10141B;
+  --g-panel:   #131720;
+  --g-subtle:  #1A202C;
+  --g-muted:   #222938;
 
   /* ── Ink (inverted zinc) ─────────────────────────────────────────── */
   --ink:       #F4F4F5;
@@ -84,17 +84,17 @@ html.dark {
   --ink-7:     #3F3F46;
   --ink-8:     #27272A;
 
-  /* ── Accent unchanged (terracotta reads on dark too) ─────────────── */
-  --action:    #F0612A;
-  --action-h:  #D95520;
-  --action-p:  #E8541A;
-  --action-bg: rgba(232, 84, 26, 0.12);
-  --action-sub:rgba(232, 84, 26, 0.20);
+  /* ── Emerald accent tuned for dark surfaces ─────────────────────── */
+  --action:    #10B981;
+  --action-h:  #059669;
+  --action-p:  #047857;
+  --action-bg: rgba(16, 185, 129, 0.12);
+  --action-sub:rgba(16, 185, 129, 0.20);
 
   /* ── Hairline border (12% white) ─────────────────────────────────── */
-  --line:      rgba(255, 255, 255, 0.10);
-  --line-s:    rgba(255, 255, 255, 0.06);
-  --line-h:    rgba(255, 255, 255, 0.18);
+  --line:      rgba(148, 163, 184, 0.14);
+  --line-s:    rgba(148, 163, 184, 0.08);
+  --line-h:    rgba(148, 163, 184, 0.24);
 
   /* ── Shadows (deeper, no warm cast) ─────────────────────────────── */
   --shadow-panel:    0 1px 2px 0 rgba(0,0,0,.20), 0 1px 10px -4px rgba(0,0,0,.30);
@@ -128,7 +128,9 @@ body {
 
 /* Quiet panel */
 .quiet-panel {
-  background-color: var(--g-panel);
+  background:
+    linear-gradient(145deg, rgba(16, 185, 129, 0.025), transparent 42%),
+    var(--g-panel);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-panel);
@@ -149,21 +151,30 @@ body {
   box-shadow: var(--shadow-card);
 }
 
+.page-enter {
+  animation: page-enter 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* Warm ambient ground (auth pages, hero) */
 .canvas-glow {
   background:
     radial-gradient(ellipse 60% 50% at 10% 0%,
-      rgba(232, 84, 26, 0.07) 0%, transparent 70%),
+      rgba(16, 185, 129, 0.06) 0%, transparent 70%),
     radial-gradient(ellipse 50% 40% at 90% 100%,
-      rgba(232, 84, 26, 0.04) 0%, transparent 70%),
+      rgba(14, 165, 233, 0.04) 0%, transparent 70%),
     var(--g-main);
 }
 html.dark .canvas-glow {
   background:
     radial-gradient(ellipse 60% 50% at 10% 0%,
-      rgba(232, 84, 26, 0.09) 0%, transparent 70%),
+      rgba(16, 185, 129, 0.11) 0%, transparent 70%),
     radial-gradient(ellipse 50% 40% at 90% 100%,
-      rgba(232, 84, 26, 0.05) 0%, transparent 70%),
+      rgba(14, 165, 233, 0.06) 0%, transparent 70%),
     var(--g-main);
 }
 
@@ -189,7 +200,7 @@ html.dark .canvas-glow {
 
 /* Selection */
 ::selection {
-  background-color: rgba(232, 84, 26, 0.18);
+  background-color: rgba(16, 185, 129, 0.24);
   color: var(--ink);
 }
 
@@ -300,9 +311,16 @@ html.dark .hover\:text-rose-600:hover { color: #FCA5A5 !important; }
 html.dark .bg-emerald-50   { background-color: rgba(16, 185, 129, 0.10) !important; }
 html.dark .border-emerald-200 { border-color: rgba(16, 185, 129, 0.25) !important; }
 html.dark .text-emerald-700   { color: #6EE7B7 !important; }
+html.dark .text-emerald-600   { color: #34D399 !important; }
 
 /* Amber states */
 html.dark .bg-amber-50   { background-color: rgba(217, 119, 6, 0.10) !important; }
+
+/* Keep the WhatsApp accent legible on obsidian surfaces. */
+html.dark .text-accent { color: #34D399 !important; }
+html.dark .hover\:text-accent-hover:hover { color: #6EE7B7 !important; }
+html.dark .bg-accent-light { background-color: rgba(16, 185, 129, 0.12) !important; }
+html.dark .bg-accent-subtle { background-color: rgba(16, 185, 129, 0.2) !important; }
 
 /* kbd shortcut chip */
 html.dark kbd {
@@ -318,4 +336,14 @@ html.dark .bg-oatmeal-dark  { background-color: var(--g-subtle) !important; }
 /* ─── Dark mode theme transition ────────────────────────────────────────── */
 html {
   transition: background-color 200ms ease;
+}
+
+/* Respect the user's motion preference while keeping interactions responsive. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

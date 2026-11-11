@@ -48,7 +48,7 @@ export function Button({
 
   /* Inline style objects for variants that need CSS vars */
   const variantClass = {
-    primary: "bg-accent text-white hover:bg-accent-hover shadow-sm font-semibold",
+    primary: "bg-accent text-emerald-950 hover:bg-accent-hover shadow-sm font-semibold",
     secondary: "font-medium",
     danger:   "font-medium",
     ghost:    "font-medium",

@@ -1,13 +1,9 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Chatrio Design System — tasteskill.dev inspired
+ * Chatrio design system
  *
- * Visual system derived from tasteskill.dev's "app screens" aesthetic:
- * - Font pairing: Instrument Serif (display) + Inter (body/UI)
- * - 95% neutral interface — colour only on data, CTAs, and status
- * - One terracotta accent (#E8541A), warm ink (#18181B), oatmeal baseline
- * - Soft radius scale (8/12/20), 4-step spacing, hairline borders at 12% ink
+ * Obsidian surfaces, emerald actions, high contrast text, and restrained motion.
  */
 const config: Config = {
   content: [
@@ -50,14 +46,14 @@ const config: Config = {
           strong:  "#D5CEC5",   // emphasis
         },
 
-        // ── Accent — one terracotta, 95% neutral everywhere else ─────────
+        // ── Accent — WhatsApp emerald ─────────────────────────────────────
         accent: {
-          DEFAULT: "#E8541A",   // primary CTA, peak bar, focus ring
-          hover:   "#C8420E",   // hover state
-          press:   "#A33309",   // active/press
-          light:   "#FFF3EE",   // tinted bg
-          subtle:  "#FFE4D6",   // badge bg
-          muted:   "#F97316",   // chart variant
+          DEFAULT: "#10B981",   // WhatsApp emerald primary action
+          hover:   "#059669",
+          press:   "#047857",
+          light:   "#D1FAE5",
+          subtle:  "#A7F3D0",
+          muted:   "#34D399",
         },
 
         // ── Oatmeal — baseline bars, table stripes ───────────────────────
@@ -132,9 +128,9 @@ const config: Config = {
         quiet:    "0 1px 2px 0 rgba(24, 24, 27, 0.04), 0 1px 10px -4px rgba(24, 24, 27, 0.06)",
         card:     "0 4px 16px -4px rgba(24, 24, 27, 0.08), 0 1px 2px 0 rgba(24, 24, 27, 0.03)",
         elevated: "0 8px 24px -6px rgba(24, 24, 27, 0.10), 0 2px 4px 0 rgba(24, 24, 27, 0.04)",
-        // terracotta focus / glow
-        glow:     "0 0 0 3px rgba(232, 84, 26, 0.18)",
-        focus:    "0 0 0 2px #FAFAF9, 0 0 0 4px #E8541A",
+        // Emerald focus / glow
+        glow:     "0 0 0 3px rgba(16, 185, 129, 0.18)",
+        focus:    "0 0 0 2px #0B0D11, 0 0 0 4px #10B981",
       },
 
       // ── Keyframe animations ──────────────────────────────────────────

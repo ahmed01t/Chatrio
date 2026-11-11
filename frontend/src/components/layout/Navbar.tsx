@@ -29,8 +29,9 @@ export function Navbar() {
         borderBottom: "1px solid var(--line)",
       }}
       className="fixed top-0 right-0 z-30
-                 left-[60px] sm:left-[232px]
-                 h-[68px] flex items-center px-4 sm:px-6 gap-4
+                 left-[68px] sm:left-[248px]
+                 h-[68px] flex items-center px-3 sm:px-6 gap-3 sm:gap-4
+                 backdrop-blur-xl
                  transition-colors duration-200"
     >
       {/* ── Left: store context ─────────────────────────────────── */}
@@ -40,7 +41,7 @@ export function Navbar() {
           borderColor: "var(--line)",
           color: "var(--ink)",
         }}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-[10px]
+        className="flex items-center gap-2 px-3 py-2 rounded-xl
                    border text-[13px] font-medium
                    hover:border-border-strong transition-colors shrink-0"
       >
@@ -52,7 +53,7 @@ export function Navbar() {
       </button>
 
       {/* ── Centre: search ──────────────────────────────────────── */}
-      <div className="hidden md:flex flex-1 max-w-sm relative mx-auto">
+      <div className="hidden md:flex flex-1 max-w-lg relative mx-auto">
         <Search
           className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
           style={{ color: "var(--ink-6)" }}
@@ -67,7 +68,7 @@ export function Navbar() {
             borderColor: "var(--line)",
             color: "var(--ink)",
           }}
-          className="w-full h-9 border rounded-[10px]
+          className="w-full h-10 border rounded-xl
                      pl-9 pr-14 text-[13px] placeholder:text-ink-400
                      focus:outline-none focus:ring-2 focus:ring-accent/20
                      transition-all"

@@ -45,17 +45,18 @@ export function Sidebar() {
         backgroundColor: "var(--g-panel)",
         borderRight: "1px solid var(--line)",
       }}
+      aria-label="Main navigation"
       className="fixed inset-y-0 left-0 z-40 flex flex-col
-                 w-[60px] sm:w-[232px] transition-colors duration-200"
+                 w-[68px] sm:w-[248px] transition-colors duration-200"
     >
       {/* ── Brand ──────────────────────────────────────────────── */}
       <div
         style={{ borderBottom: "1px solid var(--line)" }}
-        className="h-[68px] flex items-center px-3 sm:px-4 gap-3 shrink-0"
+        className="h-[68px] flex items-center px-3 sm:px-5 gap-3 shrink-0"
       >
         <div
-          className="w-9 h-9 rounded-[10px] bg-accent flex items-center
-                     justify-center font-semibold text-white text-base shrink-0"
+          className="w-10 h-10 rounded-[13px] bg-gradient-to-br from-emerald-400 to-emerald-700 flex items-center
+                     justify-center font-bold text-white text-base shrink-0 shadow-lg shadow-emerald-950/30 ring-1 ring-white/15"
         >
           C
         </div>
@@ -76,7 +77,10 @@ export function Sidebar() {
       </div>
 
       {/* ── Nav ──────────────────────────────────────────────────── */}
-      <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
+      <nav className="flex-1 overflow-y-auto py-5 px-2.5 sm:px-3 space-y-1">
+        <p className="hidden sm:block px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-400">
+          Workspace
+        </p>
         {navItems.map((item) => {
           const Icon   = item.icon;
           const active = isActive(item);
@@ -86,6 +90,7 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               title={item.label}
+              aria-current={active ? "page" : undefined}
               style={
                 active
                   ? {
@@ -95,8 +100,8 @@ export function Sidebar() {
                   : { color: "var(--ink-4)" }
               }
               className={clsx(
-                "relative flex items-center gap-3 px-3 py-2.5 rounded-[10px]",
-                "text-[14px] font-medium transition-all duration-150",
+                "relative flex items-center gap-3 px-3 py-2.5 rounded-xl",
+                "text-[13px] font-medium transition-all duration-200",
                 !active && "hover:bg-canvas-subtle"
               )}
             >
@@ -104,7 +109,7 @@ export function Sidebar() {
               {active && (
                 <span
                   className="absolute left-0 top-1/2 -translate-y-1/2
-                             w-[3px] h-5 rounded-r-full bg-accent"
+                             w-[3px] h-5 rounded-r-full bg-accent ring-1 ring-emerald-300/20"
                 />
               )}
 
@@ -136,7 +141,7 @@ export function Sidebar() {
       {/* ── Footer ───────────────────────────────────────────────── */}
       <div
         style={{ borderTop: "1px solid var(--line)" }}
-        className="shrink-0 px-2 pb-4 pt-3"
+        className="shrink-0 px-2.5 sm:px-3 pb-4 pt-3"
       >
         <button
           onClick={logout}

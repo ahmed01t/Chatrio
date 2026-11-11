@@ -3,9 +3,7 @@
 /**
  * Chatrio Dashboard — Live Store Overview
  *
- * Implements design-taste-frontend standards:
- * - Quiet panels, aligned figures, colour spent on data
- * - Warm canvas (#FAF8F5), oatmeal baseline (#EFE8E1), terracotta highlights (#EA580C)
+ * The overview uses live tenant-scoped service data and the Chatrio emerald theme.
  * - All numbers come from real API calls — zero hardcoded fallback figures
  */
 
@@ -128,16 +126,19 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-200">
+    <div className="space-y-6 sm:space-y-8">
 
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-5 border-b border-border" data-enter>
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink-900">
+          <p className="text-xs font-semibold uppercase tracking-widest text-accent mb-2">
+            Merchant workspace
+          </p>
+          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-ink-900">
             Store Overview
           </h1>
-          <p className="text-xs sm:text-sm text-ink-500 mt-1">
-            Live snapshot of your store's activity and conversations.
+          <p className="text-sm text-ink-500 mt-2">
+            A live view of conversations, orders, and store performance.
           </p>
         </div>
 
@@ -169,7 +170,7 @@ export default function DashboardPage() {
       )}
 
       {/* ── Main 2-column strip ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6" data-enter="1">
 
         {/* Left 7 cols: Overview Card (revenue chart) */}
         <div className="lg:col-span-7 quiet-panel p-6 card-taste flex flex-col">
@@ -353,7 +354,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── 4 KPI StatCards ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" data-enter="2">
         <StatCard
           title="Total Revenue"
           value={isLoading ? "—" : fmt(totalRevenue)}
@@ -389,7 +390,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Bottom: Conversations + Orders tables ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6" data-enter="3">
 
         {/* Left 2 cols */}
         <div className="lg:col-span-2 space-y-6">
