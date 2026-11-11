@@ -1,11 +1,7 @@
 "use client";
 
 /**
- * Navbar — tasteskill.dev inspired
- *
- * - Fixed, full-width, 68px tall, 1px hairline bottom border
- * - Opaque — no blur, no colour flip on scroll
- * - Theme toggle (sun/moon) right of notifications
+ * Merchant workspace header with store context, search, and account controls.
  */
 
 import React, { useState } from "react";

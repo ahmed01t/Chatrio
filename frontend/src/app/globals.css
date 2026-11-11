@@ -2,10 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/*
-  Fonts loaded via <link> in layout.tsx (avoids PostCSS @import ordering issues).
-  Tasteskill.dev design system — Instrument Serif + Inter, soft radius, terracotta accent.
-*/
+/* Fonts are loaded by the document head; keep this stylesheet local and token-led. */
 
 /* ═══════════════════════════════════════════════════════════════════════════
    DESIGN TOKENS — CSS custom properties
@@ -15,33 +12,33 @@
 
 :root {
   /* ── Grounds ─────────────────────────────────────────────────────── */
-  --g-main:    #FAFAF9;
-  --g-alt:     #F4F0EB;
+  --g-main:    #F5F6FA;
+  --g-alt:     #EEF0F6;
   --g-panel:   #FFFFFF;
-  --g-subtle:  #F2EFEB;
-  --g-muted:   #EDE8E2;
+  --g-subtle:  #F0F2F8;
+  --g-muted:   #E7E9F1;
 
   /* ── Ink ─────────────────────────────────────────────────────────── */
-  --ink:       #18181B;
-  --ink-2:     #27272A;
-  --ink-3:     #3F3F46;
-  --ink-4:     #52525B;
-  --ink-5:     #71717A;
-  --ink-6:     #A1A1AA;
-  --ink-7:     #D4D4D8;
-  --ink-8:     #E4E4E7;
+  --ink:       #171A2B;
+  --ink-2:     #282C42;
+  --ink-3:     #41465F;
+  --ink-4:     #5A6077;
+  --ink-5:     #747A90;
+  --ink-6:     #969BAD;
+  --ink-7:     #C6C9D4;
+  --ink-8:     #E0E2E9;
 
-  /* ── Accent (WhatsApp emerald) ────────────────────────────────────── */
-  --action:    #10B981;
-  --action-h:  #059669;
-  --action-p:  #047857;
-  --action-bg: #ECFDF5;
-  --action-sub:#D1FAE5;
+  /* ── Accent (brand indigo) ───────────────────────────────────────── */
+  --action:    #575BD8;
+  --action-h:  #484CC5;
+  --action-p:  #3C40AE;
+  --action-bg: #EEF0FF;
+  --action-sub:#DEE1FF;
 
   /* ── Hairline border (12% ink) ───────────────────────────────────── */
-  --line:      rgba(24, 24, 27, 0.12);
-  --line-s:    rgba(24, 24, 27, 0.07);
-  --line-h:    rgba(24, 24, 27, 0.20);
+  --line:      rgba(46, 52, 84, 0.12);
+  --line-s:    rgba(46, 52, 84, 0.07);
+  --line-h:    rgba(46, 52, 84, 0.20);
 
   /* ── Radius — soft scale ──────────────────────────────────────────── */
   --r-sm:  8px;
@@ -50,9 +47,9 @@
   --r-btn: 10px;
 
   /* ── Shadows ─────────────────────────────────────────────────────── */
-  --shadow-panel:    0 1px 2px 0 rgba(24,24,27,.04), 0 1px 10px -4px rgba(24,24,27,.06);
-  --shadow-card:     0 4px 16px -4px rgba(24,24,27,.08), 0 1px 2px 0 rgba(24,24,27,.03);
-  --shadow-elevated: 0 8px 24px -6px rgba(24,24,27,.10), 0 2px 4px 0 rgba(24,24,27,.04);
+  --shadow-panel:    0 1px 2px 0 rgba(31, 39, 76, .035), 0 8px 24px -12px rgba(31, 39, 76, .10);
+  --shadow-card:     0 8px 24px -12px rgba(31, 39, 76, .12), 0 2px 5px rgba(31, 39, 76, .035);
+  --shadow-elevated: 0 18px 48px -18px rgba(31, 39, 76, .18), 0 4px 10px rgba(31, 39, 76, .05);
 
   /* ── Layout rhythm ───────────────────────────────────────────────── */
   --nav:   68px;
@@ -68,33 +65,33 @@
 
 html.dark {
   /* ── Grounds ─────────────────────────────────────────────────────── */
-  --g-main:    #0B0D11;
-  --g-alt:     #10141B;
-  --g-panel:   #131720;
-  --g-subtle:  #1A202C;
-  --g-muted:   #222938;
+  --g-main:    #151721;
+  --g-alt:     #1A1D29;
+  --g-panel:   #202331;
+  --g-subtle:  #292D3D;
+  --g-muted:   #34394B;
 
   /* ── Ink (inverted zinc) ─────────────────────────────────────────── */
-  --ink:       #F4F4F5;
-  --ink-2:     #E4E4E7;
-  --ink-3:     #D4D4D8;
-  --ink-4:     #A1A1AA;
-  --ink-5:     #71717A;
-  --ink-6:     #52525B;
-  --ink-7:     #3F3F46;
-  --ink-8:     #27272A;
+  --ink:       #F4F4FA;
+  --ink-2:     #E1E3F0;
+  --ink-3:     #C8CBDE;
+  --ink-4:     #A4A8C1;
+  --ink-5:     #898EA9;
+  --ink-6:     #6C718D;
+  --ink-7:     #50556E;
+  --ink-8:     #373B51;
 
   /* ── Emerald accent tuned for dark surfaces ─────────────────────── */
-  --action:    #10B981;
-  --action-h:  #059669;
-  --action-p:  #047857;
-  --action-bg: rgba(16, 185, 129, 0.12);
-  --action-sub:rgba(16, 185, 129, 0.20);
+  --action:    #A0A3FF;
+  --action-h:  #B4B6FF;
+  --action-p:  #898DF2;
+  --action-bg: rgba(129, 134, 255, 0.14);
+  --action-sub:rgba(129, 134, 255, 0.22);
 
   /* ── Hairline border (12% white) ─────────────────────────────────── */
-  --line:      rgba(148, 163, 184, 0.14);
-  --line-s:    rgba(148, 163, 184, 0.08);
-  --line-h:    rgba(148, 163, 184, 0.24);
+  --line:      rgba(184, 188, 220, 0.14);
+  --line-s:    rgba(184, 188, 220, 0.08);
+  --line-h:    rgba(184, 188, 220, 0.24);
 
   /* ── Shadows (deeper, no warm cast) ─────────────────────────────── */
   --shadow-panel:    0 1px 2px 0 rgba(0,0,0,.20), 0 1px 10px -4px rgba(0,0,0,.30);
@@ -112,7 +109,7 @@ html, body { margin: 0; }
 body {
   background-color: var(--g-main);
   color: var(--ink);
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 16px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -129,7 +126,7 @@ body {
 /* Quiet panel */
 .quiet-panel {
   background:
-    linear-gradient(145deg, rgba(16, 185, 129, 0.025), transparent 42%),
+    linear-gradient(145deg, rgba(87, 91, 216, 0.035), transparent 48%),
     var(--g-panel);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
@@ -164,17 +161,17 @@ body {
 .canvas-glow {
   background:
     radial-gradient(ellipse 60% 50% at 10% 0%,
-      rgba(16, 185, 129, 0.06) 0%, transparent 70%),
+      rgba(87, 91, 216, 0.08) 0%, transparent 70%),
     radial-gradient(ellipse 50% 40% at 90% 100%,
-      rgba(14, 165, 233, 0.04) 0%, transparent 70%),
+      rgba(185, 154, 255, 0.06) 0%, transparent 70%),
     var(--g-main);
 }
 html.dark .canvas-glow {
   background:
     radial-gradient(ellipse 60% 50% at 10% 0%,
-      rgba(16, 185, 129, 0.11) 0%, transparent 70%),
+      rgba(123, 127, 245, 0.12) 0%, transparent 70%),
     radial-gradient(ellipse 50% 40% at 90% 100%,
-      rgba(14, 165, 233, 0.06) 0%, transparent 70%),
+      rgba(185, 154, 255, 0.08) 0%, transparent 70%),
     var(--g-main);
 }
 
@@ -200,7 +197,7 @@ html.dark .canvas-glow {
 
 /* Selection */
 ::selection {
-  background-color: rgba(16, 185, 129, 0.24);
+  background-color: rgba(87, 91, 216, 0.18);
   color: var(--ink);
 }
 
@@ -225,14 +222,14 @@ html.dark .canvas-glow {
 
 /* Display face */
 .display {
-  font-family: "Instrument Serif", Georgia, serif;
-  font-weight: 400;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  font-family: "Space Grotesk", "Manrope", sans-serif;
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
 }
 
-h1, h2 { letter-spacing: -0.025em; }
-h3, h4 { letter-spacing: -0.015em; }
+h1, h2 { font-family: "Space Grotesk", "Manrope", sans-serif; letter-spacing: -0.035em; }
+h3, h4 { letter-spacing: -0.02em; }
 
 /* Measure */
 .measure { max-width: 62ch; }
@@ -317,10 +314,10 @@ html.dark .text-emerald-600   { color: #34D399 !important; }
 html.dark .bg-amber-50   { background-color: rgba(217, 119, 6, 0.10) !important; }
 
 /* Keep the WhatsApp accent legible on obsidian surfaces. */
-html.dark .text-accent { color: #34D399 !important; }
-html.dark .hover\:text-accent-hover:hover { color: #6EE7B7 !important; }
-html.dark .bg-accent-light { background-color: rgba(16, 185, 129, 0.12) !important; }
-html.dark .bg-accent-subtle { background-color: rgba(16, 185, 129, 0.2) !important; }
+html.dark .text-accent { color: #B4B6FF !important; }
+html.dark .hover\:text-accent-hover:hover { color: #D0D1FF !important; }
+html.dark .bg-accent-light { background-color: rgba(129, 134, 255, 0.14) !important; }
+html.dark .bg-accent-subtle { background-color: rgba(129, 134, 255, 0.22) !important; }
 
 /* kbd shortcut chip */
 html.dark kbd {

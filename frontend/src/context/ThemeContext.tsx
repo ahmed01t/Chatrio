@@ -5,7 +5,7 @@
  *
  * Strategy:
  * - Persists to localStorage ("chatrio-theme")
- * - On first visit, respects system preference (prefers-color-scheme)
+ * - Uses the Chatrio light workspace theme by default
  * - Applies/removes "dark" class on <html> (Tailwind class-based dark mode)
  * - Smooth 200ms CSS transition on body/html (defined in globals.css)
  */
@@ -38,7 +38,7 @@ function getInitialTheme(): Theme {
   if (typeof window === "undefined") return "light";
   const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
   if (stored === "light" || stored === "dark") return stored;
-  return "dark";
+  return "light";
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -51,19 +51,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setThemeState(initial);
     applyTheme(initial);
     setMounted(true);
-  }, []);
-
-  /* Watch system preference changes */
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const handler = (e: MediaQueryListEvent) => {
-      // Only follow system if user hasn't manually set a preference
-      if (!localStorage.getItem(STORAGE_KEY)) {
-        setTheme(e.matches ? "dark" : "light");
-      }
-    };
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
   }, []);
 
   function applyTheme(t: Theme) {

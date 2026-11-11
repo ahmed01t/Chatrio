@@ -3,7 +3,7 @@ import type { Config } from "tailwindcss";
 /**
  * Chatrio design system
  *
- * Obsidian surfaces, emerald actions, high contrast text, and restrained motion.
+ * Soft slate surfaces, indigo actions, high contrast text, and restrained motion.
  */
 const config: Config = {
   content: [
@@ -17,50 +17,50 @@ const config: Config = {
       colors: {
         // ── Ground ──────────────────────────────────────────────────────────
         canvas: {
-          DEFAULT: "#FAFAF9",   // main ground — tasteskill warm white
-          warm:    "#FFF8F4",   // ambient warm tint
-          subtle:  "#F4F0EB",   // section alt ground
+          DEFAULT: "#F5F6FA",
+          warm:    "#EFF0F8",
+          subtle:  "#F0F2F8",
         },
         panel: {
-          DEFAULT: "#FFFFFF",   // quiet panels (cards, tables)
-          muted:   "#F9F7F4",   // muted panel variant
+          DEFAULT: "#FFFFFF",
+          muted:   "#F7F8FC",
         },
 
         // ── Ink (near-black, warm, never pure #000) ──────────────────────
         ink: {
-          900: "#18181B",  // primary text, headings
-          800: "#27272A",  // secondary headings
-          700: "#3F3F46",  // body
-          600: "#52525B",  // secondary body
-          500: "#71717A",  // muted / labels
-          400: "#A1A1AA",  // placeholder
-          300: "#D4D4D8",  // dividers
-          200: "#E4E4E7",  // hairlines
-          100: "#F4F4F5",  // subtle bg
+          900: "#171A2B",
+          800: "#282C42",
+          700: "#41465F",
+          600: "#5A6077",
+          500: "#747A90",
+          400: "#969BAD",
+          300: "#C6C9D4",
+          200: "#E0E2E9",
+          100: "#F0F2F8",
         },
 
         // ── Border — 12-15% ink ─────────────────────────────────────────
         border: {
-          DEFAULT: "#E6E0D8",   // standard hairline
-          subtle:  "#EDE8E2",   // very light
-          strong:  "#D5CEC5",   // emphasis
+          DEFAULT: "#DFE2EC",
+          subtle:  "#EAECF3",
+          strong:  "#C9CDE0",
         },
 
-        // ── Accent — WhatsApp emerald ─────────────────────────────────────
+        // ── Accent — confident indigo ────────────────────────────────────
         accent: {
-          DEFAULT: "#10B981",   // WhatsApp emerald primary action
-          hover:   "#059669",
-          press:   "#047857",
-          light:   "#D1FAE5",
-          subtle:  "#A7F3D0",
-          muted:   "#34D399",
+          DEFAULT: "#575BD8",
+          hover:   "#484CC5",
+          press:   "#3C40AE",
+          light:   "#EEF0FF",
+          subtle:  "#DEE1FF",
+          muted:   "#7E82ED",
         },
 
         // ── Oatmeal — baseline bars, table stripes ───────────────────────
         oatmeal: {
-          DEFAULT: "#EDE6DC",
-          light:   "#F5F0E8",
-          dark:    "#DDD3C5",
+          DEFAULT: "#E5E7F0",
+          light:   "#F0F2F8",
+          dark:    "#D4D7E5",
         },
 
         // ── Data colours (used sparingly) ───────────────────────────────
@@ -74,16 +74,15 @@ const config: Config = {
         },
       },
 
-      // ── Type pairing (tasteskill.dev: Instrument Serif + Inter) ─────────
+      // ── Type pairing: Space Grotesk display + Manrope interface ────────
       fontFamily: {
         display: [
-          "Instrument Serif",
-          "Georgia",
-          "Times New Roman",
-          "serif",
+          "Space Grotesk",
+          "Manrope",
+          "sans-serif",
         ],
         sans: [
-          "Inter",
+          "Manrope",
           "-apple-system",
           "BlinkMacSystemFont",
           "Segoe UI",
@@ -91,7 +90,7 @@ const config: Config = {
           "sans-serif",
         ],
         mono: [
-          "JetBrains Mono",
+          "IBM Plex Mono",
           "Fira Code",
           "ui-monospace",
           "SFMono-Regular",
@@ -129,8 +128,8 @@ const config: Config = {
         card:     "0 4px 16px -4px rgba(24, 24, 27, 0.08), 0 1px 2px 0 rgba(24, 24, 27, 0.03)",
         elevated: "0 8px 24px -6px rgba(24, 24, 27, 0.10), 0 2px 4px 0 rgba(24, 24, 27, 0.04)",
         // Emerald focus / glow
-        glow:     "0 0 0 3px rgba(16, 185, 129, 0.18)",
-        focus:    "0 0 0 2px #0B0D11, 0 0 0 4px #10B981",
+        glow:     "0 0 0 3px rgba(87, 91, 216, 0.18)",
+        focus:    "0 0 0 2px #FFFFFF, 0 0 0 4px #575BD8",
       },
 
       // ── Keyframe animations ──────────────────────────────────────────

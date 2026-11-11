@@ -55,8 +55,8 @@ export function Sidebar() {
         className="h-[68px] flex items-center px-3 sm:px-5 gap-3 shrink-0"
       >
         <div
-          className="w-10 h-10 rounded-[13px] bg-gradient-to-br from-emerald-400 to-emerald-700 flex items-center
-                     justify-center font-bold text-white text-base shrink-0 shadow-lg shadow-emerald-950/30 ring-1 ring-white/15"
+          className="w-10 h-10 rounded-[13px] bg-gradient-to-br from-indigo-500 to-violet-700 flex items-center
+                     justify-center font-bold text-white text-base shrink-0 shadow-lg shadow-indigo-950/20 ring-1 ring-white/25"
         >
           C
         </div>
@@ -109,7 +109,7 @@ export function Sidebar() {
               {active && (
                 <span
                   className="absolute left-0 top-1/2 -translate-y-1/2
-                             w-[3px] h-5 rounded-r-full bg-accent ring-1 ring-emerald-300/20"
+                             w-[3px] h-5 rounded-r-full bg-accent ring-1 ring-violet-300/30"
                 />
               )}
 

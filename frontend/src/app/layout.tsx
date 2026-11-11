@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import "@astryxdesign/core/reset.css";
-import "@astryxdesign/core/astryx.css";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
@@ -20,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* tasteskill.dev font pairing: Instrument Serif + Inter */}
+        {/* Modern interface type: Manrope for UI, Space Grotesk for headings */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
@@ -28,7 +26,7 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
       </head>

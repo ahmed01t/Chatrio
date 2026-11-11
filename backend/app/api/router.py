@@ -10,12 +10,14 @@ from app.modules.conversations.router import router as conversations_router
 from app.modules.customers.router import router as customers_router
 from app.modules.messaging.router import router as messaging_router
 from app.modules.orders.router import router as orders_router
+from app.modules.organizations.router import router as organizations_router
 from app.modules.products.router import router as products_router
 
 api_v1_router = APIRouter()
 
 # Mount module routers
 api_v1_router.include_router(auth_router)
+api_v1_router.include_router(organizations_router)
 api_v1_router.include_router(products_router)
 api_v1_router.include_router(customers_router)
 api_v1_router.include_router(conversations_router)

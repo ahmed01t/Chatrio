@@ -5,14 +5,10 @@ import { usePathname } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { Navbar } from "./Navbar";
 import { useAuth } from "@/context/AuthContext";
-import { Theme } from "@astryxdesign/core/theme";
-import { defaultThemeSlug, themes } from "@/astryx-themes";
-import { useTheme } from "@/context/ThemeContext";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname  = usePathname();
   const { isLoading } = useAuth();
-  const { theme } = useTheme();
   const isAuthPage =
     pathname.startsWith("/login") || pathname.startsWith("/register");
 
@@ -58,9 +54,5 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  return (
-    <Theme theme={themes[defaultThemeSlug]} mode={theme}>
-      {content}
-    </Theme>
-  );
+  return content;
 }

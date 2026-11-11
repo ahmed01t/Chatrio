@@ -3,7 +3,7 @@
 /**
  * Chatrio Dashboard — Live Store Overview
  *
- * The overview uses live tenant-scoped service data and the Chatrio emerald theme.
+ * The overview uses live tenant-scoped service data and the Chatrio indigo theme.
  * - All numbers come from real API calls — zero hardcoded fallback figures
  */
 
@@ -169,8 +169,44 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Snapshot metrics come first so merchants can scan performance immediately. */}
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4" data-enter="1">
+        <StatCard
+          title="Total Revenue"
+          value={isLoading ? "—" : fmt(totalRevenue)}
+          trend={isLoading ? "" : `${paidOrders.length} paid orders`}
+          trendType="success"
+          subtitle="Collected this period"
+          icon={<DollarSign className="w-4 h-4 text-emerald-600" />}
+        />
+        <StatCard
+          title="Active Chats"
+          value={isLoading ? "—" : activeConvCount}
+          trend={isLoading ? "" : `${conversations.length} total`}
+          trendType="terracotta"
+          subtitle="Open conversations"
+          icon={<MessageSquare className="w-4 h-4 text-accent" />}
+        />
+        <StatCard
+          title="Pending Orders"
+          value={isLoading ? "—" : pendingCount}
+          trend={pendingCount > 0 ? "Needs attention" : "All clear"}
+          trendType={pendingCount > 0 ? "warning" : "success"}
+          subtitle="Awaiting fulfilment"
+          icon={<Package className="w-4 h-4 text-amber-600" />}
+        />
+        <StatCard
+          title="Customers"
+          value={isLoading ? "—" : (totalCustomers ?? 0).toLocaleString()}
+          trend={aiRate !== null ? `${aiRate}% AI handled` : ""}
+          trendType="terracotta"
+          subtitle="Registered in your store"
+          icon={<Users className="w-4 h-4 text-accent" />}
+        />
+      </div>
+
       {/* ── Main 2-column strip ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6" data-enter="1">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6" data-enter="2">
 
         {/* Left 7 cols: Overview Card (revenue chart) */}
         <div className="lg:col-span-7 quiet-panel p-6 card-taste flex flex-col">
@@ -351,42 +387,6 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* ── 4 KPI StatCards ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" data-enter="2">
-        <StatCard
-          title="Total Revenue"
-          value={isLoading ? "—" : fmt(totalRevenue)}
-          trend={isLoading ? "" : `${paidOrders.length} paid orders`}
-          trendType="success"
-          subtitle="Collected this period"
-          icon={<DollarSign className="w-4 h-4 text-emerald-600" />}
-        />
-        <StatCard
-          title="Active Chats"
-          value={isLoading ? "—" : activeConvCount}
-          trend={isLoading ? "" : `${conversations.length} total`}
-          trendType="terracotta"
-          subtitle="Open conversations"
-          icon={<MessageSquare className="w-4 h-4 text-accent" />}
-        />
-        <StatCard
-          title="Pending Orders"
-          value={isLoading ? "—" : pendingCount}
-          trend={pendingCount > 0 ? "Needs attention" : "All clear"}
-          trendType={pendingCount > 0 ? "warning" : "success"}
-          subtitle="Awaiting fulfilment"
-          icon={<Package className="w-4 h-4 text-amber-600" />}
-        />
-        <StatCard
-          title="Customers"
-          value={isLoading ? "—" : (totalCustomers ?? 0).toLocaleString()}
-          trend={aiRate !== null ? `${aiRate}% AI handled` : ""}
-          trendType="terracotta"
-          subtitle="Registered in your store"
-          icon={<Users className="w-4 h-4 text-accent" />}
-        />
       </div>
 
       {/* ── Bottom: Conversations + Orders tables ── */}

@@ -1,5 +1,5 @@
 /**
- * StatCard — tasteskill.dev aligned-figures style, dark-mode aware
+ * StatCard — compact commerce metric card, light and dark theme aware
  */
 import React from "react";
 
