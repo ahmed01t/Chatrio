@@ -211,9 +211,7 @@ class OrganizationService:
                 OrganizationMember.organization_id == organization_id,
                 OrganizationMember.user_id == user.id,
             )
-            existing_member = (
-                await session.execute(existing_member_stmt)
-            ).scalar_one_or_none()
+            existing_member = (await session.execute(existing_member_stmt)).scalar_one_or_none()
             if existing_member is not None:
                 raise ConflictException(
                     code="MEMBER_ALREADY_EXISTS",

@@ -15,6 +15,7 @@ import {
   ShoppingCart,
   Users,
   Bot,
+  Building2,
   Settings,
   LogOut,
 } from "lucide-react";
@@ -22,13 +23,14 @@ import { clsx } from "clsx";
 import { useAuth } from "@/context/AuthContext";
 
 const navItems = [
-  { label: "Overview",   href: "/",          icon: LayoutDashboard, exact: true },
-  { label: "Inbox",      href: "/inbox",      icon: MessageSquare,   badge: "LIVE" },
-  { label: "Products",   href: "/products",   icon: Package   },
-  { label: "Orders",     href: "/orders",     icon: ShoppingCart },
-  { label: "Customers",  href: "/customers",  icon: Users     },
-  { label: "AI Agent",   href: "/agent",      icon: Bot       },
-  { label: "Settings",   href: "/settings",   icon: Settings  },
+  { label: "Overview",     href: "/",             icon: LayoutDashboard, exact: true },
+  { label: "Inbox",        href: "/inbox",        icon: MessageSquare,   badge: "LIVE" },
+  { label: "Products",     href: "/products",     icon: Package   },
+  { label: "Orders",       href: "/orders",       icon: ShoppingCart },
+  { label: "Customers",    href: "/customers",    icon: Users     },
+  { label: "AI Agent",     href: "/agent",        icon: Bot       },
+  { label: "Organization", href: "/organization", icon: Building2 },
+  { label: "Settings",     href: "/settings",     icon: Settings  },
 ];
 
 export function Sidebar() {

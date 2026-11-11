@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { OrganizationRead, UserRead } from "@/types";
 import { authService, RegisterPayload } from "@/services/auth.service";
 
@@ -12,6 +12,7 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<void>;
   register: (payload: RegisterPayload) => Promise<void>;
   logout: () => void;
+  updateOrganizationState: (org: OrganizationRead) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -69,6 +70,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updateOrganizationState = useCallback((org: OrganizationRead) => {
+    setOrganization(org);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("chatrio_org", JSON.stringify(org));
+    }
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -79,6 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         register,
         logout,
+        updateOrganizationState,
       }}
     >
       {children}

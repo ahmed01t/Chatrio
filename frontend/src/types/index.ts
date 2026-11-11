@@ -37,10 +37,56 @@ export interface AuthResponse {
   organization: OrganizationRead;
 }
 
+export type MemberRole = "OWNER" | "ADMIN" | "AGENT" | "VIEWER";
+
+export interface OrganizationDetailRead extends OrganizationRead {
+  member_count: number;
+  current_user_role: MemberRole;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrganizationUpdate {
+  name?: string;
+  slug?: string;
+}
+
+export interface OrganizationMemberRead {
+  id: string;
+  organization_id: string;
+  user_id: string;
+  email: string;
+  full_name: string;
+  is_active: boolean;
+  role: MemberRole;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MemberListResponse {
+  items: OrganizationMemberRead[];
+  total: number;
+}
+
+export interface MemberAddRequest {
+  email: string;
+  role: MemberRole;
+  full_name?: string;
+  password?: string;
+}
+
+export interface MemberRoleUpdate {
+  role: MemberRole;
+}
+
 export interface UserProfileResponse {
-  user: UserRead;
-  organization: OrganizationRead;
-  role: "OWNER" | "ADMIN" | "AGENT" | "VIEWER";
+  id: string;
+  email: string;
+  full_name: string;
+  is_active: boolean;
+  organization_id: string;
+  organization_name: string;
+  role: MemberRole;
 }
 
 // =============================================================================

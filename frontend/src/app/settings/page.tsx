@@ -9,6 +9,7 @@
  */
 
 import React, { useState } from "react";
+import Link from "next/link";
 import {
   Settings,
   Store,
@@ -18,6 +19,7 @@ import {
   Save,
   CheckCircle2,
   Copy,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -73,10 +75,18 @@ export default function SettingsPage() {
       <form onSubmit={handleSave} className="space-y-6">
         {/* Store Profile Card */}
         <div className="quiet-panel p-5 card-taste space-y-4">
-          <h3 className="text-sm font-bold text-ink-900 tracking-tight flex items-center gap-2">
-            <Store className="w-4 h-4 text-accent" />
-            <span>Store Profile &amp; Currency</span>
-          </h3>
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-sm font-bold text-ink-900 tracking-tight flex items-center gap-2">
+              <Store className="w-4 h-4 text-accent" />
+              <span>Store Profile &amp; Currency</span>
+            </h3>
+            <Link href="/organization">
+              <Button type="button" variant="secondary" size="sm">
+                <Users className="w-3.5 h-3.5" />
+                <span>Manage Organization &amp; Team</span>
+              </Button>
+            </Link>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input

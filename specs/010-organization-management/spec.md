@@ -77,3 +77,4 @@ Provide full **Organization & Team Member Management** across the Chatrio backen
 - Displays Organization Profile editor (Name, Slug, Workspace ID) for `OWNER`/`ADMIN`, and read-only view for `AGENT`/`VIEWER`.
 - Displays KPI summary cards (Total Members, Owners & Admins, Support Agents, Viewers).
 - Displays searchable/filterable team members table with live role management, "Add Member" modal, and "Remove Member" confirmation modal.
+
