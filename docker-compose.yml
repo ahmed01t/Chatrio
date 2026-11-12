@@ -1,0 +1,124 @@
+# ==============================================================================
+# Chatrio — Full-Stack Application Orchestration (Docker Compose)
+# ==============================================================================
+# This master Docker Compose file defines and coordinates all 4 tiers of the
+# Chatrio architecture:
+#   1. postgres: PostgreSQL 16 database with the pgvector AI extension
+#   2. redis: Redis 7 in-memory store for 2.0s message debouncing & queues
+#   3. backend: FastAPI + LangGraph AI conversational commerce engine
+#   4. frontend: Next.js 15+ merchant dashboard & shared inbox
+#
+# Usage:
+#   docker compose up -d --build    (Build and launch all services in background)
+#   docker compose ps               (Check running containers and health status)
+#   docker compose logs -f          (Stream logs from all services in real time)
+#   docker compose down             (Gracefully stop all containers)
+# ==============================================================================
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. PostgreSQL 16 (Relational & AI Vector Database)
+  # ----------------------------------------------------------------------------
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: chatrio-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "Ahmed123"
+      POSTGRES_DB: chatrio_db
+    ports:
+      # Host:Container port mapping
+      # Port 5433 on host avoids conflicts with local Windows PostgreSQL instances
+      - "5433:5432"
+    volumes:
+      # Persistent storage ensures data survives container stops and updates
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d chatrio_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - chatrio-network
+
+  # ----------------------------------------------------------------------------
+  # 2. Redis 7 (In-Memory Queue & 2.0s Debounce Buffer)
+  # ----------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: chatrio-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - chatrio-network
+
+  # ----------------------------------------------------------------------------
+  # 3. Backend (FastAPI + LangGraph AI Engine)
+  # ----------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: chatrio-backend
+    restart: unless-stopped
+    environment:
+      - APP_NAME=Chatrio API
+      - ENVIRONMENT=production
+      - DEBUG=False
+      # Internal Docker network hostname 'postgres' on standard port 5432
+      - DATABASE_URL=postgresql+asyncpg://postgres:Ahmed123@postgres:5432/chatrio_db
+      # Internal Docker network hostname 'redis'
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=chatrio-super-secure-production-key-change-in-prod-32chars
+      - ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - chatrio-network
+
+  # ----------------------------------------------------------------------------
+  # 4. Frontend (Next.js 15+ Merchant Dashboard)
+  # ----------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: chatrio-frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - chatrio-network
+
+# ==============================================================================
+# Persistent Named Storage & Network
+# ==============================================================================
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  chatrio-network:
+    driver: bridge
+

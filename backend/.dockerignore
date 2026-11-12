@@ -1,0 +1,30 @@
+# Git & Version Control
+.git
+.gitignore
+
+# Python virtual environment & bytecode
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+
+# Testing & Linting cache
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local configuration & environment variables
+.env
+.env.local
+.env.*.local
+*.log
+
+# Docker & IDE
+.dockerignore
+Dockerfile
+.idea/
+.vscode/
+
