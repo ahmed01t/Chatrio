@@ -32,6 +32,9 @@ function localDateKey(date: Date): string {
 interface DayTotal {
   label: string;
   value: number;
+  whatsapp: number;
+  instagram: number;
+  other: number;
   fullDate: string;
 }
 
@@ -75,13 +78,13 @@ function formatRelativeDate(value: string): string {
 
 function makeDayTotals(orders: OrderRead[], period: Period): DayTotal[] {
   const today = new Date();
-  const totals = new Map<string, number>();
+  const totals = new Map<string, Omit<DayTotal, "label" | "fullDate">>();
   const days = Array.from({ length: period }, (_, index) => {
     const date = new Date(today);
     date.setHours(0, 0, 0, 0);
     date.setDate(today.getDate() - (period - index - 1));
     const key = localDateKey(date);
-    totals.set(key, 0);
+    totals.set(key, { value: 0, whatsapp: 0, instagram: 0, other: 0 });
     return {
       key,
       label: new Intl.DateTimeFormat(undefined, { weekday: period === 7 ? "short" : undefined, day: period === 30 ? "numeric" : undefined }).format(date),
@@ -94,10 +97,21 @@ function makeDayTotals(orders: OrderRead[], period: Period): DayTotal[] {
     const date = new Date(order.created_at);
     if (Number.isNaN(date.getTime())) continue;
     const key = localDateKey(date);
-    if (totals.has(key)) totals.set(key, (totals.get(key) ?? 0) + Number(order.total_amount));
+    const total = totals.get(key);
+    if (!total) continue;
+    const amount = Number(order.total_amount);
+    total.value += amount;
+    const orderChannel = channelOf(order.channel);
+    if (orderChannel === "WHATSAPP") total.whatsapp += amount;
+    else if (orderChannel === "INSTAGRAM") total.instagram += amount;
+    else total.other += amount;
   }
 
-  return days.map(({ key, label, fullDate }) => ({ label, fullDate, value: totals.get(key) ?? 0 }));
+  return days.map(({ key, label, fullDate }) => ({
+    label,
+    fullDate,
+    ...(totals.get(key) ?? { value: 0, whatsapp: 0, instagram: 0, other: 0 }),
+  }));
 }
 
 function getActivity(orders: OrderRead[], conversations: ConversationRead[], channel: Channel): Activity[] {
@@ -186,10 +200,10 @@ export default function DashboardPage(): React.JSX.Element {
   const number = (value: number | null): string => (value === null ? "—" : value.toLocaleString());
 
   const stats = [
-    { label: "Orders", value: number(orderCount), icon: ShoppingBag, note: "All time" },
-    { label: "Conversations", value: number(conversationCount), icon: MessageCircle, note: "Across channels" },
-    { label: "Customers", value: number(customerCount), icon: UsersRound, note: "In your store" },
-    { label: "Needs fulfillment", value: number(pendingCount), icon: PackagePlus, note: "Pending orders", urgent: (pendingCount ?? 0) > 0 },
+    { label: "Orders", value: number(orderCount), icon: ShoppingBag, note: "All time", tone: "other" },
+    { label: "Conversations", value: number(conversationCount), icon: MessageCircle, note: "Across channels", tone: "whatsapp" },
+    { label: "Customers", value: number(customerCount), icon: UsersRound, note: "In your store", tone: "instagram" },
+    { label: "Needs fulfillment", value: number(pendingCount), icon: PackagePlus, note: "Pending orders", urgent: (pendingCount ?? 0) > 0, tone: "attention" },
   ];
 
   return (
@@ -220,8 +234,8 @@ export default function DashboardPage(): React.JSX.Element {
       )}
 
       <section className={styles.stats} aria-label="Store totals">
-        {stats.map(({ label, value, icon: Icon, note, urgent }) => (
-          <div className={styles.stat} key={label}>
+        {stats.map(({ label, value, icon: Icon, note, urgent, tone }) => (
+          <div className={styles.stat} key={label} data-tone={tone}>
             <div className={styles.statHead}>
               <span>{label}</span>
               <Icon size={17} aria-hidden="true" />
@@ -255,10 +269,13 @@ export default function DashboardPage(): React.JSX.Element {
             {chartData.map((day, index) => (
               <div className={styles.barColumn} key={`${day.fullDate}-${index}`} title={`${day.fullDate}: ${formatMoney(day.value, currency)}`}>
                 <div className={styles.barTrack}>
-                  <div
-                    className={day.value > 0 ? styles.barFill : styles.barEmpty}
-                    style={{ height: `${day.value > 0 ? Math.max(5, (day.value / maxChartValue) * 100) : 2}%` }}
-                  />
+                  {day.value === 0 ? <div className={styles.barEmpty} /> : (
+                    <div className={styles.barStack}>
+                      {day.whatsapp > 0 && <span className={styles.barWhatsApp} style={{ height: `${(day.whatsapp / maxChartValue) * 100}%` }} />}
+                      {day.instagram > 0 && <span className={styles.barInstagram} style={{ height: `${(day.instagram / maxChartValue) * 100}%` }} />}
+                      {day.other > 0 && <span className={styles.barOther} style={{ height: `${(day.other / maxChartValue) * 100}%` }} />}
+                    </div>
+                  )}
                 </div>
                 {(period === 7 || index % 5 === 0 || index === chartData.length - 1) && <span>{day.label}</span>}
               </div>
@@ -267,6 +284,13 @@ export default function DashboardPage(): React.JSX.Element {
           <div className={styles.chartFoot}>
             <span>Paid order value by day</span>
             <span>{period} day view</span>
+          </div>
+          <div className={styles.chartLegend} role="list" aria-label="Order channels">
+            {(channel === "ALL" ? ["WHATSAPP", "INSTAGRAM", "OTHER"] : [channel]).map((item) => (
+              <span key={item} data-channel={item.toLowerCase()} role="listitem">
+                <i aria-hidden="true" />{item === "OTHER" ? "Other" : item === "WHATSAPP" ? "WhatsApp" : "Instagram"}
+              </span>
+            ))}
           </div>
         </div>
 
@@ -280,7 +304,7 @@ export default function DashboardPage(): React.JSX.Element {
           </div>
           <div className={styles.channelFilters} role="group" aria-label="Filter activity by channel">
             {(["ALL", "WHATSAPP", "INSTAGRAM"] as const).map((option) => (
-              <button key={option} type="button" aria-pressed={channel === option} onClick={() => setChannel(option)}>
+              <button key={option} type="button" data-channel={option.toLowerCase()} aria-pressed={channel === option} onClick={() => setChannel(option)}>
                 {option === "ALL" ? "All channels" : option === "WHATSAPP" ? "WhatsApp" : "Instagram"}
               </button>
             ))}

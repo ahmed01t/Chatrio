@@ -26,7 +26,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           {icon && (
             <div
               className="absolute left-3 flex items-center pointer-events-none"
-              style={{ color: "var(--ink-6)" }}
+              style={{ color: "var(--field-icon, var(--ink-6))" }}
             >
               {icon}
             </div>
@@ -35,14 +35,14 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             style={{
               backgroundColor: "var(--g-panel)",
-              borderColor: error ? undefined : "var(--line)",
+              borderColor: error ? undefined : "var(--field-border, var(--line))",
               color: "var(--ink)",
             }}
             className={twMerge(
               clsx(
                 "w-full h-10 border rounded-[10px]",
                 "text-[14px] placeholder:text-ink-400",
-                "transition-all duration-150",
+                "transition-colors duration-150",
                 "focus:outline-none focus:ring-2 focus:ring-accent/20",
                 icon ? "pl-9 pr-3.5" : "px-3.5",
                 error && "border-rose-400 focus:border-rose-400",
@@ -50,10 +50,10 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               )
             )}
             onFocus={(e) => {
-              if (!error) e.currentTarget.style.borderColor = "var(--action)";
+              if (!error) e.currentTarget.style.borderColor = "var(--field-focus, var(--action))";
             }}
             onBlur={(e) => {
-              if (!error) e.currentTarget.style.borderColor = "var(--line)";
+              if (!error) e.currentTarget.style.borderColor = "var(--field-border, var(--line))";
             }}
             {...props}
           />

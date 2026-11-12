@@ -4,6 +4,32 @@
   "shape": "app screen",
   "theme": "Ultraviolet (deal 3/3; Chatrio palette retained)",
   "axes": "light/geometric-sans/cool",
+  "hero": "tinted store overview header and live order totals",
+  "nav": "workspace shell and channel filters",
+  "footer": "activity links and chart legend",
+  "imagery": "data-backed multichannel chart and auth conversation preview",
+  "photos": [],
+  "entry": "frontend/src/app/page.tsx",
+  "fingerprint": "chatrio-interactive-channel-colours",
+  "sections": [
+   "tinted dashboard header",
+   "channel-colored order chart",
+   "active channel filters",
+   "colored auth fields and preview"
+  ],
+  "signature": "WhatsApp and Instagram color-coded paid order activity",
+  "waived": [
+   "74: established Chatrio accent token retained per pre-flight"
+  ],
+  "prompt": "Add interactive colors to login and signup and make the dashboard background more attractive.",
+  "date": "2026-11-12",
+  "mode": "build"
+ },
+ {
+  "scope": "app",
+  "shape": "app screen",
+  "theme": "Ultraviolet (deal 3/3; Chatrio palette retained)",
+  "axes": "light/geometric-sans/cool",
   "hero": "responsive auth composition with conversation preview",
   "nav": "workspace sidebar and route-aware top bar",
   "footer": "auth links and application navigation",

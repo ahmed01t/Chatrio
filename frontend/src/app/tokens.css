@@ -13,9 +13,23 @@
   --color-rule: var(--line); --color-rule-2: var(--line-h);
   --color-accent: var(--action); --color-accent-deep: var(--action-h); --color-accent-soft: var(--action-bg);
   --color-accent-ink: #F4F4FA; --color-focus: var(--action);
+  --color-accent-ink-dark: #151721;
   --font-display: "Space Grotesk", "Manrope", ui-sans-serif, system-ui, sans-serif; --font-body: "Manrope", ui-sans-serif, system-ui, sans-serif;
   --font-outlier: "IBM Plex Mono", ui-monospace, monospace;
   --radius-card: var(--r-lg); --radius-pill: 999px; --rule-hair: 1px;
   --shadow-card: var(--shadow-panel);
   --tracking-display: -0.03em; --display-weight: 600;
+  --channel-whatsapp: #137653; --channel-whatsapp-soft: #E8F4ED;
+  --channel-instagram: #9A3F73; --channel-instagram-soft: #F7ECF2;
+  --channel-other: #3C629C; --channel-other-soft: #EAF0F8;
+  --channel-attention: #94621B;
+}
+
+html.dark {
+  color-scheme: dark;
+  --color-accent-ink: var(--color-accent-ink-dark);
+  --channel-whatsapp: #73D6A3; --channel-whatsapp-soft: #19392B;
+  --channel-instagram: #E0A0C1; --channel-instagram-soft: #392332;
+  --channel-other: #9BB9EA; --channel-other-soft: #253348;
+  --channel-attention: #E8C073;
 }

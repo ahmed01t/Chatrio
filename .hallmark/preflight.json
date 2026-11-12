@@ -2,12 +2,12 @@
   "scanned": "2026-11-13",
   "findings": {
     "fonts": "Manrope body and Space Grotesk display via existing app styles",
-    "palette": "Chatrio light and dark CSS token sets",
+    "palette": "Chatrio light and dark CSS token sets, with channel-specific tokens for WhatsApp and Instagram",
     "motion": "CSS transitions and keyframes; reduced motion support present",
     "spacing": "Tailwind spacing utilities and CSS token scale",
     "framework": "Next.js 16 App Router",
     "brand_asset": "No official Chatrio logo file found; existing C monogram only"
   },
   "preserve": ["font stack", "light/dark palette", "tenant-scoped service calls", "existing routes"],
-  "introduce": ["dashboard overview composition", "channel and period controls", "scoped activity feed", "route-aware navigation header", "shared authentication background", "proposed conversation mark", "post-login welcome transition"]
+  "introduce": ["dashboard overview composition", "channel and period controls", "channel-colored paid-order chart", "scoped activity feed", "route-aware navigation header", "shared authentication background", "interactive channel accents", "proposed conversation mark", "post-login welcome transition"]
 }

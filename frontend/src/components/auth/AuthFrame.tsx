@@ -1,5 +1,5 @@
 import type { JSX, ReactNode } from "react";
-import { PackageSearch } from "lucide-react";
+import { Instagram, MessageCircle, PackageSearch } from "lucide-react";
 import { BrandMark } from "@/components/brand/BrandMark";
 import styles from "./AuthFrame.module.css";
 
@@ -24,6 +24,10 @@ export function AuthFrame({ children }: AuthFrameProps): JSX.Element {
 
           <div className={styles.preview}>
             <p className={styles.previewLabel}>Example conversation</p>
+            <div className={styles.channels} role="list" aria-label="Supported message channels">
+              <span data-channel="whatsapp" role="listitem"><MessageCircle size={14} />WhatsApp</span>
+              <span data-channel="instagram" role="listitem"><Instagram size={14} />Instagram</span>
+            </div>
             <div className={styles.customerMessage}>Do you have the espresso blend today?</div>
             <div className={styles.assistantMessage}>I’ll check the current catalog for you.</div>
             <div className={styles.previewRule} />
