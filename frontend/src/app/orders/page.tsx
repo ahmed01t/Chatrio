@@ -14,7 +14,7 @@
  *   - POST  /api/v1/orders/{id}/cancel   (ordersService.cancelOrder)
  */
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import {
   Search,
   MapPin,
@@ -32,6 +32,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { OrderRead, OrderItemRead, OrderStatus } from "@/types";
 import { ordersService } from "@/services/orders.service";
+import styles from "./orders.module.css";
 
 /* ─────────────────────────── icons ────────────────────────────── */
 
@@ -60,6 +61,21 @@ function getOrderChannel(order: OrderRead): "WHATSAPP" | "INSTAGRAM" | "OTHER" {
   return "WHATSAPP";
 }
 
+function formatOrderMoney(value: number | string, currency: string): string {
+  const amount = Number(value);
+  try {
+    return new Intl.NumberFormat(undefined, { style: "currency", currency }).format(amount);
+  } catch {
+    return `${currency} ${amount.toFixed(2)}`;
+  }
+}
+
+function formatOrderDate(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Date unavailable";
+  return new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(date);
+}
+
 export default function OrdersPage() {
   const [orders, setOrders] = useState<OrderRead[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<OrderRead | null>(null);
@@ -69,6 +85,8 @@ export default function OrdersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const selectedOrderId = selectedOrder?.id;
 
   const fetchOrders = useCallback(async () => {
     setIsLoading(true);
@@ -93,6 +111,20 @@ export default function OrdersPage() {
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
+
+  useEffect(() => {
+    if (!selectedOrderId) return;
+    const previousFocus = document.activeElement;
+    dialogRef.current?.focus();
+    const handleKeyDown = (event: KeyboardEvent): void => {
+      if (event.key === "Escape") setSelectedOrder(null);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      if (previousFocus instanceof HTMLElement) previousFocus.focus();
+    };
+  }, [selectedOrderId]);
 
   const handleUpdateStatus = async (newStatus: OrderStatus) => {
     if (!selectedOrder) return;
@@ -346,140 +378,133 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      {/* Slide-over Order Detail Drawer */}
+      {/* Centered Order Detail Dialog */}
       {selectedOrder && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          <div
-            className="fixed inset-0 bg-ink-900/40 backdrop-blur-sm"
+        <div className={styles.detailOverlay}>
+          <button
+            type="button"
+            className={styles.detailBackdrop}
+            aria-label="Close order details"
             onClick={() => setSelectedOrder(null)}
           />
-          <div className="relative w-full max-w-md bg-white dark:bg-canvas-card border-l border-border shadow-2xl h-full flex flex-col z-10 p-6 overflow-y-auto">
-            {/* Drawer Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-border">
-              <div>
-                <h3 className="text-base font-bold text-ink-900 font-mono flex items-center gap-2">
-                  <Package className="w-4 h-4 text-accent" />
-                  <span>{selectedOrder.order_number}</span>
-                </h3>
-                <p className="text-xs text-ink-500 font-mono mt-0.5 flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  <span>Placed {new Date(selectedOrder.created_at).toLocaleString()}</span>
-                </p>
+          <div
+            ref={dialogRef}
+            className={styles.detailDialog}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="order-detail-title"
+            tabIndex={-1}
+          >
+            <header className={styles.detailHeader}>
+              <div className={styles.detailTitleGroup}>
+                <span className={styles.detailIcon}><Package size={19} /></span>
+                <div className={styles.detailTitleText}>
+                  <h2 id="order-detail-title">Order {selectedOrder.order_number}</h2>
+                  <p><Clock size={14} /> Placed {formatOrderDate(selectedOrder.created_at)}</p>
+                </div>
               </div>
               <button
+                type="button"
                 onClick={() => setSelectedOrder(null)}
-                className="p-1 rounded-lg text-ink-400 hover:text-ink-900 transition-colors"
+                className={styles.detailClose}
+                aria-label="Close order details"
               >
-                <X className="w-5 h-5" />
+                <X size={19} />
               </button>
-            </div>
+            </header>
 
-            {/* Status & Payment Badges */}
-            <div className="flex flex-wrap items-center gap-2 my-5">
-              <Badge
-                variant={
-                  selectedOrder.status === "CONFIRMED" || selectedOrder.status === "DELIVERED"
-                    ? "success"
-                    : selectedOrder.status === "PENDING"
-                    ? "warning"
-                    : selectedOrder.status === "SHIPPED"
-                    ? "active"
-                    : "critical"
-                }
-                size="md"
-              >
-                Status: {selectedOrder.status}
-              </Badge>
-              <Badge
-                variant={selectedOrder.payment_status === "PAID" ? "success" : "neutral"}
-                size="md"
-              >
-                Payment: {selectedOrder.payment_status}
-              </Badge>
-              {getOrderChannel(selectedOrder) === "INSTAGRAM" ? (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800">
-                  <InstagramIcon className="w-3.5 h-3.5 text-rose-600" />
-                  Instagram DM
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800">
-                  <WhatsAppIcon className="w-3.5 h-3.5 fill-emerald-600" />
-                  WhatsApp Chat
-                </span>
-              )}
-            </div>
-
-            {/* Customer & Delivery Address */}
-            <div className="space-y-4 mb-6 p-4 rounded-xl bg-canvas-subtle border border-border">
-              <div className="flex items-start gap-2.5 text-xs text-ink-700">
-                <MapPin className="w-4 h-4 text-accent shrink-0 mt-0.5" />
-                <div>
-                  <span className="font-semibold text-ink-900 block">Delivery Address:</span>
-                  <p className="text-ink-500 mt-0.5">
-                    {selectedOrder.shipping_address || "Address collected conversationally"}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2.5 text-xs text-ink-700">
-                <CreditCard className="w-4 h-4 text-ink-500 shrink-0" />
-                <div>
-                  <span className="font-semibold text-ink-900">Customer ID: </span>
-                  <span className="font-mono text-ink-500">{selectedOrder.customer_id}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Line Items List */}
-            <div className="space-y-3 flex-1 mb-6">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-ink-500 font-mono">
-                Order Items ({selectedOrder.items?.length || 0})
-              </h4>
-              <div className="divide-y divide-border border border-border rounded-xl overflow-hidden bg-white dark:bg-canvas-card">
-                {!selectedOrder.items || selectedOrder.items.length === 0 ? (
-                  <div className="p-4 text-center text-xs text-ink-400 font-mono">
-                    No line items attached
-                  </div>
-                ) : (
-                  selectedOrder.items.map((item: OrderItemRead) => (
-                    <div key={item.id} className="p-3 flex items-center justify-between text-xs">
-                      <div>
-                        <p className="font-semibold text-ink-900">{item.product_name}</p>
-                        <p className="text-ink-500 font-mono text-[11px]">
-                          SKU: {item.sku} &bull; Qty: {item.quantity} &times; ${Number(item.unit_price).toFixed(2)}
-                        </p>
-                      </div>
-                      <span className="font-mono font-bold text-ink-900">
-                        ${Number(item.subtotal).toFixed(2)}
-                      </span>
+            <div className={styles.detailBody}>
+              <div className={styles.detailGrid}>
+                <div className={styles.detailMain}>
+                  <section className={styles.detailSection} aria-label="Order items">
+                    <div className={styles.detailSectionHeader}>
+                      <h3>Items</h3>
+                      <span>{selectedOrder.items?.length || 0}</span>
                     </div>
-                  ))
-                )}
+                    {!selectedOrder.items || selectedOrder.items.length === 0 ? (
+                      <p className={styles.noItems}>No line items attached to this order.</p>
+                    ) : (
+                      <ul className={styles.itemList}>
+                        {selectedOrder.items.map((item: OrderItemRead) => (
+                          <li key={item.id} className={styles.itemRow}>
+                            <div className={styles.itemDescription}>
+                              <strong>{item.product_name}</strong>
+                              <span>SKU {item.sku}</span>
+                              <span>{item.quantity} × {formatOrderMoney(item.unit_price, selectedOrder.currency)} each</span>
+                            </div>
+                            <strong className={styles.itemSubtotal}>{formatOrderMoney(item.subtotal, selectedOrder.currency)}</strong>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </section>
+
+                  <section className={styles.detailSection} aria-label="Customer and delivery">
+                    <h3>Customer &amp; delivery</h3>
+                    <div className={styles.addressRow}>
+                      <MapPin size={17} aria-hidden="true" />
+                      <div>
+                        <strong>Delivery address</strong>
+                        <p>{selectedOrder.shipping_address || "No delivery address provided."}</p>
+                      </div>
+                    </div>
+                    <div className={styles.customerRow}>
+                      <CreditCard size={17} aria-hidden="true" />
+                      <div>
+                        <strong>Customer ID</strong>
+                        <span>{selectedOrder.customer_id}</span>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+                <aside className={styles.detailAside} aria-label="Order summary">
+                  <section className={styles.detailSection}>
+                    <h3>Order status</h3>
+                    <div className={styles.detailBadges}>
+                      <Badge
+                        variant={
+                          selectedOrder.status === "CONFIRMED" || selectedOrder.status === "DELIVERED"
+                            ? "success"
+                            : selectedOrder.status === "PENDING"
+                            ? "warning"
+                            : selectedOrder.status === "SHIPPED"
+                            ? "active"
+                            : "critical"
+                        }
+                        size="md"
+                      >
+                        {selectedOrder.status}
+                      </Badge>
+                      <Badge variant={selectedOrder.payment_status === "PAID" ? "success" : "neutral"} size="md">
+                        {selectedOrder.payment_status}
+                      </Badge>
+                      {getOrderChannel(selectedOrder) === "INSTAGRAM" ? (
+                        <span className={styles.channelBadgeInstagram}><InstagramIcon />Instagram</span>
+                      ) : (
+                        <span className={styles.channelBadgeWhatsApp}><WhatsAppIcon />WhatsApp</span>
+                      )}
+                    </div>
+                  </section>
+
+                  <section className={styles.detailSection}>
+                    <h3>Payment summary</h3>
+                    <dl className={styles.moneyList}>
+                      <div><dt>Subtotal</dt><dd>{formatOrderMoney(selectedOrder.subtotal, selectedOrder.currency)}</dd></div>
+                      <div><dt>Shipping</dt><dd>{formatOrderMoney(selectedOrder.shipping_cost, selectedOrder.currency)}</dd></div>
+                      <div className={styles.grandTotal}><dt>Total</dt><dd>{formatOrderMoney(selectedOrder.total_amount, selectedOrder.currency)}</dd></div>
+                    </dl>
+                  </section>
+                </aside>
               </div>
             </div>
 
-            {/* Financial Summary */}
-            <div className="space-y-2 py-4 border-t border-border text-xs">
-              <div className="flex justify-between text-ink-500">
-                <span>Subtotal</span>
-                <span className="font-mono">${Number(selectedOrder.subtotal).toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-ink-500">
-                <span>Shipping Cost</span>
-                <span className="font-mono">${Number(selectedOrder.shipping_cost).toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-sm font-bold text-ink-900 pt-2 border-t border-border">
-                <span>Total Amount</span>
-                <span className="font-mono text-accent">
-                  ${Number(selectedOrder.total_amount).toFixed(2)}
-                </span>
-              </div>
-            </div>
-
-            {/* Status Transition Action Buttons */}
-            <div className="space-y-2 pt-2">
+            <footer className={styles.detailFooter}>
+              <div className={styles.detailFooterNote}>Order actions</div>
+              <div className={styles.detailActions}>
               {selectedOrder.status === "PENDING" && (
                 <Button
-                  className="w-full flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto"
                   size="md"
                   onClick={() => handleUpdateStatus("CONFIRMED")}
                   isLoading={isUpdatingStatus}
@@ -490,7 +515,7 @@ export default function OrdersPage() {
               )}
               {selectedOrder.status === "CONFIRMED" && (
                 <Button
-                  className="w-full flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto"
                   size="md"
                   onClick={() => handleUpdateStatus("SHIPPED")}
                   isLoading={isUpdatingStatus}
@@ -501,7 +526,7 @@ export default function OrdersPage() {
               )}
               {selectedOrder.status === "SHIPPED" && (
                 <Button
-                  className="w-full flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto"
                   size="md"
                   onClick={() => handleUpdateStatus("DELIVERED")}
                   isLoading={isUpdatingStatus}
@@ -513,7 +538,7 @@ export default function OrdersPage() {
               {selectedOrder.status !== "CANCELLED" && selectedOrder.status !== "DELIVERED" && (
                 <Button
                   variant="danger"
-                  className="w-full flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto"
                   size="sm"
                   onClick={() => handleUpdateStatus("CANCELLED")}
                   isLoading={isUpdatingStatus}
@@ -521,7 +546,8 @@ export default function OrdersPage() {
                   <span>Cancel Order</span>
                 </Button>
               )}
-            </div>
+              </div>
+            </footer>
           </div>
         </div>
       )}

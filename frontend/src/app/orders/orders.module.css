@@ -1,0 +1,129 @@
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: Chatrio token palette · nav: order list to centered detail dialog · signature: aligned order breakdown · states: dialog, scroll, actions · axes: centered · contrast: checked · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V4 · weakest: E, the content scrolls independently while title and actions stay aligned. */
+
+.detailOverlay {
+  position: fixed;
+  z-index: var(--z-modal);
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--space-lg);
+  background: color-mix(in oklab, var(--ink) 42%, transparent);
+  animation: overlay-enter var(--dur-micro) var(--ease-out) both;
+}
+
+.detailBackdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+
+.detailDialog {
+  position: relative;
+  z-index: var(--z-raised);
+  display: flex;
+  width: min(100%, 62rem);
+  max-height: min(90dvh, 56rem);
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--g-panel);
+  color: var(--ink);
+  box-shadow: var(--shadow-elevated);
+  animation: dialog-enter var(--dur-short) var(--ease-out) both;
+}
+
+.detailHeader {
+  display: flex;
+  min-width: 0;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-lg) var(--space-xl);
+  border-bottom: 1px solid var(--line);
+}
+
+.detailTitleGroup { display: flex; min-width: 0; align-items: center; gap: var(--space-md); }
+.detailIcon { display: grid; width: 2.75rem; height: 2.75rem; flex: 0 0 auto; place-items: center; border-radius: var(--r-md); background: var(--action-bg); color: var(--action); }
+.detailTitleText { min-width: 0; }
+.detailTitleText h2 { overflow-wrap: break-word; text-wrap: balance; color: var(--ink); font-family: var(--font-display); font-size: var(--text-xl); font-weight: 600; letter-spacing: -0.03em; line-height: 1.2; }
+.detailTitleText p { display: flex; align-items: center; gap: var(--space-xs); margin-top: var(--space-2xs); color: var(--ink-5); font-size: var(--text-sm); }
+.detailTitleText p svg { flex: 0 0 auto; }
+.detailClose { display: grid; width: 44px; height: 44px; flex: 0 0 auto; place-items: center; border: 1px solid var(--line); border-radius: var(--r-btn); background: var(--g-panel); color: var(--ink-5); cursor: pointer; transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out); }
+.detailClose:hover { border-color: var(--line-h); background: var(--g-subtle); color: var(--ink); }
+
+.detailBody { min-height: 0; flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; }
+.detailGrid { display: grid; min-width: 0; grid-template-columns: minmax(0, 1.2fr) minmax(16rem, 0.8fr); gap: var(--space-xl); padding: var(--space-xl); }
+.detailMain, .detailAside { display: flex; min-width: 0; flex-direction: column; gap: var(--space-xl); }
+.detailAside { padding-left: var(--space-xl); border-left: 1px solid var(--line); }
+.detailSection { min-width: 0; }
+.detailSection h3 { margin: 0 0 var(--space-md); color: var(--ink); font-size: var(--text-md); font-weight: 600; letter-spacing: -0.01em; }
+.detailSectionHeader { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); margin-bottom: var(--space-sm); }
+.detailSectionHeader h3 { margin: 0; }
+.detailSectionHeader > span { display: grid; min-width: 28px; height: 28px; place-items: center; padding-inline: var(--space-xs); border-radius: var(--radius-pill); background: var(--g-subtle); color: var(--ink-4); font-size: var(--text-xs); font-variant-numeric: tabular-nums; }
+
+.itemList { margin: 0; padding: 0; border-top: 1px solid var(--line); list-style: none; }
+.itemRow { display: grid; min-width: 0; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: var(--space-md); padding-block: var(--space-md); border-bottom: 1px solid var(--line); }
+.itemDescription { display: flex; min-width: 0; flex-direction: column; gap: var(--space-2xs); }
+.itemDescription strong { overflow-wrap: break-word; color: var(--ink); font-size: var(--text-sm); font-weight: 600; }
+.itemDescription span { overflow-wrap: anywhere; color: var(--ink-5); font-size: var(--text-xs); }
+.itemSubtotal { color: var(--ink); font-size: var(--text-sm); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.noItems { padding-block: var(--space-md); color: var(--ink-5); font-size: var(--text-sm); }
+
+.addressRow, .customerRow { display: grid; grid-template-columns: 20px minmax(0, 1fr); align-items: start; gap: var(--space-sm); }
+.addressRow { padding: var(--space-md); border-radius: var(--r-md); background: var(--g-subtle); }
+.addressRow > svg, .customerRow > svg { margin-top: var(--space-3xs); color: var(--action); }
+.addressRow strong, .customerRow strong { display: block; color: var(--ink-3); font-size: var(--text-xs); font-weight: 600; }
+.addressRow p, .customerRow span { display: block; overflow-wrap: anywhere; margin-top: var(--space-2xs); color: var(--ink-5); font-size: var(--text-sm); line-height: 1.5; }
+.customerRow { margin-top: var(--space-md); }
+
+.detailBadges { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs); }
+.channelBadgeInstagram, .channelBadgeWhatsApp { display: inline-flex; min-height: 28px; align-items: center; gap: var(--space-xs); padding: 0 var(--space-sm); border: 1px solid transparent; border-radius: var(--radius-pill); font-size: var(--text-xs); font-weight: 600; }
+.channelBadgeInstagram { border-color: var(--channel-instagram); background: var(--channel-instagram-soft); color: var(--channel-instagram); }
+.channelBadgeWhatsApp { border-color: var(--channel-whatsapp); background: var(--channel-whatsapp-soft); color: var(--channel-whatsapp); }
+.channelBadgeInstagram svg, .channelBadgeWhatsApp svg { width: 14px; height: 14px; flex: 0 0 auto; }
+
+.moneyList { margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.moneyList > div { display: flex; justify-content: space-between; gap: var(--space-md); padding-block: var(--space-sm); border-bottom: 1px solid var(--line); font-size: var(--text-sm); }
+.moneyList dt { color: var(--ink-5); }
+.moneyList dd { margin: 0; color: var(--ink-3); font-variant-numeric: tabular-nums; text-align: right; }
+.moneyList .grandTotal { padding-block: var(--space-md); border-bottom: 0; font-size: var(--text-md); font-weight: 700; }
+.grandTotal dt, .grandTotal dd { color: var(--ink); }
+.grandTotal dd { color: var(--action); }
+
+.detailFooter { display: flex; min-height: 76px; flex: 0 0 auto; align-items: center; justify-content: space-between; gap: var(--space-lg); padding: var(--space-md) var(--space-xl); border-top: 1px solid var(--line); background: var(--g-subtle); }
+.detailFooterNote { color: var(--ink-5); font-size: var(--text-sm); }
+.detailActions { display: flex; min-width: 0; align-items: center; justify-content: flex-end; gap: var(--space-sm); }
+
+@keyframes overlay-enter { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dialog-enter { from { opacity: 0; transform: translateY(8px) scale(0.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+@media (max-width: 48rem) {
+  .detailOverlay { padding: var(--space-md); }
+  .detailDialog { width: min(100%, 38rem); max-height: 92dvh; }
+  .detailHeader { padding: var(--space-md) var(--space-lg); }
+  .detailGrid { grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); padding: var(--space-lg); }
+  .detailAside { padding-top: var(--space-lg); padding-left: 0; border-top: 1px solid var(--line); border-left: 0; }
+  .detailFooter { padding: var(--space-md) var(--space-lg); }
+}
+
+@media (max-width: 32rem) {
+  .detailOverlay { padding: 0; }
+  .detailDialog { width: 100%; height: 100dvh; max-height: 100dvh; border-radius: 0; }
+  .detailHeader { padding: var(--space-sm) var(--space-md); }
+  .detailGrid { gap: var(--space-lg); padding: var(--space-md); }
+  .detailFooter { align-items: stretch; flex-direction: column; gap: var(--space-sm); padding: var(--space-sm) var(--space-md); }
+  .detailFooterNote { display: none; }
+  .detailActions { align-items: stretch; flex-direction: column-reverse; gap: var(--space-xs); }
+  .detailActions > button { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detailOverlay, .detailDialog { animation: none; }
+  .detailClose { transition: none; }
+}
