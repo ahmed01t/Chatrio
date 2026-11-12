@@ -1,0 +1,95 @@
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: Ultraviolet night, Chatrio palette retained · nav: auth flow links · signature: conversation-to-catalog preview · states: login and registration · axes: left-biased · posture: composed · contrast: checked · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V4 · weakest: V, one shared auth composition keeps both forms familiar and focused. */
+/* Hallmark · waive 74 · pre-flight found the established Chatrio accent token · preserve the shared app palette */
+
+.authCanvas {
+  --auth-paper: var(--g-main);
+  --auth-surface: var(--g-panel);
+  --auth-soft: var(--g-subtle);
+  --auth-ink: var(--ink);
+  --auth-muted: var(--ink-5);
+  --auth-rule: var(--line);
+  display: grid;
+  min-height: 100svh;
+  overflow-x: clip;
+  place-items: center;
+  padding: var(--space-xl) var(--space-lg);
+  background: var(--auth-paper);
+  color: var(--auth-ink);
+}
+
+.layout {
+  display: grid;
+  width: min(100%, 68rem);
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) minmax(20rem, 26rem);
+  align-items: center;
+  gap: var(--space-3xl);
+}
+
+.story {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2xl);
+}
+
+.brand,
+.mobileBrand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--auth-ink);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+}
+
+.storyCopy { max-width: 34rem; }
+.storyTitle { max-width: 12ch; color: var(--auth-ink); font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 600; letter-spacing: -0.055em; line-height: 1.03; }
+.storyDescription { max-width: 36ch; margin-top: var(--space-md); color: var(--auth-muted); font-size: var(--text-md); line-height: 1.6; }
+
+.preview {
+  display: flex;
+  width: min(100%, 31rem);
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border: 1px solid var(--auth-rule);
+  border-radius: var(--r-lg);
+  background: var(--auth-surface);
+}
+
+.previewLabel { color: var(--auth-muted); font-size: var(--text-xs); }
+.customerMessage, .assistantMessage { max-width: 88%; padding: var(--space-sm) var(--space-md); border-radius: var(--r-md); font-size: var(--text-sm); line-height: 1.45; }
+.customerMessage { align-self: flex-start; background: var(--auth-soft); color: var(--auth-ink); }
+.assistantMessage { align-self: flex-end; background: var(--action-bg); color: var(--auth-ink); }
+.previewRule { height: 1px; margin-block: var(--space-2xs); background: var(--auth-rule); }
+.previewFooter { display: flex; align-items: center; gap: var(--space-sm); }
+.previewFooter > span:last-child { display: flex; min-width: 0; flex-direction: column; gap: var(--space-2xs); }
+.previewFooter strong { color: var(--auth-ink); font-size: var(--text-sm); font-weight: 600; }
+.previewFooter small { color: var(--auth-muted); font-size: var(--text-xs); }
+.catalogIcon { display: grid; width: 2.5rem; height: 2.5rem; flex: 0 0 auto; place-items: center; border-radius: var(--r-md); background: var(--action-bg); color: var(--action); }
+.storyFoot { color: var(--auth-muted); font-size: var(--text-sm); }
+
+.formSide { display: flex; min-width: 0; flex-direction: column; align-items: center; gap: var(--space-md); }
+.mobileBrand { display: none; }
+
+@media (max-width: 60rem) {
+  .layout { grid-template-columns: minmax(0, 1fr) minmax(19rem, 24rem); gap: var(--space-xl); }
+  .storyTitle { font-size: var(--text-2xl); }
+}
+
+@media (max-width: 48rem) {
+  .authCanvas { padding: var(--space-lg) var(--space-md); }
+  .layout { width: min(100%, 30rem); grid-template-columns: minmax(0, 1fr); }
+  .story { display: none; }
+  .formSide { gap: var(--space-md); }
+  .mobileBrand { display: flex; align-self: flex-start; margin-bottom: var(--space-xs); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preview, .customerMessage, .assistantMessage { transition: none; }
+}

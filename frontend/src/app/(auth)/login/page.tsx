@@ -1,121 +1,79 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
+import type { FormEvent, JSX } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Mail, Lock, ArrowRight } from "lucide-react";
+import { ArrowRight, Lock, Mail } from "lucide-react";
+import { AuthFrame } from "@/components/auth/AuthFrame";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/context/AuthContext";
 
-export default function LoginPage() {
-  const router   = useRouter();
+export default function LoginPage(): JSX.Element {
+  const router = useRouter();
   const { login } = useAuth();
-
-  const [email,     setEmail]     = useState("");
-  const [password,  setPassword]  = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error,     setError]     = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+    event.preventDefault();
     setError(null);
     setIsLoading(true);
     try {
       await login(email, password);
-      router.push("/");
-    } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "Incorrect email or password."
-      );
+      router.replace("/");
+    } catch (cause: unknown) {
+      setError(cause instanceof Error ? cause.message : "Incorrect email or password.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    /* Full-screen warm canvas */
-    <div className="min-h-screen canvas-glow flex items-center justify-center p-4">
-      <div className="w-full max-w-[400px] animate-fade-up">
-
-        {/* Logo mark */}
-        <div className="flex justify-center mb-8">
-          <div
-            className="w-10 h-10 rounded-[10px] bg-accent flex items-center
-                       justify-center text-white font-semibold text-lg"
-          >
-            C
-          </div>
+    <AuthFrame>
+      <div className="w-full max-w-[400px]">
+        <div className="mb-6">
+          <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight text-ink-900">Sign in to Chatrio</h1>
+          <p className="mt-2 text-sm text-ink-500">Pick up where your customers left off.</p>
         </div>
 
-        {/* Heading */}
-        <div className="text-center mb-8">
-          <h1 className="text-[28px] font-semibold text-ink-900 tracking-tight leading-tight">
-            Sign in to Chatrio
-          </h1>
-          <p className="text-[14px] text-ink-500 mt-2">
-            Your WhatsApp store dashboard
-          </p>
-        </div>
+        {error && <div className="mb-5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700" role="alert">{error}</div>}
 
-        {/* Error */}
-        {error && (
-          <div
-            className="mb-5 px-4 py-3 rounded-[10px] bg-rose-50
-                       border border-rose-200 text-[13px] text-rose-700"
-          >
-            {error}
-          </div>
-        )}
-
-        {/* Form card */}
-        <div className="quiet-panel p-6 space-y-4">
+        <div className="quiet-panel p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               label="Email"
               type="email"
               placeholder="you@example.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              icon={<Mail className="w-4 h-4" />}
+              onChange={(event) => setEmail(event.target.value)}
+              icon={<Mail className="h-4 w-4" />}
               required
               autoComplete="email"
             />
-
             <Input
               label="Password"
               type="password"
-              placeholder="••••••••"
+              placeholder="Enter your password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              icon={<Lock className="w-4 h-4" />}
+              onChange={(event) => setPassword(event.target.value)}
+              icon={<Lock className="h-4 w-4" />}
               required
               autoComplete="current-password"
             />
-
-            <Button
-              type="submit"
-              className="w-full mt-1"
-              size="md"
-              isLoading={isLoading}
-            >
-              Sign in
-              <ArrowRight className="w-4 h-4" />
+            <Button type="submit" className="mt-1 w-full" size="md" isLoading={isLoading}>
+              Sign in <ArrowRight className="h-4 w-4" />
             </Button>
           </form>
         </div>
 
-        {/* Footer */}
-        <p className="text-center text-[13px] text-ink-500 mt-5">
-          No account?{" "}
-          <Link
-            href="/register"
-            className="text-accent font-medium hover:text-accent-hover transition-colors"
-          >
-            Create one
-          </Link>
+        <p className="mt-5 text-sm text-ink-500">
+          New to Chatrio? <Link href="/register" className="font-semibold text-accent hover:text-accent-hover">Create an account</Link>
         </p>
       </div>
-    </div>
+    </AuthFrame>
   );
 }

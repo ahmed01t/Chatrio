@@ -1,183 +1,72 @@
 "use client";
 
-/**
- * Merchant workspace header with store context, search, and account controls.
- */
-
-import React, { useState } from "react";
-import { Search, Bell, ChevronDown, Sun, Moon } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
+import { usePathname } from "next/navigation";
+import type { JSX } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 
-export function Navbar() {
-  const { user, organization } = useAuth();
-  const { theme, toggleTheme }  = useTheme();
-  const [searchQuery, setSearchQuery] = useState("");
+const routeTitles: Array<{ href: string; title: string }> = [
+  { href: "/inbox", title: "Inbox" },
+  { href: "/products", title: "Products" },
+  { href: "/orders", title: "Orders" },
+  { href: "/customers", title: "Customers" },
+  { href: "/agent", title: "AI agent" },
+  { href: "/organization", title: "Organization" },
+  { href: "/settings", title: "Settings" },
+];
 
+export function Navbar(): JSX.Element {
+  const pathname = usePathname();
+  const { user, organization } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  const title = pathname === "/"
+    ? "Overview"
+    : routeTitles.find((route) => pathname.startsWith(route.href))?.title || "Workspace";
   const initials = user?.full_name
-    ? user.full_name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
+    ? user.full_name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase()
     : "A";
 
   return (
     <header
-      style={{
-        backgroundColor: "var(--g-panel)",
-        borderBottom: "1px solid var(--line)",
-      }}
-      className="fixed top-0 right-0 z-30
-                 left-[68px] sm:left-[248px]
-                 h-[68px] flex items-center px-3 sm:px-6 gap-3 sm:gap-4
-                 backdrop-blur-xl
-                 transition-colors duration-200"
+      style={{ backgroundColor: "var(--g-panel)", borderBottom: "1px solid var(--line)" }}
+      className="fixed top-0 right-0 z-30 left-[68px] sm:left-[248px] h-[68px] flex items-center justify-between px-4 sm:px-6 transition-colors duration-200"
     >
-      {/* ── Left: store context ─────────────────────────────────── */}
-      <button
-        style={{
-          backgroundColor: "var(--g-subtle)",
-          borderColor: "var(--line)",
-          color: "var(--ink)",
-        }}
-        className="flex items-center gap-2 px-3 py-2 rounded-xl
-                   border text-[13px] font-medium
-                   hover:border-border-strong transition-colors shrink-0"
-      >
-        <span className="w-1.5 h-1.5 rounded-full bg-data-green shrink-0" />
-        <span className="max-w-[140px] truncate">
+      <div className="min-w-0">
+        <p className="truncate text-xs" style={{ color: "var(--ink-5)" }}>
           {organization?.name || "My Store"}
-        </span>
-        <ChevronDown className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--ink-6)" }} />
-      </button>
-
-      {/* ── Centre: search ──────────────────────────────────────── */}
-      <div className="hidden md:flex flex-1 max-w-lg relative mx-auto">
-        <Search
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
-          style={{ color: "var(--ink-6)" }}
-        />
-        <input
-          type="text"
-          placeholder="Search orders, products…"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          style={{
-            backgroundColor: "var(--g-subtle)",
-            borderColor: "var(--line)",
-            color: "var(--ink)",
-          }}
-          className="w-full h-10 border rounded-xl
-                     pl-9 pr-14 text-[13px] placeholder:text-ink-400
-                     focus:outline-none focus:ring-2 focus:ring-accent/20
-                     transition-all"
-          onFocus={(e) => {
-            e.target.style.borderColor = "var(--action)";
-            e.target.style.backgroundColor = "var(--g-panel)";
-          }}
-          onBlur={(e) => {
-            e.target.style.borderColor = "var(--line)";
-            e.target.style.backgroundColor = "var(--g-subtle)";
-          }}
-        />
-        <kbd
-          style={{
-            backgroundColor: "var(--g-muted)",
-            borderColor: "var(--line)",
-            color: "var(--ink-5)",
-          }}
-          className="absolute right-2.5 top-1/2 -translate-y-1/2
-                     px-1.5 py-0.5 text-[11px] font-mono border rounded-md"
-        >
-          ⌘K
-        </kbd>
+        </p>
+        <h2 className="truncate text-sm font-semibold leading-tight" style={{ color: "var(--ink)" }}>
+          {title}
+        </h2>
       </div>
 
-      {/* ── Right: notifications + theme toggle + user ───────────── */}
-      <div className="flex items-center gap-1.5 ml-auto">
-        {/* Active Multi-Channel Connected Pills: WhatsApp & Instagram */}
-        <div className="hidden sm:flex items-center gap-1.5">
-          <div
-            style={{ borderColor: "var(--line)", color: "var(--ink-4)" }}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full
-                       border text-[12px] font-medium transition-colors hover:border-emerald-300"
-            title="Meta WhatsApp Cloud API: Live & Connected"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]" />
-            <span>WhatsApp</span>
-          </div>
-
-          <div
-            style={{ borderColor: "var(--line)", color: "var(--ink-4)" }}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full
-                       border text-[12px] font-medium transition-colors hover:border-rose-300"
-            title="Instagram Messaging API: Live & Connected"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 shadow-[0_0_6px_rgba(244,63,94,0.5)]" />
-            <span>Instagram</span>
-          </div>
-        </div>
-
-        {/* Notifications */}
-        <button
-          style={{ color: "var(--ink-5)" }}
-          className="relative p-2 rounded-[10px]
-                     hover:bg-canvas-subtle transition-colors"
-          title="Notifications"
-        >
-          <Bell className="w-4 h-4" />
-          <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-accent" />
-        </button>
-
-        {/* ── Theme toggle ──────────────────────────────────────── */}
+      <div className="flex items-center gap-3">
         <button
           onClick={toggleTheme}
           title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
           style={{ color: "var(--ink-5)" }}
-          className="p-2 rounded-[10px] hover:bg-canvas-subtle
-                     transition-all duration-200 group"
-          aria-label="Toggle theme"
+          className="grid min-h-11 min-w-11 place-items-center rounded-xl transition-colors hover:bg-canvas-subtle"
+          aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          type="button"
         >
-          {theme === "dark" ? (
-            <Sun
-              className="w-4 h-4 group-hover:text-amber-400
-                         transition-colors duration-200"
-            />
-          ) : (
-            <Moon
-              className="w-4 h-4 group-hover:text-ink-900
-                         transition-colors duration-200"
-            />
-          )}
+          {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
         </button>
 
-        {/* User avatar */}
-        <div
-          style={{ borderColor: "var(--line)" }}
-          className="flex items-center gap-2.5 pl-3 border-l"
-        >
-          <div
-            style={{
-              backgroundColor: "var(--action-bg)",
-              borderColor: "var(--action-sub)",
-            }}
-            className="w-8 h-8 rounded-[10px] border
-                       flex items-center justify-center text-[12px]
-                       font-semibold text-accent"
+        <div className="flex items-center gap-2.5 border-l pl-3" style={{ borderColor: "var(--line)" }}>
+          <span
+            className="grid h-9 w-9 place-items-center rounded-xl border text-xs font-semibold"
+            style={{ backgroundColor: "var(--action-bg)", borderColor: "var(--action-sub)", color: "var(--action)" }}
+            aria-label={`Signed in as ${user?.full_name || "Store Admin"}`}
           >
             {initials}
-          </div>
-          <div className="hidden lg:block leading-none">
-            <p
-              className="text-[13px] font-semibold leading-none"
-              style={{ color: "var(--ink)" }}
-            >
+          </span>
+          <span className="hidden max-w-40 sm:block">
+            <span className="block truncate text-xs font-semibold" style={{ color: "var(--ink)" }}>
               {user?.full_name || "Store Admin"}
-            </p>
-            <p
-              className="text-[11px] mt-0.5 leading-none"
-              style={{ color: "var(--ink-5)" }}
-            >
-              Owner
-            </p>
-          </div>
+            </span>
+            <span className="block text-xs" style={{ color: "var(--ink-5)" }}>Merchant workspace</span>
+          </span>
         </div>
       </div>
     </header>

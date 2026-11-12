@@ -1,23 +1,44 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import type { JSX } from "react";
 import { usePathname } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { Navbar } from "./Navbar";
 import { useAuth } from "@/context/AuthContext";
+import { BrandMark } from "@/components/brand/BrandMark";
+import { WelcomeTransition } from "@/components/auth/WelcomeTransition";
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children }: { children: React.ReactNode }): JSX.Element {
   const pathname  = usePathname();
-  const { isLoading } = useAuth();
+  const { isLoading, isAuthenticated, organization, welcomePending, consumeWelcomeTransition } = useAuth();
+  const [showWelcome, setShowWelcome] = useState(false);
   const isAuthPage =
     pathname.startsWith("/login") || pathname.startsWith("/register");
+
+  useEffect(() => {
+    if (pathname !== "/") {
+      setShowWelcome(false);
+      if (welcomePending) consumeWelcomeTransition();
+      return;
+    }
+    if (isLoading || !isAuthenticated || !welcomePending) return;
+
+    setShowWelcome(true);
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const timeout = window.setTimeout(() => {
+      setShowWelcome(false);
+      consumeWelcomeTransition();
+    }, reducedMotion ? 220 : 1480);
+    return () => window.clearTimeout(timeout);
+  }, [pathname, isAuthenticated, isLoading, welcomePending, consumeWelcomeTransition]);
 
   let content: React.ReactNode;
   if (isAuthPage) {
     content = (
-      <main className="min-h-screen canvas-glow" style={{ color: "var(--ink)" }}>
+      <div className="min-h-screen" style={{ color: "var(--ink)" }}>
         {children}
-      </main>
+      </div>
     );
   } else if (isLoading) {
     content = (
@@ -26,9 +47,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         style={{ backgroundColor: "var(--g-main)" }}
       >
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 rounded-[10px] bg-accent flex items-center justify-center text-white font-semibold text-lg animate-pulse">
-            C
-          </div>
+          <BrandMark size="medium" />
           <p className="text-[13px]" style={{ color: "var(--ink-5)" }}>
             Loading…
           </p>
@@ -54,5 +73,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  return content;
+  return (
+    <>
+      <div inert={showWelcome || undefined} aria-hidden={showWelcome || undefined}>{content}</div>
+      {showWelcome && <WelcomeTransition organizationName={organization?.name || "your store"} />}
+    </>
+  );
 }

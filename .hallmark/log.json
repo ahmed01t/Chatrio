@@ -1,0 +1,55 @@
+[
+ {
+  "scope": "app",
+  "shape": "app screen",
+  "theme": "Ultraviolet (deal 3/3; Chatrio palette retained)",
+  "axes": "light/geometric-sans/cool",
+  "hero": "responsive auth composition with conversation preview",
+  "nav": "workspace sidebar and route-aware top bar",
+  "footer": "auth links and application navigation",
+  "imagery": "code-built product preview, live dashboard and welcome transition",
+  "photos": [],
+  "entry": "frontend/src/components/auth/AuthFrame.tsx",
+  "fingerprint": "chatrio-auth-brand-and-post-login-welcome",
+  "sections": [
+   "auth background",
+   "login and registration forms",
+   "post-login welcome transition",
+   "merchant dashboard"
+  ],
+  "signature": "one shared Chatrio message mark across account and workspace screens",
+  "waived": [
+   "74: established Chatrio accent token retained per pre-flight"
+  ],
+  "prompt": "Improve Chatrio brand treatment; animate the transition to the dashboard after merchant login; add backgrounds to login and signup.",
+  "date": "2026-11-12",
+  "mode": "build"
+ },
+ {
+  "scope": "app",
+  "shape": "app screen",
+  "theme": "Ultraviolet (deal 3/3; Chatrio palette retained)",
+  "axes": "light/geometric-sans/cool",
+  "hero": "welcome and live store totals",
+  "nav": "workspace sidebar and route-aware top bar",
+  "footer": "none, application screen",
+  "imagery": "live store totals, paid-order chart, and customer activity",
+  "photos": [],
+  "entry": "frontend/src/app/page.tsx",
+  "fingerprint": "chatrio-dashboard-live-commerce-overview",
+  "sections": [
+   "welcome",
+   "store totals",
+   "paid order value",
+   "recent activity",
+   "quick actions"
+  ],
+  "signature": "combined live order and chat activity",
+  "waived": [
+   "74: established Chatrio accent token retained per pre-flight"
+  ],
+  "prompt": "Generate a modern, interactive, premium, beautiful frontend design for Chatrio.",
+  "date": "2026-11-12",
+  "mode": "build"
+ }
+]

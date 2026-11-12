@@ -1,146 +1,105 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
+import type { FormEvent, JSX } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Mail, Lock, User, Store, ArrowRight } from "lucide-react";
+import { ArrowRight, Lock, Mail, Store, UserRound } from "lucide-react";
+import { AuthFrame } from "@/components/auth/AuthFrame";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/context/AuthContext";
 
-export default function RegisterPage() {
+export default function RegisterPage(): JSX.Element {
   const router = useRouter();
   const { register } = useAuth();
-
-  const [fullName,  setFullName]  = useState("");
+  const [fullName, setFullName] = useState("");
   const [storeName, setStoreName] = useState("");
-  const [email,     setEmail]     = useState("");
-  const [password,  setPassword]  = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error,     setError]     = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+    event.preventDefault();
     setError(null);
     setIsLoading(true);
     try {
       await register({
-        full_name:         fullName.trim(),
+        full_name: fullName.trim(),
         organization_name: storeName.trim(),
-        email:             email.trim(),
+        email: email.trim(),
         password,
       });
-      router.push("/");
-    } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "Could not create account. Please try again."
-      );
+      router.replace("/");
+    } catch (cause: unknown) {
+      setError(cause instanceof Error ? cause.message : "Could not create account. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen canvas-glow flex items-center justify-center p-4">
-      <div className="w-full max-w-[420px] animate-fade-up">
-
-        {/* Logo mark */}
-        <div className="flex justify-center mb-8">
-          <div
-            className="w-10 h-10 rounded-[10px] bg-accent flex items-center
-                       justify-center text-white font-semibold text-lg"
-          >
-            C
-          </div>
+    <AuthFrame>
+      <div className="w-full max-w-[420px]">
+        <div className="mb-6">
+          <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight text-ink-900">Create your store</h1>
+          <p className="mt-2 text-sm text-ink-500">Bring your customer conversations into one workspace.</p>
         </div>
 
-        {/* Heading */}
-        <div className="text-center mb-8">
-          <h1 className="text-[28px] font-semibold text-ink-900 tracking-tight leading-tight">
-            Create your store
-          </h1>
-          <p className="text-[14px] text-ink-500 mt-2">
-            Set up your WhatsApp-powered shop in minutes
-          </p>
-        </div>
+        {error && <div className="mb-5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700" role="alert">{error}</div>}
 
-        {/* Error */}
-        {error && (
-          <div
-            className="mb-5 px-4 py-3 rounded-[10px] bg-rose-50
-                       border border-rose-200 text-[13px] text-rose-700"
-          >
-            {error}
-          </div>
-        )}
-
-        {/* Form card */}
         <div className="quiet-panel p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               label="Store name"
               placeholder="e.g. Sunrise Market"
               value={storeName}
-              onChange={(e) => setStoreName(e.target.value)}
-              icon={<Store className="w-4 h-4" />}
+              onChange={(event) => setStoreName(event.target.value)}
+              icon={<Store className="h-4 w-4" />}
               required
+              autoComplete="organization"
             />
-
             <Input
               label="Your name"
               placeholder="Full name"
               value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              icon={<User className="w-4 h-4" />}
+              onChange={(event) => setFullName(event.target.value)}
+              icon={<UserRound className="h-4 w-4" />}
               required
+              autoComplete="name"
             />
-
             <Input
               label="Email"
               type="email"
               placeholder="you@example.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              icon={<Mail className="w-4 h-4" />}
+              onChange={(event) => setEmail(event.target.value)}
+              icon={<Mail className="h-4 w-4" />}
               required
               autoComplete="email"
             />
-
             <Input
               label="Password"
               type="password"
               placeholder="At least 8 characters"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              icon={<Lock className="w-4 h-4" />}
+              onChange={(event) => setPassword(event.target.value)}
+              icon={<Lock className="h-4 w-4" />}
               required
               autoComplete="new-password"
               hint="8 or more characters"
             />
-
-            <Button
-              type="submit"
-              className="w-full mt-1"
-              size="md"
-              isLoading={isLoading}
-            >
-              Create store
-              <ArrowRight className="w-4 h-4" />
+            <Button type="submit" className="mt-1 w-full" size="md" isLoading={isLoading}>
+              Create store <ArrowRight className="h-4 w-4" />
             </Button>
           </form>
         </div>
 
-        {/* Footer */}
-        <p className="text-center text-[13px] text-ink-500 mt-5">
-          Already have an account?{" "}
-          <Link
-            href="/login"
-            className="text-accent font-medium hover:text-accent-hover transition-colors"
-          >
-            Sign in
-          </Link>
+        <p className="mt-5 text-sm text-ink-500">
+          Already have an account? <Link href="/login" className="font-semibold text-accent hover:text-accent-hover">Sign in</Link>
         </p>
       </div>
-    </div>
+    </AuthFrame>
   );
 }
