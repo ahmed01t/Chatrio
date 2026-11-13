@@ -175,7 +175,7 @@ export default function ProductsPage() {
               placeholder="Search products by title or SKU..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white border border-border rounded-xl pl-9 pr-3.5 py-2 text-xs text-ink-900 placeholder:text-ink-400 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all shadow-sm"
+              className="w-full bg-white border border-border rounded-xl pl-9 pr-3.5 py-2 text-xs text-ink-900 placeholder:text-ink-400 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-colors shadow-sm"
             />
           </div>
 
@@ -234,7 +234,7 @@ export default function ProductsPage() {
                   return (
                     <tr
                       key={product.id}
-                      className="hover:bg-canvas-subtle transition-colors"
+                      className="hover:bg-accent-light/50 transition-colors"
                     >
                       <td className="py-3.5 px-4 font-semibold text-ink-900">
                         {product.title || product.name}
@@ -281,7 +281,7 @@ export default function ProductsPage() {
                       <td className="py-3.5 px-4 text-right">
                         <button
                           onClick={() => handleDelete(product.id)}
-                          className="p-1.5 rounded-lg text-ink-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                          className="p-1.5 rounded-lg text-ink-400 hover:text-rose-600 hover:bg-rose-50 transition-colors focus-visible:ring-2 focus-visible:ring-rose-400"
                           title="Delete Product"
                         >
                           <Trash2 className="w-4 h-4" />

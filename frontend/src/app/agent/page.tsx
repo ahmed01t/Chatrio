@@ -293,7 +293,7 @@ export default function AgentManagementPage() {
                 filteredProducts.map((p) => (
                   <div
                     key={p.id}
-                    className="p-4 sm:px-5 flex items-start justify-between hover:bg-canvas-subtle transition-colors gap-3"
+                    className="p-4 sm:px-5 flex items-start justify-between hover:bg-accent-light/50 transition-colors gap-3"
                   >
                     <div className="space-y-1.5 min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -324,7 +324,7 @@ export default function AgentManagementPage() {
 
                     <Link
                       href="/products"
-                      className="shrink-0 text-ink-400 hover:text-accent p-1.5 rounded-lg hover:bg-canvas-subtle transition-colors"
+                      className="shrink-0 text-ink-400 hover:text-accent p-1.5 rounded-lg hover:bg-accent-light transition-colors focus-visible:ring-2 focus-visible:ring-accent"
                       title="View product in catalog"
                     >
                       <ExternalLink className="w-4 h-4" />

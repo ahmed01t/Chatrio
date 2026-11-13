@@ -11,8 +11,8 @@ export function Card({ className, hoverEffect = false, children, ...props }: Car
     <div
       className={twMerge(
         clsx(
-          "bg-obsidian-850/80 backdrop-blur border border-obsidian-700/80 rounded-xl shadow-card transition-all duration-200",
-          hoverEffect && "hover:border-obsidian-600 hover:bg-obsidian-800/90",
+          "bg-panel border border-border rounded-xl shadow-card transition-[background-color,border-color,box-shadow,transform] duration-200",
+          hoverEffect && "hover:border-accent/40 hover:bg-accent-light/30 hover:shadow-card",
           className
         )
       )}

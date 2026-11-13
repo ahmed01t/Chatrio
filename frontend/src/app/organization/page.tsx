@@ -571,7 +571,7 @@ export default function OrganizationPage() {
                   return (
                     <div
                       key={member.id}
-                      className="p-4 sm:px-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-canvas-subtle transition-colors"
+                      className="p-4 sm:px-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-accent-light/50 transition-colors"
                     >
                       {/* User identity */}
                       <div className="flex items-center gap-3 min-w-0">
@@ -637,7 +637,7 @@ export default function OrganizationPage() {
                             type="button"
                             onClick={() => setMemberToRemove(member)}
                             title={`Remove ${member.full_name}`}
-                            className="p-2 rounded-[10px] text-ink-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                            className="p-2 rounded-[10px] text-ink-400 hover:text-rose-600 hover:bg-rose-50 transition-colors focus-visible:ring-2 focus-visible:ring-rose-400"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>

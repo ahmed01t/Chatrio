@@ -131,21 +131,48 @@ body {
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-panel);
-  transition: background-color 200ms ease, border-color 200ms ease;
+  transition: background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
 }
 
 /* Card micro-lift — 2px on hover, 200ms spring */
 .card-taste {
   transition:
-    transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1),
     border-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
     background-color 200ms ease;
 }
 .card-taste:hover {
-  transform: translateY(-2px);
-  border-color: var(--line-h);
+  border-color: color-mix(in oklab, var(--action) 28%, var(--line));
+  background-color: color-mix(in oklab, var(--action-bg) 16%, var(--g-panel));
   box-shadow: var(--shadow-card);
+}
+
+/* Shared interaction colors for every signed-in page. */
+.quiet-panel :is(button, a, input, select, textarea):focus-visible,
+.quiet-panel :is(button, a):hover {
+  border-color: color-mix(in oklab, var(--action) 36%, var(--line));
+}
+
+.quiet-panel :is(input, select, textarea):focus {
+  border-color: var(--action) !important;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--action) 16%, transparent);
+}
+
+.quiet-panel button:not(:disabled):active,
+.quiet-panel a:active {
+  transform: translateY(1px);
+}
+
+.channel-whatsapp-interactive:hover,
+[data-channel="whatsapp"]:hover {
+  background-color: var(--channel-whatsapp-soft);
+  color: var(--channel-whatsapp);
+}
+
+.channel-instagram-interactive:hover,
+[data-channel="instagram"]:hover {
+  background-color: var(--channel-instagram-soft);
+  color: var(--channel-instagram);
 }
 
 .page-enter {

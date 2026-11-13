@@ -87,7 +87,7 @@ export default function CustomersPage() {
             placeholder="Search by phone number or name..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white border border-border rounded-xl pl-9 pr-3.5 py-2 text-xs text-ink-900 placeholder:text-ink-400 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all shadow-sm"
+            className="w-full bg-white border border-border rounded-xl pl-9 pr-3.5 py-2 text-xs text-ink-900 placeholder:text-ink-400 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-colors shadow-sm"
           />
         </div>
         <span className="text-xs text-ink-500 font-mono">
@@ -129,7 +129,7 @@ export default function CustomersPage() {
                 customers.map((customer) => (
                   <tr
                     key={customer.id}
-                    className="hover:bg-canvas-subtle transition-colors"
+                    className="hover:bg-accent-light/50 transition-colors"
                   >
                     <td className="py-3.5 px-4 font-semibold text-ink-900 flex items-center gap-2.5">
                       <div className="w-7 h-7 rounded-lg bg-canvas-subtle border border-border flex items-center justify-center font-mono font-bold text-xs text-ink-900">
@@ -155,7 +155,7 @@ export default function CustomersPage() {
                       {new Date(customer.created_at).toLocaleDateString()}
                     </td>
                     <td className="py-3.5 px-4 text-right">
-                      <Link href={`/inbox?phone=${customer.phone_number}`}>
+                      <Link href={`/inbox?phone=${customer.phone_number}`} className="rounded-md transition-colors hover:text-accent">
                         <Button variant="ghost" size="sm">
                           <MessageSquare className="w-3.5 h-3.5" />
                           <span>Chat</span>

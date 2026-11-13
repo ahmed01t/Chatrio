@@ -165,8 +165,8 @@ export default function InboxPage() {
               onClick={() => setFilterMode("all")}
               className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors ${
                 filterMode === "all"
-                  ? "bg-white text-ink-900 border border-border shadow-sm"
-                  : "text-ink-500 hover:text-ink-900"
+                  ? "bg-accent-light text-accent border border-accent-subtle shadow-sm"
+                  : "text-ink-500 hover:bg-accent-light hover:text-accent"
               }`}
             >
               All ({conversations.length})
@@ -175,8 +175,8 @@ export default function InboxPage() {
               onClick={() => setFilterMode("human")}
               className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors flex items-center gap-1 ${
                 filterMode === "human"
-                  ? "bg-amber-100 text-amber-800 border border-amber-200"
-                  : "text-ink-500 hover:text-ink-900"
+                  ? "bg-amber-100 text-amber-800 border border-amber-300"
+                  : "text-ink-500 hover:bg-amber-50 hover:text-amber-700"
               }`}
             >
               <ShieldAlert className="w-3 h-3 text-amber-600" />
@@ -187,7 +187,7 @@ export default function InboxPage() {
               className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors ${
                 filterMode === "ai"
                   ? "bg-accent-light text-accent border border-accent-subtle"
-                  : "text-ink-500 hover:text-ink-900"
+                  : "text-ink-500 hover:bg-accent-light hover:text-accent"
               }`}
             >
               AI Active
@@ -217,8 +217,8 @@ export default function InboxPage() {
                   onClick={() => setSelectedConv(conv)}
                   className={`w-full text-left p-3.5 flex items-start gap-3 transition-colors ${
                     isSelected
-                      ? "bg-white border-l-2 border-accent shadow-sm"
-                      : "hover:bg-canvas-subtle"
+                      ? "bg-accent-light/70 border-l-2 border-accent shadow-sm"
+                      : "hover:bg-accent-light/50 hover:text-accent"
                   }`}
                 >
                   <div className="w-9 h-9 rounded-xl bg-canvas-subtle border border-border flex items-center justify-center font-mono font-bold text-xs text-ink-900 shrink-0 mt-0.5">

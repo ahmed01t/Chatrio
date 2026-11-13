@@ -46,7 +46,7 @@ export function Navbar(): JSX.Element {
           onClick={toggleTheme}
           title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
           style={{ color: "var(--ink-5)" }}
-          className="grid min-h-11 min-w-11 place-items-center rounded-xl transition-colors hover:bg-canvas-subtle"
+          className="grid min-h-11 min-w-11 place-items-center rounded-xl transition-colors hover:bg-accent-light hover:text-accent focus-visible:ring-2 focus-visible:ring-accent"
           aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
           type="button"
         >

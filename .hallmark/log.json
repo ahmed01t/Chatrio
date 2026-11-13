@@ -1,6 +1,33 @@
 [
  {
   "scope": "app",
+  "shape": "Operations overview",
+  "theme": "Coral structure, Chatrio indigo identity",
+  "axes": "left-biased",
+  "hero": "command bar",
+  "nav": "existing workspace sidebar and top bar",
+  "footer": "existing application shell",
+  "imagery": "data-backed commerce chart",
+  "photos": [],
+  "entry": "frontend/src/app/page.tsx",
+  "fingerprint": "chatrio-dashboard-commerce-pulse-and-operations-queue",
+  "sections": [
+   "store totals",
+   "commerce pulse",
+   "operations queue",
+   "live activity",
+   "workspace routes"
+  ],
+  "signature": "live commerce pulse with operations queue",
+  "waived": [
+   "74: preserve established Chatrio indigo brand token over dealt Coral accent"
+  ],
+  "prompt": "Redesign Chatrio dashboard based on user supplied Dribbble reference while preserving routes and API wiring",
+  "date": "2026-11-13",
+  "mode": "build"
+ },
+ {
+  "scope": "app",
   "shape": "app screen",
   "theme": "Ultraviolet (deal 3/3; Chatrio palette retained)",
   "axes": "light/geometric-sans/cool",

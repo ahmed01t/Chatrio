@@ -99,7 +99,7 @@ export function Sidebar() {
               className={clsx(
                 "relative flex min-h-11 items-center gap-3 px-3 py-2.5 rounded-xl",
                 "text-[13px] font-medium transition-colors duration-200",
-                !active && "hover:bg-canvas-subtle"
+                !active && "hover:bg-accent-light hover:text-accent"
               )}
             >
               {/* Active left pill */}

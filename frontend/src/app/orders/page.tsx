@@ -199,8 +199,8 @@ export default function OrdersPage() {
               onClick={() => setStatusFilter(status)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                 statusFilter === status
-                  ? "bg-white dark:bg-canvas-card text-ink-900 border border-border shadow-sm"
-                  : "text-ink-500 hover:text-ink-900"
+                  ? "bg-accent-light text-accent border border-accent-subtle shadow-sm"
+                  : "text-ink-500 hover:bg-accent-light hover:text-accent"
               }`}
             >
               {status}
@@ -216,8 +216,8 @@ export default function OrdersPage() {
               onClick={() => setChannelFilter("ALL")}
               className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
                 channelFilter === "ALL"
-                  ? "bg-white dark:bg-canvas-card text-ink-900 border border-border shadow-sm"
-                  : "text-ink-500 hover:text-ink-900"
+                  ? "bg-accent-light text-accent border border-accent-subtle shadow-sm"
+                  : "text-ink-500 hover:bg-accent-light hover:text-accent"
               }`}
               title="All Channels"
             >
@@ -228,8 +228,8 @@ export default function OrdersPage() {
               onClick={() => setChannelFilter("WHATSAPP")}
               className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
                 channelFilter === "WHATSAPP"
-                  ? "bg-white dark:bg-canvas-card text-emerald-600 border border-border shadow-sm font-bold"
-                  : "text-ink-500 hover:text-ink-900"
+                  ? "bg-emerald-50 text-emerald-700 border border-emerald-300 shadow-sm font-bold"
+                  : "text-ink-500 hover:bg-emerald-50 hover:text-emerald-700"
               }`}
               title="WhatsApp Orders"
             >
@@ -240,8 +240,8 @@ export default function OrdersPage() {
               onClick={() => setChannelFilter("INSTAGRAM")}
               className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
                 channelFilter === "INSTAGRAM"
-                  ? "bg-white dark:bg-canvas-card text-rose-600 border border-border shadow-sm font-bold"
-                  : "text-ink-500 hover:text-ink-900"
+                  ? "bg-pink-50 text-pink-700 border border-pink-300 shadow-sm font-bold"
+                  : "text-ink-500 hover:bg-pink-50 hover:text-pink-700"
               }`}
               title="Instagram Orders"
             >
@@ -308,7 +308,7 @@ export default function OrdersPage() {
                   return (
                     <tr
                       key={order.id}
-                      className="hover:bg-canvas-subtle transition-colors cursor-pointer"
+                      className="hover:bg-accent-light/50 transition-colors cursor-pointer"
                       onClick={() => setSelectedOrder(order)}
                     >
                       <td className="py-3.5 px-4 font-mono font-bold text-ink-900">

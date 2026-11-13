@@ -32,11 +32,11 @@ export function Button({
 }: ButtonProps) {
   const base =
     "inline-flex items-center justify-center gap-2 font-medium select-none whitespace-nowrap " +
-    "transition-all duration-150 cursor-pointer " +
+    "transition-[background-color,color,border-color,box-shadow,transform] duration-150 cursor-pointer " +
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 " +
     "focus-visible:ring-accent " +
     "disabled:opacity-40 disabled:cursor-not-allowed " +
-    "hover:brightness-95 active:scale-[0.97] active:brightness-90";
+    "hover:brightness-95 active:translate-y-px active:brightness-90";
 
   const radius = "rounded-[10px]";
 
@@ -48,7 +48,7 @@ export function Button({
 
   /* Inline style objects for variants that need CSS vars */
   const variantClass = {
-    primary: "bg-accent text-white hover:bg-accent-hover shadow-sm font-semibold",
+    primary: "bg-accent text-accent-ink hover:bg-accent-hover shadow-sm font-semibold",
     secondary: "font-medium",
     danger:   "font-medium",
     ghost:    "font-medium",
